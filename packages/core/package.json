@@ -1,0 +1,10 @@
+{
+  "type": "module",
+  "version": "1.0.0",
+  "name": "@editorsharp/core",
+  "packageManager": "yarn@3.2.3",
+  "main": "./index.ts",
+  "dependencies": {
+    "codemirror": "^6.0.1"
+  }
+}

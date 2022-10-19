@@ -1,0 +1,16 @@
+{
+  "name": "@sharpwasm/monorepo",
+  "packageManager": "yarn@3.2.4",
+  "private": true,
+  "scripts": {
+    "build": "lerna run build"
+  },
+  "workspaces": [
+    "packages/*",
+    "packages/wasm/src/EditorSharp.Compiler",
+    "samples/*"
+  ],
+  "devDependencies": {
+    "lerna": "^6.0.1"
+  }
+}

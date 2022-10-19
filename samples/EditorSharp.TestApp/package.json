@@ -1,0 +1,26 @@
+{
+  "name": "EditorSharp.TestApp",
+  "version": "0.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "start": "vite --open",
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.8.4",
+    "vite": "^3.1.8",
+    "vite-plugin-ignore-dynamic-imports": "*",
+    "vite-plugin-solid": "^2.3.9",
+    "vite-plugin-utils": "^0.3.0"
+  },
+  "dependencies": {
+    "@editorsharp/compiler": "*",
+    "@editorsharp/core": "*",
+    "solid-js": "^1.5.7"
+  },
+  "packageManager": "yarn@3.2.4"
+}

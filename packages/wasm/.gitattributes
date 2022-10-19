@@ -1,0 +1,10 @@
+###############################
+# Git Line Endings            #
+###############################
+
+# Set default behaviour to automatically normalize line endings.
+* text=auto
+
+# Treat .yarn files as binary files, but still allow merging changes
+**/.yarn/**/* binary merge
+**/yarn.lock binary

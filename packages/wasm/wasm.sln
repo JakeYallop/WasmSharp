@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6B74197C-6808-4176-97A2-2E78CEEF2E29}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
+		src\EditorSharp.Compiler\package.json = src\EditorSharp.Compiler\package.json
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EditorSharp.Compiler", "src\EditorSharp.Compiler\EditorSharp.Compiler.csproj", "{49ED8DF3-DD59-4150-AF12-F991D750173F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{49ED8DF3-DD59-4150-AF12-F991D750173F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49ED8DF3-DD59-4150-AF12-F991D750173F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49ED8DF3-DD59-4150-AF12-F991D750173F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49ED8DF3-DD59-4150-AF12-F991D750173F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9FC70B86-2B70-4CD9-96FA-145613B1536F}
+	EndGlobalSection
+EndGlobal
