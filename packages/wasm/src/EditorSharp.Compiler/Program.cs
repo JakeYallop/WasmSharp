@@ -2,17 +2,31 @@
 using System.Diagnostics.Metrics;
 using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.CodeAnalysis;
 
 Console.WriteLine("Hello, Browser!");
 
-public partial class Compiler
+public static class GlobalCache
 {
+    public static bool HasLoaded { get; set; }
+}
+
+//TODO: Design this as a console app
+
+//TODO: Investigate using dotnet serve or similar to get actual paths to configs and build custom loader
+
+//TODO: Move to typescript!!
+
+public static partial class Compiler
+{
+    [JSImport("utils.prettyPrint", "main.js")]
+    public static partial void PrettyPrint(string s);
+
     [JSExport]
-    public static Task InitAsync([JSMarshalAs<JSType.String>] string monoConfig)
+    public static async Task InitAsync([JSMarshalAs<JSType.Array<JSType.String>>] string[] loadedFiles)
     {
-        var config = JsonSerializer.Deserialize<MonoConfig>(monoConfig);
-        return Task.CompletedTask;
+        Console.WriteLine("Loaded files");
+        PrettyPrint(JsonSerializer.Serialize(loadedFiles));
     }
 }
 
@@ -25,14 +39,14 @@ public record AssetBehaviour
 
     public string Behaviour { get; }
 
-    public static AssetBehaviour Resource = new("resource");
-    public static AssetBehaviour Assembly = new("assembly");
-    public static AssetBehaviour Pdb = new("pdb");
-    public static AssetBehaviour Heap = new("heap");
-    public static AssetBehaviour Icu = new("icu");
-    public static AssetBehaviour Vfs = new("vfs");
-    public static AssetBehaviour DotnetWasm = new("dotnetwasm");
-    public static AssetBehaviour JsModuleThreads = new("js-module-threads");
+    public static AssetBehaviour Resource { get; } = new("resource");
+    public static AssetBehaviour Assembly { get; } = new("assembly");
+    public static AssetBehaviour Pdb { get; } = new("pdb");
+    public static AssetBehaviour Heap { get; } = new("heap");
+    public static AssetBehaviour Icu { get; } = new("icu");
+    public static AssetBehaviour Vfs { get; } = new("vfs");
+    public static AssetBehaviour DotnetWasm { get; } = new("dotnetwasm");
+    public static AssetBehaviour JsModuleThreads { get; } = new("js-module-threads");
 }
 
 public class ResourceRequest
@@ -64,7 +78,7 @@ public class AssetEntry : ResourceRequest
     /// <summary>
     /// If provided, runtime doesn't have to fetch the data. Runtime would set the buffer to null after instantiation to free the memory.
     /// </summary>
-    public byte[]? Buffer {  get; private set; }
+    public byte[]? Buffer { get; private set; }
 }
 
 public class MonoConfig

@@ -3,7 +3,7 @@ import { config, Compiler } from "@editorsharp/compiler";
 
 const Editor = () => {
   const code = 'using System; Console.WriteLine("Test");';
-  console.log(config);
+  const a = config;
   // const assemblyName = Compiler.Compile(code);
   // const diagnostics = Compiler.GetDiagnostics(code);
   return (

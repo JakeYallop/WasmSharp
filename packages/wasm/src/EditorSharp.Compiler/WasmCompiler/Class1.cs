@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Concurrent;
+using System.Reflection;
 using System.Reflection.Metadata;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -9,9 +10,22 @@ namespace EditorSharp.Compiler;
 /// <summary>
 /// Compiles C# code inside the browser.
 /// </summary>
-public class WasmCompiler
+public static class WasmCompiler
 {
-    private WasmCompiler() { }
+    public static async Task InitializeAsync(MonoConfig config)
+    {
+        var resolver = new WasmMetadataReferenceResolver();
+        foreach (var asset in config.Assets)
+        {
+            if (asset.Behaviour != AssetBehaviour.Assembly.Behaviour)
+            {
+                continue;
+            }
+            var reference = await resolver.ResolveReferenceAsync(config.AssemblyRootFolder, asset.Name);
+            WasmCache.AddReference(reference);
+        }
+    }
+
     public static WasmCompilation CreateCompilation(string code, WasmCompilerOptions? options = null)
     {
         options ??= WasmCompilerOptions.Default;
@@ -32,17 +46,6 @@ public class WasmCompilation
     }
 
     public CSharpCompilation Compilation { get; }
-
-
-    public async Task ResolveReferencesAsync()
-    {
-        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-        {
-            var reference = await _options.MetadataReferenceResolver.ResolveReferenceAsync(assembly);
-            Compilation.AddReferences(reference);
-        }
-    }
-
     public IEnumerable<Diagnostic> GetDiagnostics()
     {
         return Compilation.GetDiagnostics().Select(x => new Diagnostic(x.Id, x.GetMessage(), x.Location.SourceSpan, x.Severity));
@@ -69,26 +72,31 @@ public class Diagnostic
 
 public class WasmCompilerOptions
 {
-    private static readonly DynamicMetadataReferenceResolver DefaultResolver = new DefaultMetadataReferenceResolver();
-    public static WasmCompilerOptions Default => new(DefaultResolver);
+    public static WasmCompilerOptions Default => new();
     public static CSharpParseOptions DefaultParseOptions => CSharpParseOptions.Default;
     public static CSharpCompilationOptions DefaultCompilationOptions => new CSharpCompilationOptions(OutputKind.ConsoleApplication).WithConcurrentBuild(false);
 
-    public WasmCompilerOptions(DynamicMetadataReferenceResolver? metadataReferenceResolver = null)
+    public WasmCompilerOptions()
     {
-        MetadataReferenceResolver = metadataReferenceResolver ?? new DefaultMetadataReferenceResolver();
         CSharpCompilationOptions = DefaultCompilationOptions;
         CSharpParseOptions = DefaultParseOptions;
     }
 
-    public DynamicMetadataReferenceResolver MetadataReferenceResolver { get; }
     public CSharpCompilationOptions? CSharpCompilationOptions { get; }
     public CSharpParseOptions? CSharpParseOptions { get; }
 }
 
-public class CompilationCache
+public static class WasmCache
 {
-    private static readonly Dictionary<string, Compilation> Cache = new();
+    public static readonly Dictionary<string, Compilation> Compilations = new();
+    public static IReadOnlyCollection<MetadataReference> MetadataReferences => _metadataReferences.AsReadOnly();
+    public static readonly List<MetadataReference> _metadataReferences = new();
+
+    public static void AddReference(MetadataReference reference)
+    {
+        _metadataReferences.Add(reference);
+    }
+
 }
 
 public abstract class DynamicMetadataReferenceResolver
@@ -96,21 +104,17 @@ public abstract class DynamicMetadataReferenceResolver
     public abstract Task<MetadataReference> ResolveReferenceAsync(Assembly assembly);
 }
 
-public class DefaultMetadataReferenceResolver : DynamicMetadataReferenceResolver
-{
-    public override unsafe Task<MetadataReference> ResolveReferenceAsync(Assembly assembly)
-    {
-        assembly.TryGetRawMetadata(out var blob, out var length);
-        var moduleMetadata = ModuleMetadata.CreateFromMetadata((IntPtr)blob, length);
-        var assemblyMetadata = AssemblyMetadata.Create(moduleMetadata);
-        return Task.FromResult<MetadataReference>(assemblyMetadata.GetReference());
-    }
-}
-
 public class WasmMetadataReferenceResolver : DynamicMetadataReferenceResolver
 {
+    private static readonly HttpClient Client = new();
     public override Task<MetadataReference> ResolveReferenceAsync(Assembly assembly)
     {
         throw new NotImplementedException();
+    }
+
+    public Task<MetadataReference> ResolveReferenceAsync(string rootFolder, string assembly)
+    {
+        var url = rootFolder + "/" + assembly;
+        return Task.FromResult<MetadataReference>(null!);
     }
 }

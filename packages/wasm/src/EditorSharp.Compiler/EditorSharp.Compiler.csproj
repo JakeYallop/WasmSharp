@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
-    <WasmMainJSPath>main.js</WasmMainJSPath>
+    <WasmMainJSPath>dist/main.js</WasmMainJSPath>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -11,9 +11,20 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0-rc.2.22472.3" />
   </ItemGroup>
 
+  <PropertyGroup Condition="$(Configuration) == 'Debug'">
+    <WasmNativeStrip>false</WasmNativeStrip>
+    <WasmEmitSymbolMap>true</WasmEmitSymbolMap>
+  </PropertyGroup>
+    
   <ItemGroup>
     <WasmExtraFilesToDeploy Include="index.html" />
-    <WasmExtraFilesToDeploy Include="main.js" />
+    <WasmExtraFilesToDeploy Include="dist/main.js" />
+    <WasmExtraFilesToDeploy Include="dist/wasm-exports.d.ts" />
+    <!-- WasmAppDir is not defined yet. -->
+    <!-- hardcoded for now until https://github.com/dotnet/runtime/issues/77285 -->
+    <!--<UpToDateCheckBuilt Include="$(WasmAppDir)/main.js" Original="$(MSBuildThisFileDirectory)main.js" />-->
+    <!--<UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)main.js" />-->
+    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)/dist/main.js" />
   </ItemGroup>
 
 <!-- Copy dotnet.d.ts to AppBundle directory -->

@@ -1,0 +1,6 @@
+﻿<Project>
+  <Import Project="../../Directory.Build.targets"/>
+  <!--<ItemGroup>
+    <UpToDateCheckBuilt Include="$(WasmAppDir)/main.js" Original="$(MSBuildThisFileDirectory)main.js" />
+  </ItemGroup>-->
+</Project>
