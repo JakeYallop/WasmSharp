@@ -23,6 +23,7 @@
     <!-- WasmAppDir is not defined yet. -->
     <!-- hardcoded for now until https://github.com/dotnet/runtime/issues/77285 -->
     <!--<UpToDateCheckBuilt Include="$(WasmAppDir)/main.js" Original="$(MSBuildThisFileDirectory)main.js" />-->
+
     <!--<UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)main.js" />-->
     <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)/dist/main.js" />
   </ItemGroup>
@@ -33,5 +34,15 @@
       <FilesToCopy Include="$(OutDir)/dotnet.d.ts;$(MSBuildThisFileDirectory)package.json" />
     </ItemGroup>
     <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(WasmAppDir)" />
+  </Target>
+
+  <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="InitialTarget">
+    <ItemGroup>
+      <FilesToCopy Include="$(MSBuildThisFileDirectory)dist/main.js" />
+    </ItemGroup>
+     <!--WasmAppDir is not defined yet. 
+     hardcoded for now until https://github.com/dotnet/runtime/issues/77285--> 
+    <!--<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(WasmAppDir)" />-->
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(OutputPath)/AppBundle" />
   </Target>
 </Project>

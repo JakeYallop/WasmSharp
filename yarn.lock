@@ -1897,6 +1897,7 @@ __metadata:
   resolution: "@sharpwasm/monorepo@workspace:."
   dependencies:
     lerna: ^6.0.1
+    prettier: ^2.7.1
   languageName: unknown
   linkType: soft
 
@@ -2240,8 +2241,8 @@ __metadata:
   linkType: hard
 
 "babel-plugin-jsx-dom-expressions@npm:^0.35.4":
-  version: 0.35.4
-  resolution: "babel-plugin-jsx-dom-expressions@npm:0.35.4"
+  version: 0.35.6
+  resolution: "babel-plugin-jsx-dom-expressions@npm:0.35.6"
   dependencies:
     "@babel/helper-module-imports": 7.16.0
     "@babel/plugin-syntax-jsx": ^7.16.5
@@ -2249,7 +2250,7 @@ __metadata:
     html-entities: 2.3.2
   peerDependencies:
     "@babel/core": ^7.0.0
-  checksum: 28aeea3e610b0e921cf51f2fafccf002e52cf3f7a9cfacc9a08b1393871d1503ce48a1240728d1e7d236408aa2923685024ef18ffbb06e0336247a22b2e342b6
+  checksum: c8b4e07b1a8646b11fa878158894e95ab0acc95dedd917ea65dee513c3a7001318fff04219b8fcda05b526aae4a22330d886a531fd37577a90bd81a0f54639dd
   languageName: node
   linkType: hard
 
@@ -6201,6 +6202,15 @@ __metadata:
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
   checksum: 9349fd99849b2e3d2e134ff949b7770ecb12375f352723ce2bcc06167eba3850ea7844c1b191a85cd915d6a396b4e8ee9a5267e6cc5d8d003d0cbc7a97555d39
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^2.7.1":
+  version: 2.7.1
+  resolution: "prettier@npm:2.7.1"
+  bin:
+    prettier: bin-prettier.js
+  checksum: 55a4409182260866ab31284d929b3cb961e5fdb91fe0d2e099dac92eaecec890f36e524b4c19e6ceae839c99c6d7195817579cdffc8e2c80da0cb794463a748b
   languageName: node
   linkType: hard
 
