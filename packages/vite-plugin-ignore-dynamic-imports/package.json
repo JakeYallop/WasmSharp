@@ -1,20 +1,21 @@
 {
-	"name": "vite-plugin-ignore-dynamic-imports",
-	"version": "1.0.0",
-	"description": "",
-	"type": "module",
-	"main": "./dist/index.mjs",
-	"types": "./src/index.d.ts",
-	"scripts": {
-		"build": "unbuild && cpy ./src/index.d.ts dist --flat"
-	},
-	"dependencies": {
-		"magic-string": "^0.26.7",
-		"vite": "^3.1.8",
-		"vite-plugin-utils": "^0.3.0"
-	},
-	"devDependencies": {
-		"cpy-cli": "^4.2.0",
-		"unbuild": "^0.9.2"
-	}
+  "name": "vite-plugin-ignore-dynamic-imports",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./src/index.d.ts",
+  "scripts": {
+    "build": "unbuild && cpy ./src/index.d.ts dist --flat"
+  },
+  "dependencies": {
+    "magic-string": "^0.26.7",
+    "vite": "^3.1.8",
+    "vite-plugin-utils": "^0.3.0"
+  },
+  "devDependencies": {
+    "cpy-cli": "^4.2.0",
+    "unbuild": "^0.9.2"
+  },
+  "packageManager": "yarn@3.3.0"
 }

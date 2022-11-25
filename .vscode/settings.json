@@ -3,5 +3,12 @@
     "**/*.a": true,
     "**/*.dll": true
   },
-  "prettier.tabWidth": 2
+  "prettier.tabWidth": 2,
+  "search.exclude": {
+    "**/.yarn": true,
+    "**/.pnp.*": true
+  },
+  "prettier.prettierPath": ".yarn/sdks/prettier/index.js",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsdk": ".yarn/sdks/typescript/lib"
 }

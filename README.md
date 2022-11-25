@@ -2,11 +2,11 @@
 
 ## Install packages
 ```
-lerna bootstrap
+yarn workspace install
 ```
 
 ## Start sample app
 
 ```
-lerna run start
+yarn run start:sample
 ```

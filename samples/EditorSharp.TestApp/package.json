@@ -18,9 +18,9 @@
     "vite-plugin-utils": "^0.3.0"
   },
   "dependencies": {
-    "@editorsharp/compiler": "*",
-    "@editorsharp/core": "*",
+    "@editorsharp/compiler": "workspace:*",
+    "@editorsharp/core": "workspace:*",
     "solid-js": "^1.5.7"
   },
-  "packageManager": "yarn@3.2.4"
+  "packageManager": "yarn@3.3.0"
 }

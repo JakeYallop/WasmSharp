@@ -51,6 +51,7 @@
   },
   "references": [
     { "path": "./packages/wasm/src/EditorSharp.Compiler" },
+    { "path": "./packages/core" },
     { "path": "./samples/EditorSharp.TestApp" }
   ]
 }
