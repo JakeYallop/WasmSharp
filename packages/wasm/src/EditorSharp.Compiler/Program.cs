@@ -8,8 +8,7 @@ using Microsoft.CodeAnalysis;
 
 Console.WriteLine("Hello, Browser!");
 
-
-public static partial class Compiler
+public static partial class CompilationInterop
 {
     private static readonly JsonSerializerOptions DefaultOptions = new(JsonSerializerDefaults.Web);
 
@@ -19,8 +18,9 @@ public static partial class Compiler
     [JSExport]
     public static async Task InitAsync(string publicUrl, string monoConfigJson)
     {
-        Console.WriteLine("Loaded files");
+        Console.WriteLine($"Loading files from {publicUrl}");
         var monoConfig = JsonSerializer.Deserialize<MonoConfig>(monoConfigJson, DefaultOptions)!;
+        Console.WriteLine("Successfully deserialized config.");
         await WasmCompiler.InitializeAsync(publicUrl, monoConfig);
     }
 
@@ -35,7 +35,10 @@ public static partial class Compiler
     public static void Recompile(string compilationId, string code) => WasmCompiler.Recompile(compilationId, code);
 
     [JSExport]
-    public static string GetDiagnostics(string compilationId) => JsonSerializer.Serialize(WasmCompiler.GetDiagnostics(compilationId))!;
+    public static string GetDiagnostics(string compilationId) => JsonSerializer.Serialize(WasmCompiler.GetDiagnostics(compilationId), DefaultOptions)!;
+
+    [JSExport]
+    public static string Run(string compilationId) => JsonSerializer.Serialize(WasmCompiler.Run(compilationId), DefaultOptions);
 }
 
 public record AssetBehaviour

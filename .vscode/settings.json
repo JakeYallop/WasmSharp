@@ -1,0 +1,7 @@
+{
+  "files.exclude": {
+    "**/*.a": true,
+    "**/*.dll": true
+  },
+  "prettier.tabWidth": 2
+}

@@ -19,7 +19,7 @@
   <ItemGroup>
     <WasmExtraFilesToDeploy Include="index.html" />
     <WasmExtraFilesToDeploy Include="dist/main.js" />
-    <WasmExtraFilesToDeploy Include="dist/wasm-exports.d.ts" />
+    <WasmExtraFilesToDeploy Include="wasm-exports.d.ts" />
     <!-- WasmAppDir is not defined yet. -->
     <!-- hardcoded for now until https://github.com/dotnet/runtime/issues/77285 -->
     <!--<UpToDateCheckBuilt Include="$(WasmAppDir)/main.js" Original="$(MSBuildThisFileDirectory)main.js" />-->
@@ -36,13 +36,13 @@
     <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(WasmAppDir)" />
   </Target>
 
-  <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="InitialTarget">
+  <Target Name="_PrivateCopyRequiredArtifacts" AfterTargets="WasmBuildApp">
     <ItemGroup>
-      <FilesToCopy Include="$(MSBuildThisFileDirectory)dist/main.js" />
+      <__FilesToCopy Include="$(MSBuildThisFileDirectory)dist\*.*" />
     </ItemGroup>
      <!--WasmAppDir is not defined yet. 
      hardcoded for now until https://github.com/dotnet/runtime/issues/77285--> 
     <!--<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(WasmAppDir)" />-->
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(OutputPath)/AppBundle" />
+    <Copy SourceFiles="@(__FilesToCopy)" DestinationFolder="$(OutputPath)/AppBundle" />
   </Target>
 </Project>

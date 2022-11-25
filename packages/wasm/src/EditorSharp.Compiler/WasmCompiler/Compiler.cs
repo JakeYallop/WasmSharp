@@ -1,6 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Reflection;
 using System.Reflection.Metadata;
+using System.Security.Principal;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -18,7 +20,7 @@ public static class WasmCompiler
         var resolver = new WasmMetadataReferenceResolver(publicUrl);
         foreach (var asset in config.Assets)
         {
-            if (asset.Behavior != AssetBehaviour.Assembly.Value)
+            if (asset.Behavior != AssetBehaviour.Assembly.Value || !asset.Name.EndsWith(".dll"))
             {
                 continue;
             }
@@ -41,6 +43,7 @@ public static class WasmCompiler
     public static void Recompile(string compilationId, string code) => GetCompilation(compilationId).Recompile(code);
     public static void Recompile(string compilationId, string[] codeFiles) => GetCompilation(compilationId).Recompile(codeFiles);
     public static IEnumerable<Diagnostic> GetDiagnostics(string compilationId) => GetCompilation(compilationId).GetDiagnostics();
+    public static RunResult Run(string compilationId) => GetCompilation(compilationId).Run();
 
     private static WasmCompilation GetCompilation(string compilationId)
     {
@@ -53,11 +56,22 @@ public static class WasmCompiler
     }
 }
 
-public static class WasmCompilationCache
+public class RunResult
 {
+    private RunResult() { }
 
+    public static RunResult WithStdOutErr(string stdOut, string stdErr) => new()
+    {
+        Success = true,
+        StdOut = stdOut,
+        StdErr = stdErr
+    };
+
+    public static RunResult Failure => new() { Success = false };
+    public bool Success { get; init; }
+    public string? StdOut { get; init; }
+    public string? StdErr { get; init; }
 }
-
 
 public class WasmCompilation
 {
@@ -101,4 +115,37 @@ public class WasmCompilation
     {
         return Compilation.GetDiagnostics().Select(x => new Diagnostic(x.Id, x.GetMessage(), x.Location.SourceSpan, x.Severity));
     }
+
+    public RunResult Run()
+    {
+        var ms = new MemoryStream();
+        var result = Compilation.Emit(ms);
+        if (result.Success)
+        {
+            var assembly = Assembly.Load(ms.ToArray());
+            Console.WriteLine($"assembly: {assembly.FullName}");
+            Console.WriteLine($"assembly defined types: {assembly.DefinedTypes.ToArray()}");
+            Console.WriteLine($"assembly entry point: {assembly.EntryPoint}");
+            var captureOutput = new StringWriter();
+            var oldOut = Console.Out;
+            Console.SetOut(captureOutput);
+            var args = new[] { Array.Empty<string>() };
+            //var instance = assembly.CreateInstance($"{Compilation.AssemblyName}.Program");
+            //instance.GetType();
+            //var mainMethod = instance.GetType().GetMethod("$Main");
+            //Delegate d = Delegate.CreateDelegate(instance.GetType(), mainMethod);
+            //d.DynamicInvoke();
+            assembly.EntryPoint.Invoke(null, args);
+            var capturedOutput = captureOutput.ToString();
+            Console.SetOut(oldOut);
+
+            Console.WriteLine("Captured output: ");
+            Console.WriteLine(capturedOutput);
+
+            return RunResult.WithStdOutErr(capturedOutput, "");
+        }
+
+        return RunResult.Failure;
+    }
+
 }

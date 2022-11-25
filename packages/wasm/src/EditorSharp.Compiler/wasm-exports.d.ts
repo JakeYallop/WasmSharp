@@ -1,27 +1,41 @@
 ﻿export interface AssemblyExports {
-    Compiler: Compiler;
+  CompilationInterop: CompilationInterop;
 }
 
-type CompilationId = string
+export type CompilationId = string;
 
 type TextSpan = {
-    //TODO: write this
-    start: number
-}
+  start: number;
+  end: number;
+  length: number;
+  isEmpty: boolean;
+};
 
 interface Diagnostic {
-    id: string,
-    message: string,
-    location: TextSpan
+  id: string;
+  message: string;
+  location: TextSpan;
 }
 
-export class Compiler {
-    InitAsync(
-        publicUrl: string,
-        monoConfig: string
-    ): Promise<void>;
+interface RunResultSuccess {
+  stdOut: string;
+  stdErr: string;
+  success: true;
+}
 
-    CreateNewCompilation(code: string): CompilationId;
-    Recompile(compilationId: CompilationId, code: string): void
-    GetDiagnostics(compilationId: CompilationId): string
+interface RunResultFailure {
+  stdOut: null;
+  stdErr: null;
+  success: false;
+}
+
+export type RunResult = RunResultSuccess | RunResultFailure;
+
+export class CompilationInterop {
+  InitAsync(publicUrl: string, monoConfig: string): Promise<void>;
+
+  CreateNewCompilation(code: string): CompilationId;
+  Recompile(compilationId: CompilationId, code: string): void;
+  GetDiagnostics(compilationId: CompilationId): string;
+  Run(compilationId: string): string;
 }

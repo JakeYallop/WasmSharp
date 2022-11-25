@@ -1,8 +1,7 @@
 {
   "name": "@editorsharp/compiler",
   "version": "0.0.1",
-  "main": "bin/Debug/net7.0/browser-wasm/AppBundle/main.js",
-  "types": "bin/Debug/net7.0/browser-wasm/AppBundle/main.d.ts",
+  "main": "bin/Debug/net7.0/browser-wasm/AppBundle/index.js",
   "scripts": {
     "watch": "tsc --watch"
   },
