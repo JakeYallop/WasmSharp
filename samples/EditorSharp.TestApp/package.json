@@ -18,9 +18,16 @@
     "vite-plugin-utils": "^0.3.0"
   },
   "dependencies": {
+    "@codemirror/language": "^6.3.1",
+    "@codemirror/legacy-modes": "^6.3.1",
+    "@codemirror/state": "^6.1.4",
+    "@codemirror/view": "^6.6.0",
     "@editorsharp/compiler": "workspace:*",
     "@editorsharp/core": "workspace:*",
-    "solid-js": "^1.5.7"
+    "@replit/codemirror-vscode-keymap": "^6.0.0",
+    "codemirror": "^6.0.1",
+    "solid-js": "^1.5.7",
+    "thememirror": "^2.0.1"
   },
   "packageManager": "yarn@3.3.0"
 }
