@@ -1,14 +1,14 @@
 {
-  "name": "@sharpwasm/monorepo",
+  "name": "@wasmsharp/monorepo",
   "private": true,
   "scripts": {
-    "start:sample": "yarn workspace @wasmsharp/playground run start",
-    "compiler": "yarn workspace @wasmsharp/core run watch"
+    "start": "yarn workspace @wasmsharp/playground run start",
+    "core": "yarn workspace @wasmsharp/core run watch"
   },
   "workspaces": [
     "packages/*",
     "packages/core/src/WasmSharp.Core",
-    "playground/*"
+    "playground"
   ],
   "devDependencies": {
     "prettier": "^2.7.1",
