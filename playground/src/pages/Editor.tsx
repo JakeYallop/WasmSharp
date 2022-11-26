@@ -1,5 +1,4 @@
-import { TestExport } from "@editorsharp/core";
-import { Compiler } from "@editorsharp/compiler";
+import { Compiler } from "@wasmsharp/core";
 import {
   children,
   Component,
@@ -19,7 +18,7 @@ import { basicSetup, EditorView } from "codemirror";
 import { dracula } from "thememirror";
 import { StreamLanguage } from "@codemirror/language";
 import { csharp } from "@codemirror/legacy-modes/mode/clike";
-import { Diagnostic } from "@editorsharp/compiler/wasm-exports.js";
+import { Diagnostic } from "@wasmsharp/core/wasm-exports.js";
 import "./Editor.css";
 
 const LoadWasm: ParentComponent = (props) => {

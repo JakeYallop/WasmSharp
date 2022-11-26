@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using Microsoft.CodeAnalysis;
 
-namespace EditorSharp.Compiler;
+namespace WasmSharp.Core;
 
 public abstract class DynamicMetadataReferenceResolver
 {

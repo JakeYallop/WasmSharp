@@ -50,8 +50,7 @@
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
   },
   "references": [
-    { "path": "./packages/wasm/src/EditorSharp.Compiler" },
-    { "path": "./packages/core" },
-    { "path": "./samples/EditorSharp.TestApp" }
+    { "path": "./packages/core/src/WasmSharp.Core" },
+    { "path": "./playground" }
   ]
 }

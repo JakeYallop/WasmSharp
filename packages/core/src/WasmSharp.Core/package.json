@@ -1,5 +1,5 @@
 {
-  "name": "@editorsharp/compiler",
+  "name": "@wasmsharp/core",
   "version": "0.0.1",
   "main": "bin/Debug/net7.0/browser-wasm/AppBundle/index.js",
   "scripts": {

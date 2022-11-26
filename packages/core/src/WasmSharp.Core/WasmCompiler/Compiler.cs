@@ -6,7 +6,7 @@ using System.Security.Principal;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace EditorSharp.Compiler;
+namespace WasmSharp.Core;
 
 /// <summary>
 /// Compiles C# code inside the browser.
@@ -33,7 +33,7 @@ public static class WasmCompiler
     {
         options ??= WasmCompilerOptions.Default;
         var tree = CSharpSyntaxTree.ParseText(code, options.CSharpParseOptions);
-        var compilation = CSharpCompilation.Create("editorsharp.wasm", new[] { tree }, MetadataReferenceCache.MetadataReferences, options: options.CSharpCompilationOptions);
+        var compilation = CSharpCompilation.Create("wasmsharpexecutor", new[] { tree }, MetadataReferenceCache.MetadataReferences, options: options.CSharpCompilationOptions);
         var wasmCompilation = new WasmCompilation(compilation, options);
         var compilationId = Guid.NewGuid().ToString();
         CompilationCache.Add(compilationId, wasmCompilation);

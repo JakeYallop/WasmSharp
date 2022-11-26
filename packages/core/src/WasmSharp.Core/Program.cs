@@ -3,7 +3,7 @@ using System.Diagnostics.Metrics;
 using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using EditorSharp.Compiler;
+using WasmSharp.Core;
 using Microsoft.CodeAnalysis;
 
 Console.WriteLine("Hello, Browser!");
