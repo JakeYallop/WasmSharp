@@ -32,6 +32,7 @@ export class Compiler {
         `;
     console.log("%cInitialising wasm compiler", style);
     const time = performance.now();
+    //TODO: trim end, resolves to WasmCompiler.js currently, and its probably luck that its even working at all right now
     console.log(`loading files from ${import.meta.url}`);
     await assemblyExports.CompilationInterop.InitAsync(
       assembliesUrl ?? import.meta.url,

@@ -1,16 +1,22 @@
 import { Compiler } from "@wasmsharp/core";
 import {
+  Accessor,
+  batch,
   children,
   Component,
   createEffect,
   createResource,
   createSignal,
   For,
+  on,
   onCleanup,
   onMount,
   ParentComponent,
   ParentProps,
   Ref,
+  Resource,
+  Setter,
+  Show,
 } from "solid-js";
 
 import { basicSetup, EditorView } from "codemirror";
@@ -19,17 +25,31 @@ import { dracula } from "thememirror";
 import { StreamLanguage } from "@codemirror/language";
 import { csharp } from "@codemirror/legacy-modes/mode/clike";
 import { Diagnostic } from "@wasmsharp/core/wasm-exports.js";
+import styles from "./Editor.module.css";
 import "./Editor.css";
+import { untrack } from "solid-js/web";
 
 const LoadWasm: ParentComponent = (props) => {
   const [compilerInit] = createResource(() => Compiler.initAsync());
+  const [initCompleted, setInitCompleted] = createSignal(false);
+
+  createEffect((prev) => {
+    console.log("running effect 3");
+    if (compilerInit.state === "ready" || prev) {
+      setInitCompleted(true);
+    }
+    return compilerInit;
+  });
+
   return (
     <>
-      {compilerInit.loading && (
+      <Show when={!initCompleted()}>
         <h2>Loading compilation tools, please wait...</h2>
-      )}
-      {compilerInit.state === "errored" && <h2>Failed to load</h2>}
-      {compilerInit.state === "ready" && props.children}
+      </Show>
+      <Show when={compilerInit.state === "errored" && !initCompleted()}>
+        <h2>Failed to load, please refresh the page.</h2>
+      </Show>
+      <Show when={initCompleted()}>{props.children}</Show>
     </>
   );
 };
@@ -38,23 +58,30 @@ const CodeMirror: Component<{
   onValueChanged?: (value: string) => void;
 }> = (props) => {
   const [editor, setEditor] = createSignal<EditorView>();
-  const [code, setCode] = createSignal<string>();
   let editorRef: HTMLDivElement | undefined;
 
   onMount(() => {
+    const initialDocument = `using System;
+
+Console.WriteLine("Hello, world!");`;
+    const readUpdates = EditorView.updateListener.of((update) => {
+      if (update.docChanged) {
+        const document = update.state.doc.toString();
+        props.onValueChanged?.(document);
+      }
+    });
     const e = new EditorView({
-      doc: 'using System;\n\nConsole.WriteLine("Hello, world!");',
+      doc: initialDocument,
       parent: editorRef!,
-      dispatch: (transaction) => {
-        e.update([transaction]);
-        if (transaction.docChanged) {
-          const document = transaction.state.doc.toString();
-          props?.onValueChanged?.(document);
-        }
-      },
-      extensions: [basicSetup, dracula, StreamLanguage.define(csharp)],
+      extensions: [
+        basicSetup,
+        dracula,
+        StreamLanguage.define(csharp),
+        readUpdates,
+      ],
     });
     setEditor(e);
+    props.onValueChanged?.(initialDocument);
   });
 
   onCleanup(() => editor()?.destroy());
@@ -95,24 +122,25 @@ const CSharpRunInitialized: Component<CSharpRunProps> = (
     Compiler.createCompilation(props.code)
   );
 
-  createEffect(
-    (prev) => {
-      if (prev === props.code) {
-        console.log("Skipping compilation as code is unchanged.");
-        return;
-      }
+  createEffect((prev) => {
+    if (prev === props.code) {
+      console.log("Skipping compilation as code is unchanged.");
+      return;
+    }
+    console.log("Recompiling");
+    batch(() => {
       compilation().recompile(props.code);
       setDiagnostics(compilation().getDiagnostics());
       setOutput(null);
-    },
-    { defer: true }
-  );
+    });
+    return props.code;
+  });
 
   return (
     <div>
       <Diagnostics diagnostics={diagnostics()} />
       <button
-        class="button primary icon"
+        class={`button primary icon ${styles["run-button"]}`}
         disabled={diagnostics().length > 0}
         onClick={() => {
           const result = compilation().run();
@@ -122,28 +150,27 @@ const CSharpRunInitialized: Component<CSharpRunProps> = (
         }}
       >
         Run Code
-        <img
-          src="https://icongr.am/material/cog-clockwise.svg?color=white"
-          alt="icon"
-        />
+        <img src="https://icongr.am/material/cog-clockwise.svg" alt="icon" />
       </button>
-      {!!output() && (
-        <>
-          <h2>Output</h2>
-          <pre>{output()}</pre>
-        </>
-      )}
+      <Show when={output()}>
+        <h2>Output</h2>
+        <pre>{output()}</pre>
+      </Show>
     </div>
   );
 };
 
-const Diagnostics = (props: { diagnostics?: Diagnostic[] }) => {
-  if (!props.diagnostics) {
-    return <></>;
-  }
+interface DiagnosticsProps {
+  diagnostics?: Diagnostic[];
+}
+const Diagnostics: Component<DiagnosticsProps> = (props) => {
+  const [showDiagnostics, setShowDiagnostics] = createSignal(false);
+  createEffect(() => {
+    setShowDiagnostics(!!props.diagnostics && props.diagnostics.length > 0);
+  });
 
   return (
-    <>
+    <Show when={showDiagnostics()}>
       <h2>Diagnostics</h2>
       <For each={props.diagnostics}>
         {(diagnostic, i) => {
@@ -156,7 +183,7 @@ const Diagnostics = (props: { diagnostics?: Diagnostic[] }) => {
           );
         }}
       </For>
-    </>
+    </Show>
   );
 };
 

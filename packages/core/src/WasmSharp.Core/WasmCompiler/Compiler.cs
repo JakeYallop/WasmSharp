@@ -18,13 +18,19 @@ public static class WasmCompiler
     public static async Task InitializeAsync(string publicUrl, MonoConfig config)
     {
         var resolver = new WasmMetadataReferenceResolver(publicUrl);
+        var referenceTasks = new ConcurrentBag<Task<MetadataReference>>();
+
         foreach (var asset in config.Assets)
         {
             if (asset.Behavior != AssetBehaviour.Assembly.Value || !asset.Name.EndsWith(".dll"))
             {
                 continue;
             }
-            var reference = await resolver.ResolveReferenceAsync(config.AssemblyRootFolder, asset.Name);
+            referenceTasks.Add(resolver.ResolveReferenceAsync(config.AssemblyRootFolder, asset.Name));
+        }
+        var references = await Task.WhenAll(referenceTasks);
+        foreach (var reference in references)
+        {
             MetadataReferenceCache.AddReference(reference);
         }
     }

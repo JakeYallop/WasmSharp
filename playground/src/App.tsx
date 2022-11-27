@@ -4,7 +4,7 @@ import Playground from "./pages/Editor";
 
 const App: Component = () => {
   return (
-    <div class={styles.App}>
+    <div>
       <div class={styles.container}>
         <Playground />
       </div>
