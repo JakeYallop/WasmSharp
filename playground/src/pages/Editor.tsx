@@ -31,25 +31,16 @@ import { untrack } from "solid-js/web";
 
 const LoadWasm: ParentComponent = (props) => {
   const [compilerInit] = createResource(() => Compiler.initAsync());
-  const [initCompleted, setInitCompleted] = createSignal(false);
-
-  createEffect((prev) => {
-    console.log("running effect 3");
-    if (compilerInit.state === "ready" || prev) {
-      setInitCompleted(true);
-    }
-    return compilerInit;
-  });
-
   return (
     <>
-      <Show when={!initCompleted()}>
+      <Show when={compilerInit.state === "pending"}>
         <h2>Loading compilation tools, please wait...</h2>
       </Show>
-      <Show when={compilerInit.state === "errored" && !initCompleted()}>
+      <Show when={compilerInit.state === "errored"}>
         <h2>Failed to load, please refresh the page.</h2>
+        <pre>{compilerInit.error.getManageStack()}</pre>
       </Show>
-      <Show when={initCompleted()}>{props.children}</Show>
+      <Show when={compilerInit.state === "ready"}>{props.children}</Show>
     </>
   );
 };

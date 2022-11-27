@@ -5,7 +5,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "start": "vite --open",
+    "start": "vite --open --force",
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview"

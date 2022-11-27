@@ -11,6 +11,15 @@ function get<T>(json: any): T {
   return JSON.parse(json) as T;
 }
 
+function getDirectory(path: string) {
+  var index = path.lastIndexOf("/");
+  if (index !== -1) {
+    return path.substring(0, index);
+  } else {
+    return path;
+  }
+}
+
 export class Compiler {
   private constructor(private compilationId: CompilationId) {}
 
@@ -32,10 +41,9 @@ export class Compiler {
         `;
     console.log("%cInitialising wasm compiler", style);
     const time = performance.now();
-    //TODO: trim end, resolves to WasmCompiler.js currently, and its probably luck that its even working at all right now
-    console.log(`loading files from ${import.meta.url}`);
+    console.log(`loading files from ${getDirectory(import.meta.url)}`);
     await assemblyExports.CompilationInterop.InitAsync(
-      assembliesUrl ?? import.meta.url,
+      assembliesUrl ?? getDirectory(import.meta.url),
       JSON.stringify(config)
     );
     const diff = performance.now() - time;

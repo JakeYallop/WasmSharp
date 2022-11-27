@@ -4,39 +4,11 @@
 /** @type {import("./dotnet")} */
 import { dotnet, default as createDotnetRuntimeUntyped } from "./dotnet.js";
 import { AssemblyExports } from "./wasm-exports.js";
+import { Compiler } from "./WasmCompiler.js";
 
 /** @type {import("./dotnet").CreateDotnetRuntimeType} */
 const createDotnetRuntime = createDotnetRuntimeUntyped;
 
-const {
-  getAssemblyExports,
-  getConfig,
-  setModuleImports,
-  MONO,
-  INTERNAL,
-  BINDING,
-  Module,
-} = await dotnet.withDiagnosticTracing(false).withDebugging(-1).create();
-
-// console.log(INTERNAL);
-// console.log(MONO);
-// console.log(BINDING);
-
-function prettyPrint(s: any) {
-  //   console.log("printing");
-  console.log(JSON.parse(s));
-}
-
-setModuleImports("main.js", {
-  utils: {
-    prettyPrint: prettyPrint,
-  },
-});
-
-export const config = getConfig();
-const assemblyExports: AssemblyExports = await getAssemblyExports(
-  config.mainAssemblyName!
-);
 console.log(
   "TODO: Hook into wasm runtime load and send bytes for arrays to create metadata references. Might not be feasible. (Maybe hook into mono_wasm_add_assembly?)"
 );
@@ -46,6 +18,8 @@ console.log(
 console.log(
   "TODO: Investiage wasm lib: https://github.com/dotnet/runtime/blob/8eb413818f5b95e750be5cf4148a3a9714ddc331/src/mono/wasm/build/WasmApp.targets#L108; https://github.com/dotnet/runtime/issues/77191"
 );
+//@ts-ignore
+window.Compiler = Compiler;
 // const style = `
 // font-size:1.1rem;
 // font-family:sans-serif;

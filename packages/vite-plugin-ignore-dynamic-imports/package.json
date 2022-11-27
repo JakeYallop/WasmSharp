@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "main": "./dist/index.mjs",
-  "types": "./src/index.d.ts",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "unbuild && cpy ./src/index.d.ts dist --flat"
   },
