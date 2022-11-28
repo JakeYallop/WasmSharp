@@ -12,6 +12,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@vanilla-extract/vite-plugin": "^3.7.0",
     "typescript": "^4.8.4",
     "vite": "^3.1.8",
     "vite-plugin-ignore-dynamic-imports": "*",
@@ -24,6 +25,7 @@
     "@codemirror/state": "^6.1.4",
     "@codemirror/view": "^6.6.0",
     "@replit/codemirror-vscode-keymap": "^6.0.0",
+    "@vanilla-extract/css": "^1.9.2",
     "@wasmsharp/core": "workspace:*",
     "codemirror": "^6.0.1",
     "solid-js": "^1.5.7",

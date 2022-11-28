@@ -1,15 +1,9 @@
 import type { Component } from "solid-js";
 import styles from "./App.module.css";
-import Playground from "./pages/Editor";
+import Playground from "./pages/Playground";
 
 const App: Component = () => {
-  return (
-    <div>
-      <div class={styles.container}>
-        <Playground />
-      </div>
-    </div>
-  );
+  return <Playground />;
 };
 
 export default App;
