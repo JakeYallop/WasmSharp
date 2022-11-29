@@ -1,6 +1,5 @@
 import { Component, createSignal, onCleanup, onMount } from "solid-js";
 import { basicSetup, EditorView } from "codemirror";
-import { dracula } from "thememirror";
 import { StreamLanguage } from "@codemirror/language";
 import { csharp } from "@codemirror/legacy-modes/mode/clike";
 import "./CodeMirrorEditor.css";
@@ -24,12 +23,7 @@ Console.WriteLine("Hello, world!");`;
     const e = new EditorView({
       doc: initialDocument,
       parent: editorRef!,
-      extensions: [
-        basicSetup,
-        dracula,
-        StreamLanguage.define(csharp),
-        readUpdates,
-      ],
+      extensions: [basicSetup, StreamLanguage.define(csharp), readUpdates],
     });
     setEditor(e);
     props.onValueChanged?.(initialDocument);

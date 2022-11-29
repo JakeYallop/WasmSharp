@@ -8,28 +8,36 @@
     "start": "vite --open --force",
     "dev": "vite",
     "build": "vite build",
+    "test": "vitest",
     "serve": "vite preview"
   },
   "license": "MIT",
   "devDependencies": {
+    "@solidjs/testing-library": "^0.5.1",
+    "@testing-library/jest-dom": "^5.16.5",
     "@vanilla-extract/vite-plugin": "^3.7.0",
+    "happy-dom": "^7.7.0",
     "typescript": "^4.8.4",
     "vite": "^3.1.8",
     "vite-plugin-ignore-dynamic-imports": "*",
     "vite-plugin-solid": "^2.3.9",
-    "vite-plugin-utils": "^0.3.0"
+    "vite-plugin-utils": "^0.3.0",
+    "vitest": "^0.25.3"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.3.4",
+    "@codemirror/commands": "^6.1.2",
     "@codemirror/language": "^6.3.1",
     "@codemirror/legacy-modes": "^6.3.1",
+    "@codemirror/lint": "^6.1.0",
+    "@codemirror/search": "^6.2.3",
     "@codemirror/state": "^6.1.4",
     "@codemirror/view": "^6.6.0",
     "@replit/codemirror-vscode-keymap": "^6.0.0",
     "@vanilla-extract/css": "^1.9.2",
     "@wasmsharp/core": "workspace:*",
     "codemirror": "^6.0.1",
-    "solid-js": "^1.5.7",
-    "thememirror": "^2.0.1"
+    "solid-js": "^1.5.7"
   },
   "packageManager": "yarn@3.3.0"
 }

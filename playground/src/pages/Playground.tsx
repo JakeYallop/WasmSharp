@@ -10,10 +10,9 @@ import {
   Show,
 } from "solid-js";
 
-//TODO: Swap out for different theme
 import { Diagnostic } from "@wasmsharp/core/wasm-exports.js";
 import CodeMirrorEditor from "./CodeMirrorEditor";
-import styles from "./Playground.module.css";
+import * as styles from "./Playground.css";
 
 const LoadWasm: ParentComponent = (props) => {
   const [compilerInit] = createResource(() => Compiler.initAsync());
@@ -82,7 +81,7 @@ const CSharpRunInitialized: Component<CSharpRunProps> = (
     <div>
       <Diagnostics diagnostics={diagnostics()} />
       <button
-        class={`button primary icon ${styles["run-button"]}`}
+        class={`${styles.runButton} button primary icon`}
         disabled={diagnostics().length > 0}
         onClick={() => {
           const result = compilation().run();
