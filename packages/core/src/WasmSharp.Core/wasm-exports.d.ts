@@ -11,10 +11,18 @@ type TextSpan = {
   isEmpty: boolean;
 };
 
+type DiagnosticSeverity =
+  | "Error"
+  | "Warning"
+  | "Information"
+  | "Hidden"
+  | "None";
+
 interface Diagnostic {
   id: string;
   message: string;
   location: TextSpan;
+  severity: DiagnosticSeverity;
 }
 
 interface RunResultSuccess {

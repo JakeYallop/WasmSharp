@@ -20,10 +20,39 @@ function getDirectory(path: string) {
   }
 }
 
+//TODO: finish this
+export class CompilationFactory {
+  constructor(private interop: CompilationInterop) {}
+  static async createAsync(assembliesUrl?: string) {
+    const { getAssemblyExports, getConfig } = await dotnet
+      .withDiagnosticTracing(false)
+      .withDebugging(-1)
+      .create();
+
+    const config = getConfig();
+    const assemblyExports: AssemblyExports = await getAssemblyExports(
+      config.mainAssemblyName!
+    );
+    const resolvedAssembliesUrl =
+      assembliesUrl ?? getDirectory(import.meta.url);
+    console.log(
+      `Initialising compilation factory from url: ${resolvedAssembliesUrl}`
+    );
+    const time = performance.now();
+    await assemblyExports.CompilationInterop.InitAsync(
+      resolvedAssembliesUrl,
+      JSON.stringify(config)
+    );
+    const diff = performance.now() - time;
+    console.log(`%cFinished initialising compilation factory in ${diff}ms`);
+    Compiler.interop = assemblyExports.CompilationInterop;
+  }
+}
+
 export class Compiler {
   private constructor(private compilationId: CompilationId) {}
-
   static interop: CompilationInterop | undefined;
+
   static async initAsync(assembliesUrl?: string) {
     const { getAssemblyExports, getConfig } = await dotnet
       .withDiagnosticTracing(false)

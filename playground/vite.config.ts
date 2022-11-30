@@ -26,6 +26,9 @@ export default defineConfig(({ mode }) => {
     build: {
       target: "esnext",
     },
+    optimizeDeps: {
+      exclude: ["dotnet.js"],
+    },
     test: {
       deps: {
         inline: [

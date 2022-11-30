@@ -1,8 +1,8 @@
 .cm-scroller {
-    max-height: 500px;
-    min-height: 500px;
+  
 }
 
 .cm-editor {
     border: 1px solid #787878;
+    height: 100%;
 }

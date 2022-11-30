@@ -46,13 +46,14 @@ public static class WasmCompiler
         return compilationId;
     }
 
-    public static void Recompile(string compilationId, string code) => GetCompilation(compilationId).Recompile(code);
+    public static void Recompile(string compilationId, string code) => GetCompilation(compilationId).Recompile(new[] { code });
     public static void Recompile(string compilationId, string[] codeFiles) => GetCompilation(compilationId).Recompile(codeFiles);
     public static IEnumerable<Diagnostic> GetDiagnostics(string compilationId) => GetCompilation(compilationId).GetDiagnostics();
     public static RunResult Run(string compilationId) => GetCompilation(compilationId).Run();
 
     private static WasmCompilation GetCompilation(string compilationId)
     {
+        //Console.WriteLine($"Getting compilation {compilationId}.");
         if (!CompilationCache.TryGetValue(compilationId, out var compilation))
         {
             //TODO: Better custom exception/message/return bool and don't throw at all?
@@ -79,6 +80,8 @@ public class RunResult
     public string? StdErr { get; init; }
 }
 
+//TODO: Add add syntax tree method
+
 public class WasmCompilation
 {
     private readonly WasmCompilerOptions _options;
@@ -97,15 +100,9 @@ public class WasmCompilation
         Compilation = Compilation.AddSyntaxTrees(tree);
     }
 
-    public void Recompile(string code)
+    public void Recompile(params string[] codeFiles)
     {
-        var tree = CSharpSyntaxTree.ParseText(code, _options.CSharpParseOptions);
-        Compilation = Compilation.RemoveAllSyntaxTrees();
-        Compilation = Compilation.AddSyntaxTrees(tree);
-    }
-
-    public void Recompile(string[] codeFiles)
-    {
+        //Console.WriteLine("Recompiling");
         Compilation = Compilation.RemoveAllSyntaxTrees();
         var trees = new List<SyntaxTree>();
         foreach (var code in codeFiles)
@@ -113,6 +110,7 @@ public class WasmCompilation
             trees.Add(CSharpSyntaxTree.ParseText(code, _options.CSharpParseOptions));
         }
         Compilation = Compilation.AddSyntaxTrees(trees);
+        GetDiagnostics();
     }
 
     //TODO: Investigate event based approach when trees are refreshed?? Maybe can be done from JS side. If so, we should see if

@@ -870,6 +870,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@solid-primitives/scheduled@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@solid-primitives/scheduled@npm:1.2.0"
+  peerDependencies:
+    solid-js: ^1.6.0
+  checksum: 949e7ec260d5879b6113bb5a65e1c5d3b7890e413fd51916c2eedc8c47fde05e81e63e107e9c050f522fe3295bcaa0c12e6b38cc2d317cef70064dac853e6e8c
+  languageName: node
+  linkType: hard
+
 "@solidjs/testing-library@npm:^0.5.1":
   version: 0.5.1
   resolution: "@solidjs/testing-library@npm:0.5.1"
@@ -1182,6 +1191,7 @@ __metadata:
     "@codemirror/state": ^6.1.4
     "@codemirror/view": ^6.6.0
     "@replit/codemirror-vscode-keymap": ^6.0.0
+    "@solid-primitives/scheduled": ^1.2.0
     "@solidjs/testing-library": ^0.5.1
     "@testing-library/jest-dom": ^5.16.5
     "@vanilla-extract/css": ^1.9.2
@@ -1189,6 +1199,7 @@ __metadata:
     "@wasmsharp/core": "workspace:*"
     codemirror: ^6.0.1
     happy-dom: ^7.7.0
+    normalize.css: ^8.0.1
     solid-js: ^1.5.7
     typescript: ^4.8.4
     vite: ^3.1.8
@@ -3865,6 +3876,13 @@ __metadata:
     semver: ^7.3.4
     validate-npm-package-license: ^3.0.1
   checksum: bbcee00339e7c26fdbc760f9b66d429258e2ceca41a5df41f5df06cc7652de8d82e8679ff188ca095cad8eff2b6118d7d866af2b68400f74602fbcbce39c160a
+  languageName: node
+  linkType: hard
+
+"normalize.css@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "normalize.css@npm:8.0.1"
+  checksum: 4698cae88ec35e3f3e82f9f9402e6ffb906c27ccd6373cad88e6b3f5634fc7a043cb38702472299e5edb73825cf8b18d5fd9283f58829eddda79ea97453049a2
   languageName: node
   linkType: hard
 

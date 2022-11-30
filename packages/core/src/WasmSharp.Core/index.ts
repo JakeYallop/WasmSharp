@@ -1,2 +1,2 @@
 export * from "./main.js";
-export * from "./WasmCompiler";
+export * from "./WasmCompiler.js";

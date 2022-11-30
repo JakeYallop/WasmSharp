@@ -11,8 +11,10 @@ import {
 } from "solid-js";
 
 import { Diagnostic } from "@wasmsharp/core/wasm-exports.js";
-import CodeMirrorEditor from "./CodeMirrorEditor";
+import CodeMirrorEditor from "../CodeMirror/CodeMirrorEditor.jsx";
 import * as styles from "./Playground.css";
+
+import playIcon from "../assets/play.svg";
 
 const LoadWasm: ParentComponent = (props) => {
   const [compilerInit] = createResource(() => Compiler.initAsync());
@@ -23,7 +25,7 @@ const LoadWasm: ParentComponent = (props) => {
       </Show>
       <Show when={compilerInit.state === "errored"}>
         <h2>Failed to load, please refresh the page.</h2>
-        <pre>{compilerInit.error.getManageStack()}</pre>
+        <pre>{compilerInit.error?.getManageStack() ?? compilerInit.error}</pre>
       </Show>
       <Show when={compilerInit.state === "ready"}>{props.children}</Show>
     </>
@@ -36,19 +38,15 @@ const Playground: Component = () => {
     setCode(code);
   };
   return (
-    <main>
+    <LoadWasm>
       <CodeMirrorEditor onValueChanged={onValueChanged} />
       <CSharpRun code={code() || ""} />
-    </main>
+    </LoadWasm>
   );
 };
 
 const CSharpRun: Component<CSharpRunProps> = (props) => {
-  return (
-    <LoadWasm>
-      <CSharpRunInitialized code={props.code} />
-    </LoadWasm>
-  );
+  return <CSharpRunInitialized code={props.code} />;
 };
 
 interface CSharpRunProps {
@@ -68,7 +66,6 @@ const CSharpRunInitialized: Component<CSharpRunProps> = (
       console.log("Skipping compilation as code is unchanged.");
       return;
     }
-    console.log("Recompiling");
     batch(() => {
       compilation().recompile(props.code);
       setDiagnostics(compilation().getDiagnostics());
@@ -91,7 +88,7 @@ const CSharpRunInitialized: Component<CSharpRunProps> = (
         }}
       >
         Run Code
-        <img src="https://icongr.am/material/cog-clockwise.svg" alt="icon" />
+        <img src={playIcon} alt="icon" />
       </button>
       <Show when={output()}>
         <h2>Output</h2>
