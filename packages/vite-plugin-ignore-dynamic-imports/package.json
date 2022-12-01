@@ -17,6 +17,5 @@
   "devDependencies": {
     "cpy-cli": "^4.2.0",
     "unbuild": "^0.9.2"
-  },
-  "packageManager": "yarn@3.3.0"
+  }
 }

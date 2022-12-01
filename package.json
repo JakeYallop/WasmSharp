@@ -2,19 +2,13 @@
   "name": "@wasmsharp/monorepo",
   "private": true,
   "scripts": {
-    "start": "yarn workspace @wasmsharp/playground run start",
-    "playground": "yarn start",
-    "test": "yarn workspace @wasmsharp/playground test",
-    "core": "yarn workspace @wasmsharp/core run watch"
+    "start": "pnpm --filter @wasmsharp/playground run start",
+    "playground": "pnpm run start",
+    "test": "pnpm --filter @wasmsharp/playground test",
+    "core": "pnpm --filter @wasmsharp/core run watch"
   },
-  "workspaces": [
-    "packages/*",
-    "packages/core/src/WasmSharp.Core",
-    "playground"
-  ],
   "devDependencies": {
     "prettier": "^2.7.1",
     "typescript": "^4.9.3"
-  },
-  "packageManager": "yarn@3.3.0"
+  }
 }

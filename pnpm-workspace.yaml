@@ -1,0 +1,4 @@
+packages:
+  - "packages/*"
+  - "packages/core/src/WasmSharp.Core"
+  - "playground"

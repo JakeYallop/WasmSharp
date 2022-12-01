@@ -83,6 +83,7 @@ export const csharpLinter = (config?: CSharpLinterConfig) => {
     const field = view.state.field(csharpCompilationField);
     const compilation = field.compilation;
     var wasmSharpDiagnostics = compilation.getDiagnostics();
+
     console.log(`Diagnostics: ${wasmSharpDiagnostics.length}`);
     for (let i = 0; i < wasmSharpDiagnostics.length; i++) {
       const diagnostic = wasmSharpDiagnostics[i];
