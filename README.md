@@ -1,25 +1,24 @@
 # Development setup
-This project uses Yarn 3.x, so requires some additional setup for usage with certain IDEs.
-
-For VSCode, run
-```
-yarn dlx @yarnpkg/sdks vscode
-```
-
-And make sure to switch to the workspace typescript version:
-
-1.Press `ctrl+shift+p` in a TypeScript file
-2. Choose "Select TypeScript Version"
-3. Pick "Use Workspace Version"
-
-For more information and instructions on configuring other editors, see [https://yarnpkg.com/getting-started/editor-sdks]().
+This project uses pnpm. Installation instructions for pnpm can be found [here](https://pnpm.io/installation).
 
 ## Install packages
 ```
-yarn
+pnpm
 ```
+
+## Run the playground
+```
+pnpm start
+```
+
+## Run `tsc watch` for wasm/core
+```
+pnpm core
+```
+
+Don't forget to build the C# project (to copy over the newly built files in the /dist folder to the C# AppBundle) and restart vite + refresh the browser cache after making a change to `@wasmsharp/core`.
 
 ## Run tests
 ```
-yarn test
+pnpm test
 ```

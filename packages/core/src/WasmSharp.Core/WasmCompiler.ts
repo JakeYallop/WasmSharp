@@ -20,8 +20,6 @@ function getDirectory(path: string) {
   }
 }
 
-//TOOD: Build and integrate these changes
-
 export class AssemblyContext {
   constructor(private interop: CompilationInterop) {}
   static async createAsync(assembliesUrl?: string) {
