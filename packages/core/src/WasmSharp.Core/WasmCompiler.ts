@@ -45,7 +45,7 @@ export class AssemblyContext {
       JSON.stringify(config)
     );
     const diff = performance.now() - time;
-    console.log(`%cFinished initialising assembly context in ${diff}ms`);
+    console.log(`Finished initialising assembly context in ${diff}ms`);
     return new AssemblyContext(assemblyExports.CompilationInterop);
   }
 
