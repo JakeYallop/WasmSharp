@@ -15,6 +15,8 @@ public static partial class CompilationInterop
     [JSImport("utils.prettyPrint", "main.js")]
     public static partial void PrettyPrint(string s);
 
+    //TODO: Make idempotent
+
     [JSExport]
     public static async Task InitAsync(string publicUrl, string monoConfigJson)
     {

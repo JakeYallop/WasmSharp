@@ -4,8 +4,6 @@ import App from "./App";
 
 describe("App", () => {
   it("should render", () => {
-    const { unmount, container } = render(() => <App />);
-    expect(unmount).toBeTruthy();
-    unmount();
+    render(() => <App />);
   });
 });

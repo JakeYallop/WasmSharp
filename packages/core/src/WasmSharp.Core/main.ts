@@ -4,7 +4,7 @@
 /** @type {import("./dotnet")} */
 import { dotnet, default as createDotnetRuntimeUntyped } from "./dotnet.js";
 import { AssemblyExports } from "./wasm-exports.js";
-import { Compiler } from "./WasmCompiler.js";
+import { AssemblyContext } from "./WasmCompiler.js";
 
 /** @type {import("./dotnet").CreateDotnetRuntimeType} */
 const createDotnetRuntime = createDotnetRuntimeUntyped;
@@ -19,7 +19,7 @@ console.log(
   "TODO: Investiage wasm lib: https://github.com/dotnet/runtime/blob/8eb413818f5b95e750be5cf4148a3a9714ddc331/src/mono/wasm/build/WasmApp.targets#L108; https://github.com/dotnet/runtime/issues/77191"
 );
 //@ts-ignore
-window.Compiler = Compiler;
+window.AssemblyContext = AssemblyContext;
 // const style = `
 // font-size:1.1rem;
 // font-family:sans-serif;

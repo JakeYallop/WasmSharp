@@ -5,14 +5,23 @@ import { StreamLanguage } from "@codemirror/language";
 import { linter, Diagnostic as CmDiagnostic } from "@codemirror/lint";
 import { csharp } from "@codemirror/legacy-modes/mode/clike";
 import "./CodeMirrorEditor.css";
-import { Facet, Prec, StateField, Transaction } from "@codemirror/state";
+import {
+  Annotation,
+  Facet,
+  Prec,
+  StateEffect,
+  StateField,
+  Transaction,
+} from "@codemirror/state";
 import { ViewPlugin } from "@codemirror/view";
 import { DiagnosticSeverity } from "@wasmsharp/core/wasm-exports";
-import { Compiler } from "@wasmsharp/core";
+import { AssemblyContext, Compilation } from "@wasmsharp/core";
 
-const CodeMirrorEditor: Component<{
+export interface CodeMirrorEditorProps {
   onValueChanged?: (value: string) => void;
-}> = (props) => {
+  assemblyContext: Promise<AssemblyContext>;
+}
+const CodeMirrorEditor: Component<CodeMirrorEditorProps> = (props) => {
   const [editor, setEditor] = createSignal<EditorView>();
   let editorRef: HTMLDivElement | undefined;
 
@@ -45,7 +54,7 @@ Console.WriteLine("Hello, world!");`;
         StreamLanguage.define(csharp),
         readUpdates,
         updateCheck,
-        csharpCompilationField,
+        wasmSharpField(props.assemblyContext),
         csharpLinter(),
       ],
     });
@@ -61,15 +70,37 @@ Console.WriteLine("Hello, world!");`;
 type LintConfig = NonNullable<Parameters<typeof linter>[1]>;
 interface CSharpLinterConfig extends LintConfig {}
 
-const csharpCompilationField = StateField.define({
+const wasmSharpField = (assemblyContext: Promise<AssemblyContext>) => {
+  const ref = { value: null } as { value: AssemblyContext | null };
+  assemblyContext.then((c) => (ref.value = c));
+  const facet = assemblyContextFacet.of(() => {
+    return ref.value;
+  });
+  return [csharpCompilationField.extension, facet];
+};
+
+const assemblyContextFacet = Facet.define<() => AssemblyContext | null>({
+  static: true,
+});
+
+const csharpCompilationField = StateField.define<CompilationObject>({
   create(state) {
     return {
-      compilation: Compiler.createCompilation(state.doc.toString()),
+      ready: false,
+      compilation: null as Compilation | null,
     };
   },
   update(value, tr) {
-    if (tr.docChanged) {
-      value.compilation.recompile(tr.newDoc.toString());
+    if (!value.ready) {
+      const compilation = tr.state.facet(assemblyContextFacet)[0]();
+      if (compilation) {
+        value.ready = true;
+        value.compilation = compilation.createCompilation("");
+      }
+    }
+
+    if (tr.docChanged && value.ready) {
+      value.compilation?.recompile(tr.newDoc.toString());
     }
     return value;
   },
@@ -77,12 +108,27 @@ const csharpCompilationField = StateField.define({
 
 const csharpLinterSource = "@WasmSharp";
 
+interface CompilationObject {
+  compilation: Compilation | null;
+  ready: boolean;
+}
+
+type NonNullableCompilationObject<T> = { [K in keyof T]: NonNullable<T[K]> };
+
+function isCompilationReady<T extends CompilationObject>(
+  compilationObject: T
+): compilationObject is NonNullableCompilationObject<T> {
+  return compilationObject.ready;
+}
+
 export const csharpLinter = (config?: CSharpLinterConfig) => {
   return linter((view) => {
     const diagnostics: CmDiagnostic[] = [];
     const field = view.state.field(csharpCompilationField);
-    const compilation = field.compilation;
-    var wasmSharpDiagnostics = compilation.getDiagnostics();
+    if (!isCompilationReady(field)) {
+      return [];
+    }
+    var wasmSharpDiagnostics = field.compilation.getDiagnostics();
 
     console.log(`Diagnostics: ${wasmSharpDiagnostics.length}`);
     for (let i = 0; i < wasmSharpDiagnostics.length; i++) {

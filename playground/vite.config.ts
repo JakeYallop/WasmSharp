@@ -29,6 +29,10 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       exclude: ["dotnet.js"],
     },
+    resolve: {
+      //https://github.com/solidjs/solid-testing-library/issues/30
+      conditions: ["browser"],
+    },
     test: {
       deps: {
         inline: [

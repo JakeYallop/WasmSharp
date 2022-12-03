@@ -6,4 +6,5 @@
   "prettier.tabWidth": 2,
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "editor.tabSize": 2,
+  "vitest.enable": true
 }

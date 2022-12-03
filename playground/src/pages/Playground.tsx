@@ -1,4 +1,4 @@
-import { Compiler } from "@wasmsharp/core";
+import { AssemblyContext } from "@wasmsharp/core";
 import {
   batch,
   Component,
@@ -15,9 +15,10 @@ import CodeMirrorEditor from "../CodeMirror/CodeMirrorEditor.jsx";
 import * as styles from "./Playground.css";
 
 import playIcon from "../assets/play.svg";
+import { Compilation } from "@wasmsharp/core";
 
 const LoadWasm: ParentComponent = (props) => {
-  const [compilerInit] = createResource(() => Compiler.initAsync());
+  const [compilerInit] = createResource(() => AssemblyContext.createAsync());
   return (
     <>
       <Show when={compilerInit.state === "pending"}>
@@ -33,32 +34,47 @@ const LoadWasm: ParentComponent = (props) => {
 };
 
 const Playground: Component = () => {
+  const context = AssemblyContext.createAsync();
+  const [assemblyContext] = createResource(() => context);
+
   const [code, setCode] = createSignal<string | null>(null);
   const onValueChanged = (code: string) => {
     setCode(code);
   };
   return (
-    <LoadWasm>
-      <CodeMirrorEditor onValueChanged={onValueChanged} />
-      <CSharpRun code={code() || ""} />
-    </LoadWasm>
+    <>
+      <CodeMirrorEditor
+        onValueChanged={onValueChanged}
+        assemblyContext={context}
+      />
+      <Show when={assemblyContext.state === "pending"}>
+        <h2>Loading compilation tools, please wait...</h2>
+      </Show>
+      <Show when={assemblyContext.state === "errored"}>
+        <h2>Failed to load, please refresh the page.</h2>
+        <pre>
+          {assemblyContext.error?.getManageStack() ?? assemblyContext.error}
+        </pre>
+      </Show>
+      <Show when={assemblyContext.state === "ready"}>
+        <CSharpRun
+          code={code() || ""}
+          assemblyContext={assemblyContext.latest!}
+        />
+      </Show>
+    </>
   );
-};
-
-const CSharpRun: Component<CSharpRunProps> = (props) => {
-  return <CSharpRunInitialized code={props.code} />;
 };
 
 interface CSharpRunProps {
   code: string;
+  assemblyContext: AssemblyContext;
 }
-const CSharpRunInitialized: Component<CSharpRunProps> = (
-  props: CSharpRunProps
-) => {
+const CSharpRun: Component<CSharpRunProps> = (props: CSharpRunProps) => {
   const [output, setOutput] = createSignal<string | null>();
   const [diagnostics, setDiagnostics] = createSignal<Diagnostic[]>([]);
-  const [compilation] = createSignal<Compiler>(
-    Compiler.createCompilation(props.code)
+  const [compilation] = createSignal<Compilation>(
+    props.assemblyContext.createCompilation(props.code)
   );
 
   createEffect((prev) => {
