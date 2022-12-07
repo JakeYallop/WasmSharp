@@ -3,7 +3,6 @@
 
 /** @type {import("./dotnet")} */
 import { dotnet, default as createDotnetRuntimeUntyped } from "./dotnet.js";
-import { AssemblyExports } from "./wasm-exports.js";
 import { AssemblyContext } from "./WasmCompiler.js";
 
 /** @type {import("./dotnet").CreateDotnetRuntimeType} */

@@ -1,15 +1,15 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace WasmSharp.Core;
+namespace WasmSharp.Core.Document;
 
-public class WasmCompilerOptions
+public class DocumentOptions
 {
-    public static WasmCompilerOptions Default => new();
+    public static DocumentOptions Default => new();
     public static CSharpParseOptions DefaultParseOptions => CSharpParseOptions.Default;
     public static CSharpCompilationOptions DefaultCompilationOptions => new CSharpCompilationOptions(OutputKind.ConsoleApplication).WithConcurrentBuild(false);
 
-    public WasmCompilerOptions()
+    public DocumentOptions()
     {
         CSharpCompilationOptions = DefaultCompilationOptions;
         CSharpParseOptions = DefaultParseOptions;

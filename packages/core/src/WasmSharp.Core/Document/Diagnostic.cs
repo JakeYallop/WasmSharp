@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace WasmSharp.Core;
+namespace WasmSharp.Core.Document;
 
 public class Diagnostic
 {

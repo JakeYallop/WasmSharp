@@ -7,6 +7,7 @@ import { csharp } from "@codemirror/legacy-modes/mode/clike";
 import "./CodeMirrorEditor.css";
 import {
   Annotation,
+  EditorState,
   Facet,
   Prec,
   StateEffect,
@@ -14,8 +15,20 @@ import {
   Transaction,
 } from "@codemirror/state";
 import { ViewPlugin } from "@codemirror/view";
-import { DiagnosticSeverity } from "@wasmsharp/core/wasm-exports";
-import { AssemblyContext, Compilation } from "@wasmsharp/core";
+import { TextTag } from "../../../packages/core/src/WasmSharp.Core/dist/Roslyn/TextTags";
+import {
+  AssemblyContext,
+  Compilation,
+  CompletionItem,
+  DiagnosticSeverity,
+} from "@wasmsharp/core";
+import {
+  CompletionSource,
+  CompletionContext,
+  CompletionResult,
+  autocompletion,
+  Completion,
+} from "@codemirror/autocomplete";
 
 export interface CodeMirrorEditorProps {
   onValueChanged?: (value: string) => void;
@@ -37,7 +50,7 @@ Console.WriteLine("Hello, world!");`;
           const document = update.state.doc.toString();
           props.onValueChanged?.(document);
         }
-      }, 800)
+      }, 400)
     );
 
     const updateCheck = EditorView.updateListener.of((update) => {
@@ -56,6 +69,7 @@ Console.WriteLine("Hello, world!");`;
         updateCheck,
         wasmSharpField(props.assemblyContext),
         csharpLinter(),
+        autocompletion({ override: [csharpCompletionSource] }),
       ],
     });
     setEditor(e);
@@ -66,6 +80,128 @@ Console.WriteLine("Hello, world!");`;
 
   return <div style={{ height: "100%" }} ref={editorRef!}></div>;
 };
+
+async function csharpCompletionSource(
+  context: CompletionContext
+): Promise<CompletionResult | null> {
+  const compilation = getCompilation(context.state);
+  if (!compilation) {
+    return null;
+  }
+
+  const from = context.pos;
+  compilation.recompile(context.state.doc.toString());
+  const completions = await compilation.getCompletions(from);
+
+  return {
+    from: from,
+    options: completions.map(mapCompletionItemToCodeMirrorCompletion),
+    validFor: /^\w*$/,
+  };
+}
+
+function mapCompletionItemToCodeMirrorCompletion(
+  item: CompletionItem
+): Completion {
+  return {
+    label: item.displayText,
+    detail: item.inlineDescription,
+    type: mapAndGetBestMatchingTypeFromTag(item.tags),
+  };
+}
+
+function mapAndGetBestMatchingTypeFromTag(tags: TextTag[]) {
+  var mappedTags = tags.map(mapTextTagToType);
+  if (mappedTags.length === 0) {
+    if (process.env.NODE_ENV === "development") {
+      console.debug("No tags found for completion.");
+    }
+    return "keyword";
+  }
+  const priority = mappedTags.find((x) => x !== "keyword");
+  if (priority) {
+    return priority;
+  }
+
+  return mappedTags[0];
+}
+
+/**
+ * From code mirror:
+ * The base library defines simple icons for class, constant, enum, function,
+ * interface, keyword, method, namespace, property, text, type, and variable.
+ */
+
+function mapTextTagToType(tag: TextTag) {
+  switch (tag) {
+    //constants
+    case "Constant":
+      return "constant";
+    //enums
+    case "Enum":
+    case "EnumMember":
+      return "enum";
+    //variables
+    case "Parameter":
+    case "Local":
+    case "RangeVariable":
+      return "variable";
+    //interfaces
+    case "Interface":
+      return "interface";
+    //methods/functions
+    case "Method":
+    case "ExtensionMethod":
+    case "Delegate":
+      return "method";
+    //properties
+    case "Field":
+    case "Property":
+      return "property";
+    //namespaces
+    case "Namespace":
+    case "Module":
+    case "Assembly":
+      return "namespace";
+    //classes/types
+    case "Class":
+    case "Record":
+    case "RecordStruct":
+    case "Struct":
+      return "class";
+    //text
+    case "Text":
+    case "NumericLiteral":
+    case "StringLiteral":
+      return "text";
+    //and return keyword for all the rest
+    case "Keyword":
+    case "Alias":
+    case "ErrorType":
+    case "Event":
+    case "Label":
+    case "LineBreak":
+    case "Operator":
+    case "Punctuation":
+    case "Space":
+    case "AnonymousTypeIndicator":
+    case "TypeParameter":
+    case "ContainerStart":
+    case "ContainerEnd":
+    case "CodeBlockStart":
+    case "CodeBlockEnd":
+      return "keyword";
+    default:
+      if (process.env.NODE_ENV === "development") {
+        console.error(
+          `Unmapped tag: ${tag}\n` +
+            "Consider mapping this tag inside the `mapTextTagToType` function.\n" +
+            'Falling back to "keyword".\n'
+        );
+      }
+      return "keyword";
+  }
+}
 
 type LintConfig = NonNullable<Parameters<typeof linter>[1]>;
 interface CSharpLinterConfig extends LintConfig {}
@@ -83,7 +219,7 @@ const assemblyContextFacet = Facet.define<() => AssemblyContext | null>({
   static: true,
 });
 
-const csharpCompilationField = StateField.define<CompilationObject>({
+const csharpCompilationField = StateField.define({
   create(state) {
     return {
       ready: false,
@@ -108,27 +244,18 @@ const csharpCompilationField = StateField.define<CompilationObject>({
 
 const csharpLinterSource = "@WasmSharp";
 
-interface CompilationObject {
-  compilation: Compilation | null;
-  ready: boolean;
-}
-
-type NonNullableCompilationObject<T> = { [K in keyof T]: NonNullable<T[K]> };
-
-function isCompilationReady<T extends CompilationObject>(
-  compilationObject: T
-): compilationObject is NonNullableCompilationObject<T> {
-  return compilationObject.ready;
+function getCompilation(state: EditorState) {
+  return state.field(csharpCompilationField).compilation;
 }
 
 export const csharpLinter = (config?: CSharpLinterConfig) => {
-  return linter((view) => {
+  return linter(async (view) => {
     const diagnostics: CmDiagnostic[] = [];
-    const field = view.state.field(csharpCompilationField);
-    if (!isCompilationReady(field)) {
+    const compilation = getCompilation(view.state);
+    if (!compilation) {
       return [];
     }
-    var wasmSharpDiagnostics = field.compilation.getDiagnostics();
+    var wasmSharpDiagnostics = await compilation.getDiagnosticsAsync();
 
     console.log(`Diagnostics: ${wasmSharpDiagnostics.length}`);
     for (let i = 0; i < wasmSharpDiagnostics.length; i++) {
@@ -154,9 +281,10 @@ const mapSeverity: (
       return "error";
     case "Warning":
       return "warning";
-    case "Information":
+    case "Info":
     case "Hidden":
-    case "None":
+      return "info";
+    default:
       return "info";
   }
 };

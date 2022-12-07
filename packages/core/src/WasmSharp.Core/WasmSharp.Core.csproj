@@ -5,21 +5,25 @@
     <WasmMainJSPath>dist/main.js</WasmMainJSPath>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!--We don't know exactly what dlls the user might need to compile their program. For now, compile and sever all of them -->
+    <PublishTrimmed>false</PublishTrimmed>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0-2.final" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0-rc.2.22472.3" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
   </ItemGroup>
 
   <PropertyGroup Condition="$(Configuration) == 'Debug'">
     <WasmNativeStrip>false</WasmNativeStrip>
     <WasmEmitSymbolMap>true</WasmEmitSymbolMap>
+    <!--from https://github.com/dotnet/runtime/blob/main/docs/workflow/debugging/mono/wasm-debugging.md#collecting-stack-traces-with-symbols-in-blazor -->
+    <WasmBuildNative>true</WasmBuildNative>
   </PropertyGroup>
     
   <ItemGroup>
     <WasmExtraFilesToDeploy Include="index.html" />
     <WasmExtraFilesToDeploy Include="dist/main.js" />
-    <WasmExtraFilesToDeploy Include="wasm-exports.d.ts" />
     <!-- WasmAppDir is not defined yet. -->
     <!-- hardcoded for now until https://github.com/dotnet/runtime/issues/77285 -->
     <!--<UpToDateCheckBuilt Include="$(WasmAppDir)/main.js" Original="$(MSBuildThisFileDirectory)main.js" />-->
@@ -27,18 +31,22 @@
     <!--<UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)main.js" />-->
     <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)/dist/main.js" />
   </ItemGroup>
+  
+  <!-- TODO: Add tsc build step -->
 
-<!-- Copy dotnet.d.ts to AppBundle directory -->
+  <!-- Copy dotnet.d.ts to AppBundle directory -->
   <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="Build">
     <ItemGroup>
-      <FilesToCopy Include="$(OutDir)/dotnet.d.ts;$(MSBuildThisFileDirectory)package.json" />
+      <FilesToCopy Include="$(OutDir)/dotnet.d.ts" />
     </ItemGroup>
     <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(WasmAppDir)" />
   </Target>
 
+  <!-- Copy dist folder and other required artifacts -->
   <Target Name="_PrivateCopyRequiredArtifacts" AfterTargets="WasmBuildApp">
     <ItemGroup>
       <__FilesToCopy Include="$(MSBuildThisFileDirectory)dist\*.*" />
+      <__FilesToCopy Include="$(MSBuildThisFileDirectory)package.json" />
     </ItemGroup>
      <!--WasmAppDir is not defined yet. 
      hardcoded for now until https://github.com/dotnet/runtime/issues/77285--> 

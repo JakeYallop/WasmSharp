@@ -1,4 +1,4 @@
-import { AssemblyContext } from "@wasmsharp/core";
+import { AssemblyContext, Diagnostic } from "@wasmsharp/core";
 import {
   batch,
   Component,
@@ -10,28 +10,17 @@ import {
   Show,
 } from "solid-js";
 
-import { Diagnostic } from "@wasmsharp/core/wasm-exports.js";
 import CodeMirrorEditor from "../CodeMirror/CodeMirrorEditor.jsx";
 import * as styles from "./Playground.css";
 
 import playIcon from "../assets/play.svg";
 import { Compilation } from "@wasmsharp/core";
-
-const LoadWasm: ParentComponent = (props) => {
-  const [compilerInit] = createResource(() => AssemblyContext.createAsync());
-  return (
-    <>
-      <Show when={compilerInit.state === "pending"}>
-        <h2>Loading compilation tools, please wait...</h2>
-      </Show>
-      <Show when={compilerInit.state === "errored"}>
-        <h2>Failed to load, please refresh the page.</h2>
-        <pre>{compilerInit.error?.getManageStack() ?? compilerInit.error}</pre>
-      </Show>
-      <Show when={compilerInit.state === "ready"}>{props.children}</Show>
-    </>
-  );
-};
+import {
+  CompletionContext,
+  CompletionResult,
+  CompletionSource,
+  Completion,
+} from "@codemirror/autocomplete";
 
 const Playground: Component = () => {
   const context = AssemblyContext.createAsync();
@@ -84,9 +73,15 @@ const CSharpRun: Component<CSharpRunProps> = (props: CSharpRunProps) => {
     }
     batch(() => {
       compilation().recompile(props.code);
-      setDiagnostics(compilation().getDiagnostics());
       setOutput(null);
     });
+    compilation()
+      .getDiagnosticsAsync()
+      .then((diagnostics) => {
+        console.log("Fetched diagnostics");
+        setDiagnostics(diagnostics);
+      });
+
     return props.code;
   });
 

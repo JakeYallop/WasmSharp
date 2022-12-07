@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace WasmSharp.Core;
+namespace WasmSharp.Core.Document;
 
 public static class MetadataReferenceCache
 {
