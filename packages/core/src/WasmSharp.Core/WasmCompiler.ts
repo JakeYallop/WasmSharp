@@ -64,6 +64,7 @@ export class Compilation {
   }
 
   recompile(code: string) {
+    console.warn("Recompiling");
     return this.interop!.Recompile(this.compilationId, code);
   }
 

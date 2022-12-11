@@ -5,7 +5,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "start": "vite --open --force",
+    "start": "vite --open",
     "dev": "vite",
     "build": "vite build",
     "test": "vitest",
@@ -42,3 +42,4 @@
     "solid-js": "^1.5.7"
   }
 }
+

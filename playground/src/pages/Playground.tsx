@@ -15,6 +15,7 @@ import * as styles from "./Playground.css";
 
 import playIcon from "../assets/play.svg";
 import { Compilation } from "@wasmsharp/core";
+import { debounce } from "@solid-primitives/scheduled";
 import {
   CompletionContext,
   CompletionResult,
@@ -27,9 +28,9 @@ const Playground: Component = () => {
   const [assemblyContext] = createResource(() => context);
 
   const [code, setCode] = createSignal<string | null>(null);
-  const onValueChanged = (code: string) => {
+  const onValueChanged = debounce((code: string) => {
     setCode(code);
-  };
+  }, 1000);
   return (
     <>
       <CodeMirrorEditor
@@ -71,17 +72,14 @@ const CSharpRun: Component<CSharpRunProps> = (props: CSharpRunProps) => {
       console.log("Skipping compilation as code is unchanged.");
       return;
     }
-    batch(() => {
-      compilation().recompile(props.code);
-      setOutput(null);
-    });
+    console.log("recompiling and fetching diagnostics");
+    compilation().recompile(props.code);
     compilation()
       .getDiagnosticsAsync()
       .then((diagnostics) => {
-        console.log("Fetched diagnostics");
         setDiagnostics(diagnostics);
       });
-
+    setOutput(null);
     return props.code;
   });
 

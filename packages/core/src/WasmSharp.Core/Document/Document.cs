@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Security.Principal;
+using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.CSharp;
@@ -153,32 +154,38 @@ public class CodeSession
         {
             return;
         }
-        Console.WriteLine("Updated document.");
         _currentDocument = _currentDocument.WithText(_sourceText);
-        Workspace.TryApplyChanges(Solution);
+        //Workspace.TryApplyChanges(Solution);
         //_currentDocument = Workspace.CurrentSolution.GetDocument(_currentDocument.Id)!;
         _outOfDate = false;
     }
 
     public void Recompile(string code)
     {
+        using var t = new Tracer("Updating source text");
         SourceText = SourceText.From(code);
     }
 
     public async Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync()
     {
+        using var t = new Tracer("Fetching diagnostics");
         var compilation = (await CurrentDocument.Project.GetCompilationAsync())!;
         return compilation.GetDiagnostics().Select(x => new Diagnostic(x.Id, x.GetMessage(), x.Location.SourceSpan, x.Severity));
     }
 
     public async Task<IEnumerable<CompletionItem>> GetCompletionsAsync(int caretPosition)
     {
-        var completionService = CompletionService.GetService(CurrentDocument);
+        CompletionService? completionService = null;
+        using (var t = new Tracer("Fetching completion service"))
+        {
+            completionService = CompletionService.GetService(CurrentDocument);
+        }
         if (completionService is null)
         {
             Console.WriteLine($"Could not find completion service for document '{CurrentDocument.Name}'.");
             return Array.Empty<CompletionItem>();
         }
+        using var t2 = new Tracer("Fetching completions");
         //Console.WriteLine($"caretPosition: {caretPosition}");
         //var tree = await CurrentDocument.GetSyntaxTreeAsync();
         //Console.WriteLine($"CurrentDocument: {tree}");

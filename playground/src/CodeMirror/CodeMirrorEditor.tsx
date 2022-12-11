@@ -1,5 +1,5 @@
 import { Component, createSignal, onCleanup, onMount } from "solid-js";
-import { debounce } from "@solid-primitives/scheduled";
+import { debounce, throttle } from "@solid-primitives/scheduled";
 import { basicSetup, EditorView } from "codemirror";
 import { StreamLanguage } from "@codemirror/language";
 import { linter, Diagnostic as CmDiagnostic } from "@codemirror/lint";
@@ -42,21 +42,9 @@ const CodeMirrorEditor: Component<CodeMirrorEditorProps> = (props) => {
     const initialDocument = `using System;
 
 Console.WriteLine("Hello, world!");`;
-    let hasUpdated = { value: true };
-    const readUpdates = EditorView.updateListener.of(
-      debounce((update) => {
-        if (hasUpdated) {
-          hasUpdated.value = false;
-          const document = update.state.doc.toString();
-          props.onValueChanged?.(document);
-        }
-      }, 400)
-    );
-
-    const updateCheck = EditorView.updateListener.of((update) => {
-      if (update.docChanged) {
-        hasUpdated.value = true;
-      }
+    const readUpdates = EditorView.updateListener.of((update) => {
+      const document = update.state.doc.toString();
+      props.onValueChanged?.(document);
     });
 
     const e = new EditorView({
@@ -66,9 +54,8 @@ Console.WriteLine("Hello, world!");`;
         basicSetup,
         StreamLanguage.define(csharp),
         readUpdates,
-        updateCheck,
         wasmSharpField(props.assemblyContext),
-        csharpLinter(),
+        csharpLinter({ delay: 0 }),
         autocompletion({ override: [csharpCompletionSource] }),
       ],
     });
@@ -90,13 +77,13 @@ async function csharpCompletionSource(
   }
 
   const from = context.pos;
-  compilation.recompile(context.state.doc.toString());
+  console.log("Fetching completions");
   const completions = await compilation.getCompletions(from);
 
   return {
     from: from,
     options: completions.map(mapCompletionItemToCodeMirrorCompletion),
-    validFor: /^\w*$/,
+    validFor: /\w*$/,
   };
 }
 
@@ -133,6 +120,7 @@ function mapAndGetBestMatchingTypeFromTag(tags: TextTag[]) {
  */
 
 function mapTextTagToType(tag: TextTag) {
+  //TODO: Get rid of this and just support the tags directly via cm-* classes?
   switch (tag) {
     //constants
     case "Constant":
@@ -193,11 +181,11 @@ function mapTextTagToType(tag: TextTag) {
       return "keyword";
     default:
       if (process.env.NODE_ENV === "development") {
-        console.error(
-          `Unmapped tag: ${tag}\n` +
-            "Consider mapping this tag inside the `mapTextTagToType` function.\n" +
-            'Falling back to "keyword".\n'
-        );
+        // console.warn(
+        //   `Unmapped tag: ${tag}\n` +
+        //     "Consider mapping this tag inside the `mapTextTagToType` function.\n" +
+        //     'Falling back to "keyword".\n'
+        // );
       }
       return "keyword";
   }
@@ -231,7 +219,7 @@ const csharpCompilationField = StateField.define({
       const compilation = tr.state.facet(assemblyContextFacet)[0]();
       if (compilation) {
         value.ready = true;
-        value.compilation = compilation.createCompilation("");
+        value.compilation = compilation.createCompilation(tr.newDoc.toString());
       }
     }
 
@@ -257,7 +245,6 @@ export const csharpLinter = (config?: CSharpLinterConfig) => {
     }
     var wasmSharpDiagnostics = await compilation.getDiagnosticsAsync();
 
-    console.log(`Diagnostics: ${wasmSharpDiagnostics.length}`);
     for (let i = 0; i < wasmSharpDiagnostics.length; i++) {
       const diagnostic = wasmSharpDiagnostics[i];
       diagnostics.push({
