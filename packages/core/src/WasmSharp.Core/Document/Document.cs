@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Reflection;
 using System.Reflection.Metadata;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
@@ -9,33 +10,30 @@ using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using Microsoft.NET.Sdk.WebAssembly;
 using WasmSharp.Core.Document;
 using CompletionItem = WasmSharp.Core.Document.CompletionItem;
 using Diagnostic = WasmSharp.Core.Document.Diagnostic;
 
 namespace WasmSharp.Core.CodeSession;
-
-/// <summary>
+/// <summary> 
 /// Compiles C# code inside the browser.
 /// </summary>
 public static class WasmSolution
 {
     private static readonly Dictionary<string, CodeSession> CompilationCache = new();
 
-    public static async Task InitializeAsync(string publicUrl, MonoConfig config)
+    public static async Task InitializeAsync(string publicUrl, BootJsonData config)
     {
         var resolver = new WasmMetadataReferenceResolver(publicUrl);
         var referenceTasks = new ConcurrentBag<Task<MetadataReference>>();
 
-        foreach (var asset in config.Assets)
+        foreach (var asset in config.Resources.Assembly)
         {
-            if (asset.Behavior != AssetBehaviour.Assembly.Value || !asset.Name.EndsWith(".dll"))
-            {
-                continue;
-            }
-            referenceTasks.Add(resolver.ResolveReferenceAsync(config.AssemblyRootFolder, asset.Name));
+            //TODO: Handle WasmRuntimeAssetsLocation correctly here
+            referenceTasks.Add(resolver.ResolveReferenceAsync("./", asset.Key));
         }
-        var references = await Task.WhenAll(referenceTasks);
+        var references = await Task.WhenAll(referenceTasks).ConfigureAwait(false);
         foreach (var reference in references)
         {
             MetadataReferenceCache.AddReference(reference);
@@ -162,8 +160,8 @@ public class CodeSession
 
     public void Recompile(string code)
     {
-        using var t = new Tracer("Updating source text");
         SourceText = SourceText.From(code);
+        Compilation.GetDiagnostics();
     }
 
     public async Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync()
@@ -185,7 +183,7 @@ public class CodeSession
             Console.WriteLine($"Could not find completion service for document '{CurrentDocument.Name}'.");
             return Array.Empty<CompletionItem>();
         }
-        using var t2 = new Tracer("Fetching completions");
+        //using var t2 = new Tracer("Fetching completions");
         //Console.WriteLine($"caretPosition: {caretPosition}");
         //var tree = await CurrentDocument.GetSyntaxTreeAsync();
         //Console.WriteLine($"CurrentDocument: {tree}");

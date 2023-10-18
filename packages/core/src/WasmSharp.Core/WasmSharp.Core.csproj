@@ -1,12 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>$(NetVersion)</TargetFramework>
     <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
     <WasmMainJSPath>dist/main.js</WasmMainJSPath>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <!--We don't know exactly what dlls the user might need to compile their program. For now, compile and sever all of them -->
+    <!--We don't know exactly what dlls the user might need to compile their program. For now, compile and seve all of them -->
     <PublishTrimmed>false</PublishTrimmed>
+    <!-- TOOD: Test publishing-->
+    <!--<RunAOTCompilation>true</RunAOTCompilation>-->
+    
+    <!--TODO: Write this variable to an env file to be read by Vite during build, so that assembly lookup is done correctly -->
+    <WasmRuntimeAssetsLocation>./</WasmRuntimeAssetsLocation>
+    
+    <!-- TODO: Investigate using Webcil format for better compatibility - how do we load DLLs when packaged in this format?-->
+    <WasmEnableWebcil>false</WasmEnableWebcil>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
@@ -20,37 +28,37 @@
     <!--from https://github.com/dotnet/runtime/blob/main/docs/workflow/debugging/mono/wasm-debugging.md#collecting-stack-traces-with-symbols-in-blazor -->
     <WasmBuildNative>true</WasmBuildNative>
   </PropertyGroup>
-    
+
   <ItemGroup>
     <WasmExtraFilesToDeploy Include="index.html" />
     <WasmExtraFilesToDeploy Include="dist/main.js" />
     <!-- WasmAppDir is not defined yet. -->
     <!-- hardcoded for now until https://github.com/dotnet/runtime/issues/77285 -->
-    <!--<UpToDateCheckBuilt Include="$(WasmAppDir)/main.js" Original="$(MSBuildThisFileDirectory)main.js" />-->
-
-    <!--<UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)main.js" />-->
     <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)/dist/main.js" />
+    <!--<UpToDateCheckBuilt Include="$(WasmAppDir)/main.js" Original="$(MSBuildThisFileDirectory)/dist/main.js" />-->
   </ItemGroup>
-  
+
   <!-- TODO: Add tsc build step -->
 
-  <!-- Copy dotnet.d.ts to AppBundle directory -->
-  <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="Build">
+   <!--Copy dotnet.d.ts to AppBundle directory--> 
+  <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="WasmBuildApp">
+    <PropertyGroup> 
+      <_DotNetTypePath>$(OutputPath)dotnet.d.ts</_DotNetTypePath>
+    </PropertyGroup>
+    <Message Importance="High" Text="Copying dotnet.d.ts from $(OutputPath)dotnet.ts to $(WasmAppDir)$(WasmRuntimeAssetsLocation) and $(MSBuildThisFileDirectory)$(WasmRuntimeAssetsLocation)" />
     <ItemGroup>
-      <FilesToCopy Include="$(OutDir)/dotnet.d.ts" />
+      <FilesToCopy Include="$(_DotNetTypePath)" />
     </ItemGroup>
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(WasmAppDir)" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(WasmAppDir)$(WasmRuntimeAssetsLocation)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(MSBuildThisFileDirectory)$(WasmRuntimeAssetsLocation)" SkipUnchangedFiles="true" />
   </Target>
 
   <!-- Copy dist folder and other required artifacts -->
-  <Target Name="_PrivateCopyRequiredArtifacts" AfterTargets="WasmBuildApp">
+  <Target Name="_PrivateCopyRequiredArtifacts" AfterTargets="WasmBuildApp" DependsOnTargets="WasmBuildApp">
     <ItemGroup>
       <__FilesToCopy Include="$(MSBuildThisFileDirectory)dist\*.*" />
       <__FilesToCopy Include="$(MSBuildThisFileDirectory)package.json" />
     </ItemGroup>
-     <!--WasmAppDir is not defined yet. 
-     hardcoded for now until https://github.com/dotnet/runtime/issues/77285--> 
-    <!--<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(WasmAppDir)" />-->
-    <Copy SourceFiles="@(__FilesToCopy)" DestinationFolder="$(OutputPath)/AppBundle" />
+    <Copy SkipUnchangedFiles="true" SourceFiles="@(__FilesToCopy)" DestinationFolder="$(WasmAppDir)" />
   </Target>
 </Project>

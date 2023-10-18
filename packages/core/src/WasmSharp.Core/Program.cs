@@ -4,6 +4,7 @@ using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.CodeAnalysis;
+using Microsoft.NET.Sdk.WebAssembly;
 using WasmSharp.Core.CodeSession;
 using WasmSharp.Core.Document;
 
@@ -19,12 +20,13 @@ public static partial class CompilationInterop
     public static partial void PrettyPrint(string s);
 
     //TODO: Make idempotent
-
+    //TODO: Rename monoConfigJson to blazorConfig
     [JSExport]
-    public static async Task InitAsync(string publicUrl, string monoConfigJson)
+    public static async Task InitAsync(string publicUrl, string bootJsonData)
     {
         Console.WriteLine($"Loading files from {publicUrl}");
-        var monoConfig = JsonSerializer.Deserialize<MonoConfig>(monoConfigJson, DefaultOptions)!;
+        Console.WriteLine($"{bootJsonData}");
+        var monoConfig = JsonSerializer.Deserialize<BootJsonData>(bootJsonData, DefaultOptions)!;
         Console.WriteLine("Successfully deserialized config.");
         await WasmSolution.InitializeAsync(publicUrl, monoConfig);
     }

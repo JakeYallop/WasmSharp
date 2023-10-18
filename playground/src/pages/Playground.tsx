@@ -124,6 +124,7 @@ const Diagnostics: Component<DiagnosticsProps> = (props) => {
           const copy = JSON.parse(JSON.stringify(diagnostic));
           delete copy.location;
           return (
+            //TODO: Update to use theme spacing
             <pre style={{ margin: "5px 0" }}>
               {JSON.stringify(copy, undefined, "  ")}
             </pre>

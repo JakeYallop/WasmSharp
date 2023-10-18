@@ -27,13 +27,14 @@ export class AssemblyContext {
      */
     const { getAssemblyExports, getConfig } = await dotnet
       .withDiagnosticTracing(false)
-      .withDebugging(-1)
+      .withDebugging(1)
       .create();
 
     const config = getConfig();
     const assemblyExports: AssemblyExports = await getAssemblyExports(
       config.mainAssemblyName!
     );
+    //TODO: Handle nested assets folder (WasmRuntimeAssetsLocation)
     const resolvedAssembliesUrl =
       assembliesUrl ?? getDirectory(import.meta.url);
     console.log(

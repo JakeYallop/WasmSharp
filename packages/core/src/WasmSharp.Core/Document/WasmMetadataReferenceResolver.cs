@@ -27,6 +27,6 @@ public class WasmMetadataReferenceResolver : MetadataReferenceResolver
         Console.WriteLine($"Resolving dynamic assembly from {url}.");
         var response = await Client.GetAsync(url);
         var byteStream = await response.Content.ReadAsStreamAsync();
-        return MetadataReference.CreateFromStream(byteStream);
+        return MetadataReference.CreateFromStream(byteStream, new(MetadataImageKind.Assembly));
     }
 }

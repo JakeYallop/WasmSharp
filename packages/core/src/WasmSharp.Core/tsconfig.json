@@ -2,7 +2,8 @@
   "compilerOptions": {
     "declaration": true /* Generates corresponding '.d.ts' file. */,
     "outDir": "dist" /* Redirect output structure to the directory. */,
-    "composite": true
+    "composite": true,
+    "lib": ["ES2020", "DOM"]
   },
   "exclude": ["node_modules", "./bin", "./obj", "./dist/**"],
   "include": ["**/*"],
