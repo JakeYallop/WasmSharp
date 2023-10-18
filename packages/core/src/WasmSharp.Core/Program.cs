@@ -53,7 +53,7 @@ public static partial class CompilationInterop
 
 
     [JSExport]
-    public static string Run(string compilationId) => JsonSerializer.Serialize(WasmSolution.Run(compilationId), DefaultOptions);
+    public static async Task<string> RunAsync(string compilationId) => JsonSerializer.Serialize(await WasmSolution.RunAsync(compilationId), DefaultOptions);
 
     [JSExport]
     public static async Task<string> GetCompletionsAsync(string compilationId, int caretPosition)

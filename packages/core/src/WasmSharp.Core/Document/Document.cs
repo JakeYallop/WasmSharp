@@ -54,7 +54,7 @@ public static class WasmSolution
     public static void Recompile(string compilationId, string code) => GetCompilation(compilationId).Recompile(code);
     public static Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(string compilationId) => GetCompilation(compilationId).GetDiagnosticsAsync();
     public static Task<IEnumerable<CompletionItem>> GetCompletionsAsync(string compilationId, int caretPosition) => GetCompilation(compilationId).GetCompletionsAsync(caretPosition);
-    public static RunResult Run(string compilationId) => GetCompilation(compilationId).Run();
+    public static Task<RunResult> RunAsync(string compilationId) => GetCompilation(compilationId).RunAsync();
 
     private static CodeSession GetCompilation(string compilationId)
     {
@@ -79,10 +79,16 @@ public class RunResult
         StdErr = stdErr
     };
 
-    public static RunResult Failure => new() { Success = false };
+    public static RunResult Failure(IEnumerable<Diagnostic> diagnostics)
+    => new()
+    {
+        Diagnostics = diagnostics.ToArray()
+    };
+
     public bool Success { get; init; }
     public string? StdOut { get; init; }
     public string? StdErr { get; init; }
+    public Diagnostic[] Diagnostics { get; init; } = [];
 }
 
 //TODO: Work with source text, rather than compilations - how do we resolve metadata references?? Custom ALC??
@@ -144,7 +150,7 @@ public class CodeSession
         }
     }
 
-    private bool _outOfDate = false;
+    private bool _outOfDate;
 
     private void EnsureUpToDate()
     {
@@ -160,19 +166,20 @@ public class CodeSession
 
     public void Recompile(string code)
     {
+        Console.WriteLine($"Compiling code {code}.");
         SourceText = SourceText.From(code);
-        Compilation.GetDiagnostics();
     }
 
     public async Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync()
     {
         using var t = new Tracer("Fetching diagnostics");
         var compilation = (await CurrentDocument.Project.GetCompilationAsync())!;
-        return compilation.GetDiagnostics().Select(x => new Diagnostic(x.Id, x.GetMessage(), x.Location.SourceSpan, x.Severity));
+        return compilation.GetDiagnostics().ToWasmSharpDiagnostics();
     }
 
     public async Task<IEnumerable<CompletionItem>> GetCompletionsAsync(int caretPosition)
     {
+        EnsureUpToDate();
         CompletionService? completionService = null;
         using (var t = new Tracer("Fetching completion service"))
         {
@@ -191,10 +198,12 @@ public class CodeSession
         return completions.ItemsList.Select(x => new CompletionItem(x.DisplayText, x.SortText, x.InlineDescription, x.Tags, x.Span));
     }
 
-    public RunResult Run()
+    public async Task<RunResult> RunAsync()
     {
+        Console.WriteLine("Running...");
+        var compilation = await CurrentDocument.Project.GetCompilationAsync();
         var ms = new MemoryStream();
-        var result = Compilation.Emit(ms);
+        var result = compilation.Emit(ms);
         if (result.Success)
         {
             var assembly = Assembly.Load(ms.ToArray());
@@ -219,8 +228,22 @@ public class CodeSession
 
             return RunResult.WithStdOutErr(capturedOutput, "");
         }
+        else
+        {
+            return RunResult.Failure(result.Diagnostics.ToWasmSharpDiagnostics());
+        }
+    }
+}
 
-        return RunResult.Failure;
+public static class DiagnosticCollectionExtensions
+{
+    public static Diagnostic[] MapDiagnostics(this Microsoft.CodeAnalysis.Diagnostic[] diagnostics)
+    {
+        return diagnostics.Select(x => new Diagnostic(x.Id, x.GetMessage(), x.Location.SourceSpan, x.Severity)).ToArray();
     }
 
+    public static IEnumerable<Diagnostic> ToWasmSharpDiagnostics(this IEnumerable<Microsoft.CodeAnalysis.Diagnostic> diagnostics)
+    {
+        return diagnostics.Select(x => new Diagnostic(x.Id, x.GetMessage(), x.Location.SourceSpan, x.Severity));
+    }
 }

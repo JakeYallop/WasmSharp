@@ -88,11 +88,18 @@ const CSharpRun: Component<CSharpRunProps> = (props: CSharpRunProps) => {
       <Diagnostics diagnostics={diagnostics()} />
       <button
         class={`${styles.runButton} button primary icon`}
-        disabled={diagnostics().length > 0}
-        onClick={() => {
-          const result = compilation().run();
+        disabled={diagnostics().filter((x) => x.severity == "Error").length > 0}
+        onClick={async () => {
+          const result = await compilation().run();
           if (result.success) {
             setOutput(result.stdOut);
+          } else {
+            console.error(`Program failed to run.
+${result.diagnostics
+  .map((x) => JSON.stringify(x, undefined, "  "))
+  .join("\n")}`);
+
+            setDiagnostics(result.diagnostics);
           }
         }}
       >

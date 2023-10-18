@@ -44,14 +44,14 @@ Console.WriteLine("Hello World");
 const compilation = context.createCompilation(code);
 
 compilation.recompile(code);
-const result = compilation.run();
+const result = await compilation.run();
 console.log(result.success);
 console.log(result.stdOut);
 console.log(result.stdErr);
 
-document.getElementById("recompile")?.addEventListener("click", () => {
+document.getElementById("recompile")?.addEventListener("click", async () => {
   compilation.recompile(code);
-  const result = compilation.run();
+  const result = await compilation.run();
   console.log(result.success);
   console.log(result.stdOut);
   console.log(result.stdErr);

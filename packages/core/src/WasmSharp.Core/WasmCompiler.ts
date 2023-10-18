@@ -60,7 +60,7 @@ export class Compilation {
   ) {}
 
   static create(code: string, interop: CompilationInterop): Compilation {
-    var compilationId = interop!.CreateNewCompilation(code);
+    const compilationId = interop!.CreateNewCompilation(code);
     return new Compilation(compilationId, interop);
   }
 
@@ -77,7 +77,7 @@ export class Compilation {
   }
 
   async getCompletions(caretPosition: number, filterText?: string) {
-    var completions = await this.interop.GetCompletionsAsync(
+    const completions = await this.interop.GetCompletionsAsync(
       this.compilationId,
       caretPosition,
       filterText
@@ -85,8 +85,10 @@ export class Compilation {
     return get<CompletionItem[]>(completions);
   }
 
-  run() {
-    return get<RunResult>(this.interop!.Run(this.compilationId));
+  async run() {
+    console.log("Executing code");
+    const runResult = await this.interop!.RunAsync(this.compilationId);
+    return get<RunResult>(runResult);
   }
 }
 
@@ -124,12 +126,14 @@ interface RunResultSuccess {
   stdOut: string;
   stdErr: string;
   success: true;
+  diagnostics: [];
 }
 
 interface RunResultFailure {
   stdOut: null;
   stdErr: null;
   success: false;
+  diagnostics: Diagnostic[];
 }
 
 export type RunResult = RunResultSuccess | RunResultFailure;
@@ -145,5 +149,5 @@ export declare class CompilationInterop {
     caretPosition: number,
     filterText?: string
   ): Promise<string>;
-  Run(compilationId: string): string;
+  RunAsync(compilationId: string): Promise<string>;
 }
