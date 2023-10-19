@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using Microsoft.CodeAnalysis;
 
-namespace WasmSharp.Core.Document;
+namespace WasmSharp.Core.CompilationServices;
 
 public abstract class MetadataReferenceResolver
 {

@@ -4,7 +4,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 using ResourceHashesByNameDictionary = System.Collections.Generic.Dictionary<string, string>;
 
-namespace Microsoft.NET.Sdk.WebAssembly;
+namespace WasmSharp.Core.Platform;
 
 #nullable disable
 
@@ -50,7 +50,7 @@ public class BootJsonData
     /// <summary>
     /// Config files for the application
     /// </summary>
-    public List<string> Appsettings { get; set; }
+    public IList<string> Appsettings { get; set; }
 
     /// <summary>
     /// Gets or sets the <see cref="ICUDataMode"/> that determines how icu files are loaded.
@@ -61,7 +61,7 @@ public class BootJsonData
     public GlobalizationMode? IcuDataMode { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="WebAssembly.GlobalizationMode"/> that determines how icu files are loaded.
+    /// Gets or sets the <see cref="Platform.GlobalizationMode"/> that determines how icu files are loaded.
     /// </summary>
     public string GlobalizationMode { get; set; }
 
@@ -166,7 +166,7 @@ public class ResourcesData
 
     public Dictionary<string, ResourceHashesByNameDictionary> Vfs { get; set; }
 
-    public List<string> RemoteSources { get; set; }
+    public IList<string> RemoteSources { get; set; }
 }
 
 public enum GlobalizationMode : int

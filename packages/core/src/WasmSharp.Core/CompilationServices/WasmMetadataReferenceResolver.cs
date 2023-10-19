@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using Microsoft.CodeAnalysis;
 
-namespace WasmSharp.Core.Document;
+namespace WasmSharp.Core.CompilationServices;
 
 public class WasmMetadataReferenceResolver : MetadataReferenceResolver
 {
@@ -23,10 +23,10 @@ public class WasmMetadataReferenceResolver : MetadataReferenceResolver
 
     public async Task<MetadataReference> ResolveReferenceAsync(string rootFolder, string assembly)
     {
-        var url = Path.Combine(_publicUrl, rootFolder, assembly);
+        var url = new Uri(Path.Combine(_publicUrl, rootFolder, assembly));
         Console.WriteLine($"Resolving dynamic assembly from {url}.");
-        var response = await Client.GetAsync(url);
-        var byteStream = await response.Content.ReadAsStreamAsync();
+        var response = await Client.GetAsync(url).ConfigureAwait(false);
+        var byteStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
         return MetadataReference.CreateFromStream(byteStream, new(MetadataImageKind.Assembly));
     }
 }

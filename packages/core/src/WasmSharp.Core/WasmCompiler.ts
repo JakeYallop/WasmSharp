@@ -34,6 +34,8 @@ export class AssemblyContext {
     const assemblyExports: AssemblyExports = await getAssemblyExports(
       config.mainAssemblyName!
     );
+    const compilationInterop =
+      assemblyExports.WasmSharp.Core.CompilationInterop;
     //TODO: Handle nested assets folder (WasmRuntimeAssetsLocation)
     const resolvedAssembliesUrl =
       assembliesUrl ?? getDirectory(import.meta.url);
@@ -41,13 +43,13 @@ export class AssemblyContext {
       `Initialising assembly context from url: ${resolvedAssembliesUrl}`
     );
     const time = performance.now();
-    await assemblyExports.CompilationInterop.InitAsync(
+    await compilationInterop.InitAsync(
       resolvedAssembliesUrl,
       JSON.stringify(config)
     );
     const diff = performance.now() - time;
     console.log(`Finished initialising assembly context in ${diff}ms`);
-    return new AssemblyContext(assemblyExports.CompilationInterop);
+    return new AssemblyContext(compilationInterop);
   }
 
   createCompilation = (code: string) => Compilation.create(code, this.interop);
@@ -101,7 +103,11 @@ export type CompletionItem = {
 };
 
 export interface AssemblyExports {
-  CompilationInterop: CompilationInterop;
+  WasmSharp: {
+    Core: {
+      CompilationInterop: CompilationInterop;
+    };
+  };
 }
 
 export type CompilationId = string;

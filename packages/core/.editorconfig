@@ -312,3 +312,18 @@ csharp_preserve_single_line_blocks = true
 ###############################
 # Analyzer Rules              #
 ###############################
+
+# CA1819: Properties should not return arrays
+dotnet_diagnostic.CA1819.severity = none
+
+# CA1054: URI-like parameters should not be strings
+dotnet_diagnostic.CA1054.severity = none
+
+# CA2227: Collection properties should be read only
+dotnet_diagnostic.CA2227.severity = none
+
+# CA1303: Do not pass literals as localized parameters
+dotnet_diagnostic.CA1303.severity = none
+
+# CA1812: An instance of an assembly-level type is not created by code in the assembly
+dotnet_diagnostic.CA1812.severity = suggestion

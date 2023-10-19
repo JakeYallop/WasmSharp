@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 
-namespace WasmSharp.Core.Document;
+namespace WasmSharp.Core.CompilationServices;
 
-public class Tracer : IDisposable
+internal sealed class Tracer : IDisposable
 {
     private readonly DateTime _startTime = DateTime.UtcNow;
     private readonly string _actionName;
