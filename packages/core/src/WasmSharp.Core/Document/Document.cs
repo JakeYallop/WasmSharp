@@ -166,7 +166,6 @@ public class CodeSession
 
     public void Recompile(string code)
     {
-        Console.WriteLine($"Compiling code {code}.");
         SourceText = SourceText.From(code);
     }
 

@@ -41,7 +41,6 @@ public static partial class CompilationInterop
     [JSExport]
     public static void Recompile(string compilationId, string code)
     {
-        //Console.WriteLine($"Recompiling \n{code}.");
         WasmSolution.Recompile(compilationId, code);
     }
 
