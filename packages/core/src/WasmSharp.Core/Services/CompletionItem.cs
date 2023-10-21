@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace WasmSharp.Core.CompilationServices;
+namespace WasmSharp.Core.Services;
 
 
 /// <summary>

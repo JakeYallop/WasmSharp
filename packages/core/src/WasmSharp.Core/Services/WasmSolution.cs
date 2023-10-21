@@ -1,18 +1,20 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.Extensions.Logging;
 using WasmSharp.Core.Platform;
-using CompletionItem = WasmSharp.Core.CompilationServices.CompletionItem;
-using Diagnostic = WasmSharp.Core.CompilationServices.Diagnostic;
+using CompletionItem = WasmSharp.Core.Services.CompletionItem;
+using Diagnostic = WasmSharp.Core.Services.Diagnostic;
 
-namespace WasmSharp.Core.CompilationServices;
+namespace WasmSharp.Core.Services;
 
 /// <summary> 
 /// Compiles C# code inside the browser.
 /// </summary>
-internal static class WasmSolution
+internal sealed class WasmSolution(ILogger<WasmSolution> logger)
 {
     private static readonly Dictionary<string, CodeSession> CompilationCache = new();
+    private readonly ILogger<WasmSolution> _logger = logger;
 
     internal static async Task InitializeAsync(string publicUrl, BootJsonData config)
     {
@@ -31,25 +33,23 @@ internal static class WasmSolution
         }
     }
 
-    public static string CreateCompilation(string code, DocumentOptions? options = null)
+    public string CreateCompilation(string code, DocumentOptions? options = null)
     {
-        options ??= DocumentOptions.Default;
-        var tree = CSharpSyntaxTree.ParseText(code, options.CSharpParseOptions);
-        var compilation = CSharpCompilation.Create("wasmsharpexecutor", new[] { tree }, MetadataReferenceCache.MetadataReferences, options: options.CSharpCompilationOptions);
-        var wasmCompilation = new CodeSession(compilation, options);
+        _logger.LogTrace($"Creating new compilation.");
+        var wasmCompilation = new CodeSession(code, options);
         var compilationId = Guid.NewGuid().ToString();
         CompilationCache.Add(compilationId, wasmCompilation);
         return compilationId;
     }
 
-    public static void Recompile(string compilationId, string code) => GetCompilation(compilationId).Recompile(code);
-    public static Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(string compilationId) => GetCompilation(compilationId).GetDiagnosticsAsync();
-    public static Task<IEnumerable<CompletionItem>> GetCompletionsAsync(string compilationId, int caretPosition) => GetCompilation(compilationId).GetCompletionsAsync(caretPosition);
-    public static Task<RunResult> RunAsync(string compilationId) => GetCompilation(compilationId).RunAsync();
+    public void Recompile(string compilationId, string code) => GetCompilation(compilationId).Recompile(code);
+    public Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(string compilationId) => GetCompilation(compilationId).GetDiagnosticsAsync();
+    public Task<IEnumerable<CompletionItem>> GetCompletionsAsync(string compilationId, int caretPosition) => GetCompilation(compilationId).GetCompletionsAsync(caretPosition);
+    public Task<RunResult> RunAsync(string compilationId) => GetCompilation(compilationId).RunAsync();
 
-    private static CodeSession GetCompilation(string compilationId)
+    private CodeSession GetCompilation(string compilationId)
     {
-        //Console.WriteLine($"Getting compilation {compilationId}.");
+        _logger.LogTrace($"Getting compilation {compilationId}.");
         if (!CompilationCache.TryGetValue(compilationId, out var compilation))
         {
             //TODO: Better custom exception/message/return bool and don't throw at all?

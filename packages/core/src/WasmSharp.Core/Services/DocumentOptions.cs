@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace WasmSharp.Core.CompilationServices;
+namespace WasmSharp.Core.Services;
 
 public class DocumentOptions
 {

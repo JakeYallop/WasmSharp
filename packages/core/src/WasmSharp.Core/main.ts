@@ -36,23 +36,23 @@ window.AssemblyContext = AssemblyContext;
 // const diff = performance.now() - time;
 // console.log(`%cFinished initialising wasm compiler in ${diff}ms`, style);
 
-const context = await AssemblyContext.createAsync();
-const code = `
-using System;
-Console.WriteLine("Hello World");
-`;
-const compilation = context.createCompilation(code);
+//const context = await AssemblyContext.createAsync();
+//const code = `
+//using System;
+//Console.WriteLine("Hello World");
+//`;
+//const compilation = context.createCompilation(code);
 
-compilation.recompile(code);
-const result = await compilation.run();
-console.log(result.success);
-console.log(result.stdOut);
-console.log(result.stdErr);
+//compilation.recompile(code);
+//const result = await compilation.run();
+//console.log(result.success);
+//console.log(result.stdOut);
+//console.log(result.stdErr);
 
-document.getElementById("recompile")?.addEventListener("click", async () => {
-  compilation.recompile(code);
-  const result = await compilation.run();
-  console.log(result.success);
-  console.log(result.stdOut);
-  console.log(result.stdErr);
-});
+//document.getElementById("recompile")?.addEventListener("click", async () => {
+//  compilation.recompile(code);
+//  const result = await compilation.run();
+//  console.log(result.success);
+//  console.log(result.stdOut);
+//  console.log(result.stdErr);
+//});

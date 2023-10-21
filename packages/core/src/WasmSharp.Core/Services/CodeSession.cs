@@ -1,39 +1,37 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using Microsoft.Extensions.Logging;
+using WasmSharp.Core.Hosting;
 
-namespace WasmSharp.Core.CompilationServices;
+namespace WasmSharp.Core.Services;
 
 internal sealed class CodeSession
 {
-
-    public CodeSession(CSharpCompilation compilation, DocumentOptions? options = null)
+    private static readonly SourceText EmptySourceText = SourceText.From("");
+    private readonly ILogger<CodeSession> _logger = Host.Services.GetService<ILogger<CodeSession>>();
+    public CodeSession(string? code, DocumentOptions? options = null)
     {
-        Compilation = compilation;
-        options ??= DocumentOptions.Default;
-
-        var text = compilation.SyntaxTrees.FirstOrDefault()?.GetText() ?? SourceText.From("");
-        _sourceText = text;
+        _sourceText = code is null ? EmptySourceText : SourceText.From(code);
         Workspace = new AdhocWorkspace();
         var projectId = ProjectId.CreateNewId();
         var docId = DocumentId.CreateNewId(projectId, "WasmSharp.CodeSession");
         Solution = Workspace.CurrentSolution
             .AddProject(projectId, "WasmSharp.Project.CodeSession", "project-assembly", LanguageNames.CSharp)
-            .AddDocument(docId, "WasmSharp.CodeSession.Document", text);
+            .AddDocument(docId, "WasmSharp.CodeSession.Document", _sourceText);
         Workspace.OpenDocument(docId);
         Solution = Solution.AddMetadataReferences(projectId, MetadataReferenceCache.MetadataReferences);
+        Solution = Solution.WithProjectCompilationOptions(projectId, options?.CSharpCompilationOptions ?? DocumentOptions.DefaultCompilationOptions);
+        Solution = Solution.WithProjectParseOptions(projectId, options?.CSharpParseOptions ?? DocumentOptions.DefaultParseOptions);
         _currentDocument = Solution.GetDocument(docId)!;
     }
 
-    public CSharpCompilation Compilation { get; private set; }
-
     public AdhocWorkspace Workspace { get; set; }
     public Solution Solution { get; set; }
-
-
-    //TODO: Verify if we actually need source text
 
     private SourceText _sourceText;
     public SourceText SourceText
@@ -69,6 +67,7 @@ internal sealed class CodeSession
         {
             return;
         }
+        _logger.LogTrace("Workspace is out of date");
         _currentDocument = _currentDocument.WithText(_sourceText);
         //Workspace.TryApplyChanges(Solution);
         //_currentDocument = Workspace.CurrentSolution.GetDocument(_currentDocument.Id)!;
@@ -77,6 +76,7 @@ internal sealed class CodeSession
 
     public void Recompile(string code)
     {
+        _logger.LogDebug("Recompiling");
         SourceText = SourceText.From(code);
     }
 
@@ -116,9 +116,8 @@ internal sealed class CodeSession
         var result = compilation!.Emit(ms);
         if (result.Success)
         {
-            var assembly = Assembly.Load(ms.ToArray());
+            var assembly = LoadAssembly(ms.ToArray());
             Console.WriteLine($"assembly: {assembly.FullName}");
-            Console.WriteLine($"assembly defined types: {assembly.DefinedTypes.ToArray()}");
             Console.WriteLine($"assembly entry point: {assembly.EntryPoint}");
             using var captureOutput = new StringWriter();
             var oldOut = Console.Out;
@@ -143,4 +142,7 @@ internal sealed class CodeSession
             return RunResult.Failure(result.Diagnostics.ToWasmSharpDiagnostics());
         }
     }
+
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Method is called using in-memory emitted assemblies only, which will not be trimmed.")]
+    private static Assembly LoadAssembly(byte[] bytes) => Assembly.Load(bytes);
 }

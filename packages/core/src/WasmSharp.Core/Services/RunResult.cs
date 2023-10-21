@@ -1,6 +1,6 @@
-﻿using Diagnostic = WasmSharp.Core.CompilationServices.Diagnostic;
+﻿using Diagnostic = WasmSharp.Core.Services.Diagnostic;
 
-namespace WasmSharp.Core.CompilationServices;
+namespace WasmSharp.Core.Services;
 
 public class RunResult
 {

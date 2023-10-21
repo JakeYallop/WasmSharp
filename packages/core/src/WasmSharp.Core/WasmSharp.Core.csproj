@@ -9,17 +9,21 @@
     <PublishTrimmed>false</PublishTrimmed>
     <!-- TOOD: Test publishing-->
     <!--<RunAOTCompilation>true</RunAOTCompilation>-->
-    
+
     <!--TODO: Write this variable to an env file to be read by Vite during build, so that assembly lookup is done correctly -->
     <WasmRuntimeAssetsLocation>./</WasmRuntimeAssetsLocation>
-    
+
     <!-- TODO: Investigate using Webcil format for better compatibility - how do we load DLLs when packaged in this format?-->
     <WasmEnableWebcil>false</WasmEnableWebcil>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Jab" Version="0.8.6" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.4.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0-rc.2.23479.6" />
+    <!--<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0-rc.2.23479.6" />-->
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <!--<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />-->
   </ItemGroup>
 
   <PropertyGroup Condition="$(Configuration) == 'Debug'">
@@ -38,11 +42,18 @@
     <!--<UpToDateCheckBuilt Include="$(WasmAppDir)/main.js" Original="$(MSBuildThisFileDirectory)/dist/main.js" />-->
   </ItemGroup>
 
+  <!--Hide node modules and dist folder-->
+  <ItemGroup>
+    <None Remove="node_modules/**/*" />
+    <None Remove="dist/**/*" />
+  </ItemGroup>
+
+
   <!-- TODO: Add tsc build step -->
 
-   <!--Copy dotnet.d.ts to AppBundle directory--> 
+  <!--Copy dotnet.d.ts to AppBundle directory-->
   <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="WasmBuildApp">
-    <PropertyGroup> 
+    <PropertyGroup>
       <_DotNetTypePath>$(OutputPath)dotnet.d.ts</_DotNetTypePath>
     </PropertyGroup>
     <Message Importance="High" Text="Copying dotnet.d.ts from $(OutputPath)dotnet.ts to $(WasmAppDir)$(WasmRuntimeAssetsLocation) and $(MSBuildThisFileDirectory)$(WasmRuntimeAssetsLocation)" />

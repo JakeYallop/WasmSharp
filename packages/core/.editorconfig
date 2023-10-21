@@ -13,6 +13,7 @@ indent_style = space
 indent_size = 4
 insert_final_newline = true
 charset = utf-8-bom
+end_of_line = crlf
 
 # Visual Studio Solution Files
 [*.sln]
@@ -199,13 +200,8 @@ dotnet_diagnostic.IDE2002.severity = warning
 # C# Coding Conventions       #
 ###############################
 
-# IDE0054: Use compound assignment
-dotnet_diagnostic.IDE0054.severity = warning
-
-# IDE0028: Simplify collection initialization
-dotnet_diagnostic.IDE0028.severity = none
-
 [*.cs]
+
 # var preferences
 csharp_style_var_for_built_in_types = true:warning
 csharp_style_var_when_type_is_apparent = true:warning
@@ -249,6 +245,8 @@ csharp_style_pattern_local_over_anonymous_function = true:warning
 csharp_style_inlined_variable_declaration = true:warning
 csharp_style_prefer_index_operator = true:warning
 csharp_style_prefer_range_operator = true:warning
+csharp_style_prefer_method_group_conversion = true:warning
+dotnet_style_prefer_collection_expression = true:warning
 
 # Unnecessary code rules
 csharp_style_unused_value_assignment_preference = discard_variable:silent
@@ -257,8 +255,19 @@ csharp_style_unused_value_expression_statement_preference = discard_variable:sil
 # Locals preferences
 csharp_prefer_static_local_function = true:warning
 
+# Misc
+csharp_style_prefer_top_level_statements = true:silent
+csharp_style_prefer_primary_constructors = true:suggestion
+
 # IDE0063: Use simple 'using' statement
 csharp_prefer_simple_using_statement = true:warning
+
+# IDE0054: Use compound assignment
+dotnet_diagnostic.IDE0054.severity = warning
+
+# IDE0028: Simplify collection initialization
+dotnet_diagnostic.IDE0028.severity = none
+
 
 ###############################
 # C# Formatting Rules         #
@@ -327,3 +336,9 @@ dotnet_diagnostic.CA1303.severity = none
 
 # CA1812: An instance of an assembly-level type is not created by code in the assembly
 dotnet_diagnostic.CA1812.severity = suggestion
+
+# CA2254: Template should be a static expression
+dotnet_diagnostic.CA2254.severity = none
+
+# CA1848: Use the LoggerMessage delegates
+dotnet_diagnostic.CA1848.severity = none

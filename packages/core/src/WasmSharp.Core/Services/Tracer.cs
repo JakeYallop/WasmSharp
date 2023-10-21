@@ -1,11 +1,15 @@
 ﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Components.WebAssembly.Services;
+using Microsoft.Extensions.Logging;
+using WasmSharp.Core.Hosting;
 
-namespace WasmSharp.Core.CompilationServices;
+namespace WasmSharp.Core.Services;
 
 internal sealed class Tracer : IDisposable
 {
     private readonly DateTime _startTime = DateTime.UtcNow;
     private readonly string _actionName;
+    private readonly ILogger<Tracer> _logger = Host.Services.GetService<ILogger<Tracer>>();
 
     public Tracer(string actionName)
     {
@@ -21,6 +25,6 @@ internal sealed class Tracer : IDisposable
     public void Dispose()
     {
         var endTime = DateTime.UtcNow;
-        Console.WriteLine($"{_actionName}: {(endTime - _startTime).TotalMilliseconds}ms");
+        _logger.LogInformation($"{_actionName}: {(endTime - _startTime).TotalMilliseconds}ms");
     }
 }

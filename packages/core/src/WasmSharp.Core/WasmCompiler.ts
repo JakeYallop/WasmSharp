@@ -67,7 +67,6 @@ export class Compilation {
   }
 
   recompile(code: string) {
-    console.warn("Recompiling");
     return this.interop!.Recompile(this.compilationId, code);
   }
 
@@ -88,7 +87,7 @@ export class Compilation {
   }
 
   async run() {
-    console.log("Executing code");
+    console.debug("Executing code");
     const runResult = await this.interop!.RunAsync(this.compilationId);
     return get<RunResult>(runResult);
   }
