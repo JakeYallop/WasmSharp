@@ -1,6 +1,5 @@
-###############################
-# Git Line Endings            #
-###############################
-
 # Set default behaviour to automatically normalize line endings.
 * text=auto
+
+# Do not show diffs for lock files
+**/pnpm-lock.yaml -diff 

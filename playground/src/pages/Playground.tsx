@@ -1,4 +1,4 @@
-import { AssemblyContext, Diagnostic } from "@wasmsharp/core";
+import { AssemblyContext, type Diagnostic } from "@wasmsharp/core";
 import {
   batch,
   Component,

@@ -6,7 +6,7 @@
     "watch": "tsc --watch"
   },
   "devDependencies": {
-    "typescript": "^4.9.3"
+    "typescript": "^5.2.2"
   },
   "packageManager": "pnpm@7"
 }
