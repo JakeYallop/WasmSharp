@@ -1,71 +1,97 @@
-import MagicString from "magic-string";
-import { ResolvedConfig, createFilter, Plugin } from "vite";
+import { Plugin } from "vite";
+import AST from "unplugin-ast/vite";
+import { type Transformer } from "unplugin-ast";
+import type {
+  CallExpression,
+  Expression,
+  ImportExpression,
+  MemberExpression,
+} from "@babel/types";
 
-function hasDynamicImports(code: string) {
-  const re = /\bimport\w*?\(/;
-  return re.test(code);
-}
-interface Options {
+export interface Options {
   include?: string[];
 }
 
-/**
- * Ast tree walk https://github.com/vite-plugin/vite-plugin-utils/blob/main/function/index.ts
- */
-async function walk(
-  ast: Record<string, any>,
-  visitors: {
-    [type: string]: (node: Record<string, any>) => void | Promise<void>;
+const GetExpressionString = (node: Expression): string => {
+  //TOOD: Support for TemplateLiteral and other expressions
+  switch (node.type) {
+    case "StringLiteral":
+      return node.value;
+    case "Identifier":
+      return node.name;
+    case "MemberExpression":
+      return GetMemberExpression(node);
+    default:
+      throw TypeError(`Unsupported node type ${node.type}`);
   }
-) {
-  if (!ast) return;
+};
 
-  if (Array.isArray(ast)) {
-    for (const element of ast as Record<string, any>[]) {
-      await walk(element, visitors);
+const GetMemberExpression = (node: MemberExpression) => {
+  const _GetMemberExpression = (node: MemberExpression, parts: string[]) => {
+    if (node.property.type !== "Identifier") {
+      throw TypeError(
+        `Unsupported node type found for node.property '${node.type}'`
+      );
     }
-  } else {
-    for (const key of Object.keys(ast)) {
-      await (typeof ast[key] === "object" && walk(ast[key], visitors));
-    }
-  }
 
-  await visitors[ast.type]?.(ast);
-}
+    if (
+      !(
+        node.object.type === "MemberExpression" ||
+        node.object.type === "Identifier"
+      )
+    ) {
+      throw new TypeError(
+        `Unsupported node type found for node.object '${node.object.type}'`
+      );
+    }
+    parts.push(node.property.name);
+
+    if (node.object.type === "Identifier") {
+      parts.push(node.object.name);
+      return;
+    }
+    _GetMemberExpression(node.object, parts);
+  };
+
+  const parts: string[] = [];
+  _GetMemberExpression(node, parts);
+  return parts.reverse().join(".");
+};
+
+const AddViteIgnoreToDynamicImport2 = (): Transformer<ImportExpression> => ({
+  onNode(node) {
+    return (
+      node.type === "ImportExpression" &&
+      (node.source.type === "StringLiteral" ||
+        node.source.type === "Identifier" ||
+        node.source.type == "MemberExpression")
+    );
+  },
+  async transform(node, code) {
+    const exp = GetExpressionString(node.source);
+    if (!exp) {
+      return;
+    }
+
+    return `import(/* @vite-ignore */${exp})`;
+  },
+});
 
 export default function ignoreDynamicImports(options?: Options): Plugin {
-  let config: ResolvedConfig;
-  const filter = createFilter(options?.include);
-  let noTransforms = 0;
+  const plugin = AST({
+    include: options?.include ?? [],
+    exclude: undefined,
+    enforce: undefined,
+    parserOptions: {
+      createImportExpressions: true,
+    },
+    transformer: [AddViteIgnoreToDynamicImport2()],
+  });
+
+  //user plugins cannot be added via a mutated config, so we need to merge the AST plugin directly via destructuring
   return {
+    ...plugin,
+    enforce: "pre",
     name: "dynamic-imports-ignore-plugin",
-    configResolved(this, resolvedConfig: ResolvedConfig) {
-      noTransforms = 0;
-      config = resolvedConfig;
-    },
-    transform: {
-      order: "pre",
-      async handler(this, code, id) {
-        noTransforms++;
-        if (filter(id) && hasDynamicImports(code)) {
-          const s = new MagicString(code);
-          const ast = this.parse(code);
-          await walk(ast, {
-            ImportExpression(node) {
-              if (node.source.type == "Identifier") {
-                s.overwrite(
-                  node.start,
-                  node.end,
-                  `import(/* @vite-ignore */${node.source.name})`
-                );
-                const before = s.original.slice(node.start - 20, node.end + 20);
-                var after = s.toString().slice(node.start - 20, node.end + 20);
-              }
-            },
-          });
-          return s.toString();
-        }
-      },
-    },
   };
 }

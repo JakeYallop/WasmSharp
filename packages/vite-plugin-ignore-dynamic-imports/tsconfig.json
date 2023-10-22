@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "composite": true
+    "composite": true,
+    "moduleResolution": "Node"
   },
   "extends": "../../tsconfig.json"
 }

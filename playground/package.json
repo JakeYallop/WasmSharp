@@ -5,7 +5,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "start": "vite --open",
+    "start": "vite",
     "dev": "vite",
     "build": "vite build",
     "test": "vitest",
@@ -20,6 +20,7 @@
     "typescript": "^5.2.2",
     "vite": "^3.2.7",
     "vite-plugin-ignore-dynamic-imports": "*",
+    "vite-plugin-inspect": "^0.7.40",
     "vite-plugin-solid": "^2.7.2",
     "vite-plugin-utils": "^0.3.7",
     "vitest": "^0.25.8"
