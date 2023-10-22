@@ -16,9 +16,6 @@ console.log(
 console.log(
   "TODO: Add loading progress hook - see ASP NET Core MonoPlatform.ts for examples."
 );
-console.log(
-  "TODO: Investiage wasm lib: https://github.com/dotnet/runtime/blob/8eb413818f5b95e750be5cf4148a3a9714ddc331/src/mono/wasm/build/WasmApp.targets#L108; https://github.com/dotnet/runtime/issues/77191"
-);
 //@ts-ignore
 window.AssemblyContext = AssemblyContext;
 // const style = `

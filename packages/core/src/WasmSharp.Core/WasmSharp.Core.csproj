@@ -5,7 +5,7 @@
     <WasmMainJSPath>dist/main.js</WasmMainJSPath>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <!--We don't know exactly what dlls the user might need to compile their program. For now, compile and seve all of them -->
+    <!--We don't know exactly what dlls the user might need to compile their program. For now, compile and serve all of them -->
     <PublishTrimmed>false</PublishTrimmed>
     <!-- TOOD: Test publishing-->
     <!--<RunAOTCompilation>true</RunAOTCompilation>-->
@@ -21,9 +21,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.4.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0-rc.2.23479.6" />
-    <!--<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0-rc.2.23479.6" />-->
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <!--<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />-->
   </ItemGroup>
 
   <PropertyGroup Condition="$(Configuration) == 'Debug'">
