@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => {
       target: "esnext",
     },
     optimizeDeps: {
-      exclude: ["dotnet.js"],
+      exclude: [],
     },
     resolve: {
       //https://github.com/solidjs/solid-testing-library/issues/30

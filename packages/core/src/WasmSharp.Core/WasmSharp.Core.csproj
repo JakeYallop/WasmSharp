@@ -6,7 +6,7 @@
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <!--We don't know exactly what dlls the user might need to compile their program. For now, compile and serve all of them -->
-    <PublishTrimmed>false</PublishTrimmed>
+    <PublishTrimmed>true</PublishTrimmed>
     <!-- TOOD: Test publishing-->
     <!--<RunAOTCompilation>true</RunAOTCompilation>-->
 
@@ -37,6 +37,7 @@
     <!-- WasmAppDir is not defined yet. -->
     <!-- hardcoded for now until https://github.com/dotnet/runtime/issues/77285 -->
     <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)/dist/main.js" />
+    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/package.json" Original="$(MSBuildThisFileDirectory)/package.json" />
     <!--<UpToDateCheckBuilt Include="$(WasmAppDir)/main.js" Original="$(MSBuildThisFileDirectory)/dist/main.js" />-->
   </ItemGroup>
 
@@ -46,8 +47,7 @@
     <None Remove="dist/**/*" />
   </ItemGroup>
 
-
-  <!-- TODO: Add tsc build step -->
+  <!-- TODO: Add tsc build step on publish -->
 
   <!--Copy dotnet.d.ts to AppBundle directory-->
   <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="WasmBuildApp">

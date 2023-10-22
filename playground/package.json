@@ -20,7 +20,7 @@
     "jsdom": "^22.1.0",
     "typescript": "^5.2.2",
     "vite": "^4.5.0",
-    "vite-plugin-ignore-dynamic-imports": "*",
+    "vite-plugin-ignore-dynamic-imports": "workspace:*",
     "vite-plugin-inspect": "^0.7.40",
     "vite-plugin-solid": "^2.7.2",
     "vite-plugin-utils": "^0.3.7",

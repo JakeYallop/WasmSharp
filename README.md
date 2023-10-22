@@ -22,3 +22,6 @@ Don't forget to build the C# project (to copy over the newly built files in the 
 ```
 pnpm test
 ```
+
+## Known issues
+* Currently when building WasmSharp.Core, a package.json is inserted into the build output directory. This will have an incorrect path for `main` of "bin/Debug/.../AppBundle/index.ks". This needs updating to just be index.js.

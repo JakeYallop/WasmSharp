@@ -21,7 +21,6 @@ internal sealed partial class CompilationInterop
     {
         var logger = Host.Services.GetService<ILogger<CompilationInterop>>();
         logger.LogInformation($"Loading files from {publicUrl}");
-        logger.LogInformation($"{bootJsonData}");
         var monoConfig = JsonSerializer.Deserialize(bootJsonData, JsonContext.Default.BootJsonData)!;
         logger.LogInformation("Successfully deserialized config.");
         return Host.Dispatch(solution => WasmSolution.InitializeAsync(publicUrl, monoConfig));
