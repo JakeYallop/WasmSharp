@@ -17,10 +17,10 @@ import {
 import { ViewPlugin } from "@codemirror/view";
 import { TextTag } from "../../../packages/core/src/WasmSharp.Core/dist/Roslyn/TextTags";
 import {
-  AssemblyContext,
   Compilation,
   CompletionItem,
   DiagnosticSeverity,
+  WasmSharpModule,
 } from "@wasmsharp/core";
 import {
   CompletionSource,
@@ -32,7 +32,7 @@ import {
 
 export interface CodeMirrorEditorProps {
   onValueChanged?: (value: string) => void;
-  assemblyContext: Promise<AssemblyContext>;
+  assemblyContext: Promise<WasmSharpModule>;
 }
 const CodeMirrorEditor: Component<CodeMirrorEditorProps> = (props) => {
   const [editor, setEditor] = createSignal<EditorView>();
@@ -194,8 +194,8 @@ function mapTextTagToType(tag: TextTag) {
 type LintConfig = NonNullable<Parameters<typeof linter>[1]>;
 interface CSharpLinterConfig extends LintConfig {}
 
-const wasmSharpField = (assemblyContext: Promise<AssemblyContext>) => {
-  const ref = { value: null } as { value: AssemblyContext | null };
+const wasmSharpField = (assemblyContext: Promise<WasmSharpModule>) => {
+  const ref = { value: null } as { value: WasmSharpModule | null };
   assemblyContext.then((c) => (ref.value = c));
   const facet = assemblyContextFacet.of(() => {
     return ref.value;
@@ -203,7 +203,7 @@ const wasmSharpField = (assemblyContext: Promise<AssemblyContext>) => {
   return [csharpCompilationField.extension, facet];
 };
 
-const assemblyContextFacet = Facet.define<() => AssemblyContext | null>({
+const assemblyContextFacet = Facet.define<() => WasmSharpModule | null>({
   static: true,
 });
 

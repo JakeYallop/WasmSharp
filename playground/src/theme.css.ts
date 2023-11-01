@@ -11,43 +11,26 @@ import {
 } from "@vanilla-extract/css";
 import c from "tinycolor2";
 
-const constants = {
+export const constants = {
   spacing: 8,
-};
-
-export const setSpacing = (spacing: number) => {
-  constants.spacing = spacing;
-};
-
-export const spacing = (m1: number, m2?: number, m3?: number, m4?: number) => {
-  const { spacing } = constants;
-  if (m2 === undefined && m3 === undefined && m4 === undefined) {
-    return m1 * spacing;
-  } else if (m2 !== undefined && m3 === undefined && m4 === undefined) {
-    return `${m1 * spacing}px ${m2 * spacing}px`;
-  } else if (m3 === undefined || m4 === undefined) {
-    throw new TypeError("1, 2 or 4 parameter values must be specified.");
-  } else {
-    return `${m1 * spacing}px ${m2! * spacing}px ${m3! * spacing}px ${m4! * spacing}px`;
-  }
 };
 
 const black = c("black");
 const white = c("white");
 
-type Color = CSSProperties["color"]
+type Color = CSSProperties["color"];
 
 interface Palette {
-  primary: Color
-  primaryMuted: Color
+  primary: Color;
+  primaryMuted: Color;
   text: {
-    body: Color
-    muted: Color
+    body: Color;
+    muted: Color;
   };
-  accent: Color
+  accent: Color;
   background: {
-    main: Color
-    container: Color
+    main: Color;
+    container: Color;
   };
 }
 
@@ -66,8 +49,8 @@ export const themeVars = createThemeContract({
 });
 
 type MapAsString<T extends {}> = {
-  [K in keyof T]: T[K] extends {} ? MapAsString<T[K]> : string
-}
+  [K in keyof T]: T[K] extends {} ? MapAsString<T[K]> : string;
+};
 
 const darkPalette: Palette = {
   primary: "#2D43E6",
@@ -90,16 +73,15 @@ const lightPalette: Palette = {
   accent: "#00",
   text: {
     body: black.lighten(5).toString(),
-    muted: black.lighten(10).toString()
+    muted: black.lighten(10).toString(),
   },
   background: {
     main: white.darken(10).toString(),
-    container: white.darken(15).toString()
-  }
-}
+    container: white.darken(15).toString(),
+  },
+};
 
 const paletteVars = createGlobalTheme(":root", darkPalette as MapAsString<typeof darkPalette>);
 createGlobalTheme(".dark", darkPalette as MapAsString<typeof darkPalette>);
-createGlobalTheme(".light", paletteVars, lightPalette as MapAsString<typeof lightPalette>)
+createGlobalTheme(".light", paletteVars, lightPalette as MapAsString<typeof lightPalette>);
 export const palette = paletteVars as unknown as Readonly<Palette>;
-
