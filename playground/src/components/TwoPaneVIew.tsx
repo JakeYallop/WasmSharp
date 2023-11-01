@@ -1,15 +1,4 @@
-import { CSSProperties } from "@vanilla-extract/css";
-import {
-  FlowProps,
-  ParentProps,
-  batch,
-  children,
-  createEffect,
-  createRenderEffect,
-  createSignal,
-  onCleanup,
-  onMount,
-} from "solid-js";
+import { batch, children, createRenderEffect, createSignal, onMount } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
 import * as styles from "./TwoPaneView.css";
 import { clsx } from "clsx";

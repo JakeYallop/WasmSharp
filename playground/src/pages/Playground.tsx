@@ -1,10 +1,9 @@
-import { WasmSharpModule, type Diagnostic } from "@wasmsharp/core";
-import { batch, Component, createResource, createSignal, ParentComponent, Show } from "solid-js";
+import { WasmSharpModule } from "@wasmsharp/core";
+import { batch, Component, createResource, createSignal, Show } from "solid-js";
 
 import CodeMirrorEditor from "../CodeMirror/CodeMirrorEditor.jsx";
 
 import { debounce } from "@solid-primitives/scheduled";
-import { CompletionContext, CompletionResult, CompletionSource, Completion } from "@codemirror/autocomplete";
 import { WasmSharpOptions } from "@wasmsharp/core";
 import ProgressBar from "../components/ProgressBar.jsx";
 import TwoPaneView from "../components/TwoPaneVIew.jsx";
