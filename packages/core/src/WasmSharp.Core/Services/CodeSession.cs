@@ -28,6 +28,21 @@ internal sealed class CodeSession
         Solution = Solution.WithProjectCompilationOptions(projectId, options?.CSharpCompilationOptions ?? DocumentOptions.DefaultCompilationOptions);
         Solution = Solution.WithProjectParseOptions(projectId, options?.CSharpParseOptions ?? DocumentOptions.DefaultParseOptions);
         _currentDocument = Solution.GetDocument(docId)!;
+        Workspace.WorkspaceChanged += Workspace_WorkspaceChanged;
+    }
+
+    private void Workspace_WorkspaceChanged(object? sender, WorkspaceChangeEventArgs e)
+    {
+        _logger.LogTrace($"WorkspaceChanged event fired {e.Kind}");
+        if (e.Kind == WorkspaceChangeKind.DocumentChanged)
+        {
+            _logger.LogTrace("Document changed");
+            _outOfDate = true;
+
+            var references = CurrentDocument.Project.MetadataReferences;
+            _logger.LogTrace($"Metadata references: {references.Count}");
+            _logger.LogTrace($"Metadata references: {string.Join(", ", references.Select(x => x.Display))}");
+        }
     }
 
     public AdhocWorkspace Workspace { get; set; }
@@ -68,9 +83,8 @@ internal sealed class CodeSession
             return;
         }
         _logger.LogTrace("Workspace is out of date");
-        _currentDocument = _currentDocument.WithText(_sourceText);
-        //Workspace.TryApplyChanges(Solution);
-        //_currentDocument = Workspace.CurrentSolution.GetDocument(_currentDocument.Id)!;
+        _currentDocument = _currentDocument.WithText(SourceText);
+        Workspace.TryApplyChanges(_currentDocument.Project.Solution);
         _outOfDate = false;
     }
 
@@ -78,6 +92,7 @@ internal sealed class CodeSession
     {
         _logger.LogDebug("Recompiling");
         SourceText = SourceText.From(code);
+        EnsureUpToDate();
     }
 
     public async Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync()

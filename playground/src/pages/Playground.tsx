@@ -1,14 +1,5 @@
-import { AssemblyContext, type Diagnostic } from "@wasmsharp/core";
-import {
-  batch,
-  Component,
-  createEffect,
-  createResource,
-  createSignal,
-  For,
-  ParentComponent,
-  Show,
-} from "solid-js";
+import { WasmSharpModule, type Diagnostic } from "@wasmsharp/core";
+import { batch, Component, createEffect, createResource, createSignal, For, ParentComponent, Show } from "solid-js";
 
 import CodeMirrorEditor from "../CodeMirror/CodeMirrorEditor.jsx";
 import * as styles from "./Playground.css";
@@ -16,16 +7,24 @@ import * as styles from "./Playground.css";
 import playIcon from "../assets/play.svg";
 import { Compilation } from "@wasmsharp/core";
 import { debounce } from "@solid-primitives/scheduled";
-import {
-  CompletionContext,
-  CompletionResult,
-  CompletionSource,
-  Completion,
-} from "@codemirror/autocomplete";
+import { CompletionContext, CompletionResult, CompletionSource, Completion } from "@codemirror/autocomplete";
+import { WasmSharpOptions } from "@wasmsharp/core";
+import ProgressBar from "../components/ProgressBar.jsx";
 
 const Playground: Component = () => {
-  const context = AssemblyContext.createAsync();
-  const [assemblyContext] = createResource(() => context);
+  const wasmSharpOptions: WasmSharpOptions = {
+    onDownloadResourceProgress(loadedResources, totalResources) {
+      batch(() => {
+        setLoadedResources(totalResources);
+        setTotalResources(loadedResources);
+      });
+    },
+  };
+
+  const context = WasmSharpModule.initializeAsync(wasmSharpOptions);
+  const [loadedResources, setLoadedResources] = createSignal(0);
+  const [totalResources, setTotalResources] = createSignal(0);
+  const [wasmSharpModule] = createResource(() => context);
 
   const [code, setCode] = createSignal<string | null>(null);
   const onValueChanged = debounce((code: string) => {
@@ -33,24 +32,17 @@ const Playground: Component = () => {
   }, 1000);
   return (
     <>
-      <CodeMirrorEditor
-        onValueChanged={onValueChanged}
-        assemblyContext={context}
-      />
-      <Show when={assemblyContext.state === "pending"}>
+      <ProgressBar progress={loadedResources()} total={totalResources()} />
+      <CodeMirrorEditor onValueChanged={onValueChanged} assemblyContext={context} />
+      <Show when={wasmSharpModule.state === "pending"}>
         <h2>Loading compilation tools, please wait...</h2>
       </Show>
-      <Show when={assemblyContext.state === "errored"}>
+      <Show when={wasmSharpModule.state === "errored"}>
         <h2>Failed to load, please refresh the page.</h2>
-        <pre>
-          {assemblyContext.error?.getManageStack() ?? assemblyContext.error}
-        </pre>
+        <pre>{wasmSharpModule.error?.getManageStack() ?? wasmSharpModule.error}</pre>
       </Show>
-      <Show when={assemblyContext.state === "ready"}>
-        <CSharpRun
-          code={code() || ""}
-          assemblyContext={assemblyContext.latest!}
-        />
+      <Show when={wasmSharpModule.state === "ready"}>
+        <CSharpRun code={code() || ""} wasmSharpModule={wasmSharpModule.latest!} />
       </Show>
     </>
   );
@@ -58,14 +50,12 @@ const Playground: Component = () => {
 
 interface CSharpRunProps {
   code: string;
-  assemblyContext: AssemblyContext;
+  wasmSharpModule: WasmSharpModule;
 }
 const CSharpRun: Component<CSharpRunProps> = (props: CSharpRunProps) => {
   const [output, setOutput] = createSignal<string | null>();
   const [diagnostics, setDiagnostics] = createSignal<Diagnostic[]>([]);
-  const [compilation] = createSignal<Compilation>(
-    props.assemblyContext.createCompilation(props.code)
-  );
+  const [compilation] = createSignal<Compilation>(props.wasmSharpModule.createCompilation(props.code));
 
   createEffect((prev) => {
     if (prev === props.code) {
@@ -95,16 +85,14 @@ const CSharpRun: Component<CSharpRunProps> = (props: CSharpRunProps) => {
             setOutput(result.stdOut);
           } else {
             console.error(`Program failed to run.
-${result.diagnostics
-  .map((x) => JSON.stringify(x, undefined, "  "))
-  .join("\n")}`);
+${result.diagnostics.map((x) => JSON.stringify(x, undefined, "  ")).join("\n")}`);
 
             setDiagnostics(result.diagnostics);
           }
         }}
       >
         Run Code
-        <img src={playIcon} alt="icon" />
+        <img src={playIcon} alt="run icon" />
       </button>
       <Show when={output()}>
         <h2>Output</h2>
@@ -132,9 +120,7 @@ const Diagnostics: Component<DiagnosticsProps> = (props) => {
           delete copy.location;
           return (
             //TODO: Update to use theme spacing
-            <pre style={{ margin: "5px 0" }}>
-              {JSON.stringify(copy, undefined, "  ")}
-            </pre>
+            <pre style={{ margin: "5px 0" }}>{JSON.stringify(copy, undefined, "  ")}</pre>
           );
         }}
       </For>

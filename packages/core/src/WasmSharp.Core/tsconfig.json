@@ -3,7 +3,9 @@
     "declaration": true /* Generates corresponding '.d.ts' file. */,
     "outDir": "dist" /* Redirect output structure to the directory. */,
     "composite": true,
-    "lib": ["ES2020", "DOM"]
+    "lib": ["ES2020", "DOM"],
+    "inlineSourceMap": true,
+    "inlineSources": true,
   },
   "exclude": ["node_modules", "./bin", "./obj", "./dist/**"],
   "include": ["**/*"],

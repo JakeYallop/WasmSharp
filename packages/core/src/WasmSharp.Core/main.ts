@@ -5,7 +5,7 @@
 
 // /** @type {import("./dotnet")} */
 // import { dotnet, default as createDotnetRuntimeUntyped } from "./dotnet.js";
-import { AssemblyContext } from "./WasmCompiler.js";
+import { WasmSharpModule } from "./WasmCompiler.js";
 
 // /** @type {import("./dotnet").CreateDotnetRuntimeType} */
 // const createDotnetRuntime = createDotnetRuntimeUntyped;
@@ -13,11 +13,9 @@ import { AssemblyContext } from "./WasmCompiler.js";
 console.log(
   "TODO: Hook into wasm runtime load and send bytes for arrays to create metadata references. Might not be feasible. (Maybe hook into mono_wasm_add_assembly?)"
 );
-console.log(
-  "TODO: Add loading progress hook - see ASP NET Core MonoPlatform.ts for examples."
-);
+console.log("TODO: Add loading progress hook - see ASP NET Core MonoPlatform.ts for examples.");
 //@ts-ignore
-window.AssemblyContext = AssemblyContext;
+window.AssemblyContext = WasmSharpModule;
 // const style = `
 // font-size:1.1rem;
 // font-family:sans-serif;

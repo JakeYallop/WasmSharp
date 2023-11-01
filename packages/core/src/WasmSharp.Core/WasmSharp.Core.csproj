@@ -37,6 +37,8 @@
     <!-- WasmAppDir is not defined yet. -->
     <!-- hardcoded for now until https://github.com/dotnet/runtime/issues/77285 -->
     <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)/dist/main.js" />
+    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/index.js" Original="$(MSBuildThisFileDirectory)/dist/index.js" />
+    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/WasmCompiler.js" Original="$(MSBuildThisFileDirectory)/dist/WasmCompiler.js" />
     <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/package.json" Original="$(MSBuildThisFileDirectory)/package.json" />
     <!--<UpToDateCheckBuilt Include="$(WasmAppDir)/main.js" Original="$(MSBuildThisFileDirectory)/dist/main.js" />-->
   </ItemGroup>
