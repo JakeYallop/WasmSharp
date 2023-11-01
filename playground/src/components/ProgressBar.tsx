@@ -10,6 +10,7 @@ const ProgressBar: Component<ProgressBarProps> = (props: ProgressBarProps) => {
   
   createEffect(() => {
       setWidth((props.total / props.progress) * 100)
+
   })
 
 

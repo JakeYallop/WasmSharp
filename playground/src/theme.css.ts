@@ -86,7 +86,7 @@ const darkPalette: Palette = {
 const lightPalette: Palette = {
   //TOOD: Write the light mode colors
   primary: "#00",
-  primaryMuted: "#'00",
+  primaryMuted: "#00",
   accent: "#00",
   text: {
     body: black.lighten(5).toString(),
@@ -99,18 +99,7 @@ const lightPalette: Palette = {
 }
 
 const paletteVars = createGlobalTheme(":root", darkPalette as MapAsString<typeof darkPalette>);
-const darkClass = createTheme(paletteVars, darkPalette as MapAsString<typeof darkPalette>);
-
-
-// const paletteVars = createGlobalThemeContract(darkPalette as MapAsString<typeof darkPalette>)
-// const darkClass = createTheme(darkPalette as MapAsString<typeof darkPalette>)
-
-
-export const lightClass = createTheme(paletteVars, lightPalette as MapAsString<typeof lightPalette>)
+createGlobalTheme(".dark", darkPalette as MapAsString<typeof darkPalette>);
+createGlobalTheme(".light", paletteVars, lightPalette as MapAsString<typeof lightPalette>)
 export const palette = paletteVars as unknown as Readonly<Palette>;
-export const dark = darkClass;
-export const light = lightClass;
-
-
-
 
