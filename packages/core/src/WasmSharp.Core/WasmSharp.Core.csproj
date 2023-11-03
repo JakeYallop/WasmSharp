@@ -6,7 +6,7 @@
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <!--We don't know exactly what dlls the user might need to compile their program. For now, compile and serve all of them -->
-    <PublishTrimmed>true</PublishTrimmed>
+    <PublishTrimmed>false</PublishTrimmed>
     <!-- TOOD: Test publishing-->
     <!--<RunAOTCompilation>true</RunAOTCompilation>-->
 
@@ -52,11 +52,11 @@
   <!-- TODO: Add tsc build step on publish -->
 
   <!--Copy dotnet.d.ts to AppBundle directory-->
-  <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="WasmBuildApp">
+  <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="WasmBuildApp" Condition="'$(WasmAppDir)' != ''">
     <PropertyGroup>
       <_DotNetTypePath>$(OutputPath)dotnet.d.ts</_DotNetTypePath>
     </PropertyGroup>
-    <Message Importance="High" Text="Copying dotnet.d.ts from $(OutputPath)dotnet.ts to $(WasmAppDir)$(WasmRuntimeAssetsLocation) and $(MSBuildThisFileDirectory)$(WasmRuntimeAssetsLocation)" />
+    <Message Importance="High" Text="Copying dotnet.d.ts from $(OutputPath)dotnet.d.ts to $(WasmAppDir)$(WasmRuntimeAssetsLocation) and $(MSBuildThisFileDirectory)$(WasmRuntimeAssetsLocation)" />
     <ItemGroup>
       <FilesToCopy Include="$(_DotNetTypePath)" />
     </ItemGroup>
@@ -65,11 +65,32 @@
   </Target>
 
   <!-- Copy dist folder and other required artifacts -->
-  <Target Name="_PrivateCopyRequiredArtifacts" AfterTargets="WasmBuildApp" DependsOnTargets="WasmBuildApp">
+  <Target Name="_PrivateCopyRequiredArtifacts" AfterTargets="WasmBuildApp" DependsOnTargets="WasmBuildApp" Condition="'$(WasmAppDir)' != ''">
+    <Message Importance="high" Text="WasmAppDir: $(WasmAppDir), PublishDir: $(PublishDir)" />
     <ItemGroup>
       <__FilesToCopy Include="$(MSBuildThisFileDirectory)dist\*.*" />
-      <!--<__FilesToCopy Include="$(MSBuildThisFileDirectory)package.json" />-->
+      <__FilesToCopy Include="$(MSBuildThisFileDirectory)package.json" />
     </ItemGroup>
     <Copy SkipUnchangedFiles="true" SourceFiles="@(__FilesToCopy)" DestinationFolder="$(WasmAppDir)" />
   </Target>
+
+  <Target Name="TypescriptCompileAferPublish" BeforeTargets="WasmTriggerPublishApp">
+    <PropertyGroup Condition="'$(WasmAppDir)' == ''">
+      <WasmAppDir>$(OutputPath)/AppBundle</WasmAppDir>
+    </PropertyGroup>
+    <Message Importance="high" Text="Installing TypeScript"></Message>
+    <Exec Command="pnpm install --silent" />
+    <Message Importance="high" Text="Compiling TypeScript code to $(WasmAppDir)"></Message>
+    <Exec Command="pnpm exec tsc -p ./tsconfig.json -outDir $(WasmAppDir)"></Exec>
+  </Target>
+
+  <Target Name="CopyPackageJsonToAppBundle" AfterTargets="TypescriptCompileAferPublish">
+    <Message Importance="high" Text="Copying package.json file to $(WasmAppDir)"></Message>
+    <ItemGroup>
+    </ItemGroup>
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)/package.json" DestinationFiles="$(WasmAppDir)/package.json" />
+  </Target>
 </Project>
+
+<!-- IsPublishable = false -->
+<!-- Also - run certain targets _after_ the publish task-->

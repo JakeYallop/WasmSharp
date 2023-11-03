@@ -73,8 +73,8 @@ importers:
         specifier: ^1.4.1
         version: 1.4.1(solid-js@1.8.3)
       '@wasmsharp/core':
-        specifier: workspace:*
-        version: link:../packages/core/src/WasmSharp.Core
+        specifier: file:C:/Workspaces/packages/wasmsharp-core-0.0.1.tgz
+        version: file:../packages/wasmsharp-core-0.0.1.tgz
       clsx:
         specifier: ^2.0.0
         version: 2.0.0
@@ -4069,3 +4069,9 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: true
+
+  file:../packages/wasmsharp-core-0.0.1.tgz:
+    resolution: {integrity: sha512-AxfT3Wv5w69BrYWjtA8k/PIPTdSKvOcC/CfhuKr852XK4fljXAKAnIr2BCfG7WfYnYGuwnrUaQ14umJC28oF1A==, tarball: file:../packages/wasmsharp-core-0.0.1.tgz}
+    name: '@wasmsharp/core'
+    version: 0.0.1
+    dev: false
