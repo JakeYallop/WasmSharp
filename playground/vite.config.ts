@@ -7,8 +7,8 @@ import { ResolvedConfig, ViteDevServer, normalizePath, resolvePackageData, resol
 import path from "path";
 import fs from "fs";
 
-let config: ResolvedConfig;
 export default defineConfig(({ mode }) => {
+  let config: ResolvedConfig;
   return {
     plugins: [
       inspect({
