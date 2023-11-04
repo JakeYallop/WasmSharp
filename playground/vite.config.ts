@@ -32,10 +32,6 @@ export default defineConfig(({ mode }) => {
     build: {
       target: "esnext",
     },
-    optimizeDeps: {
-      //TODO: Add plugin for this and figure out exactly why this works
-      exclude: ["@wasmsharp/core"],
-    },
     resolve: {
       //https://github.com/solidjs/solid-testing-library/issues/30
       conditions: ["browser"],
@@ -61,7 +57,15 @@ export default defineConfig(({ mode }) => {
 function wasmSharpPlugin(): Plugin {
   let config: ResolvedConfig;
   return {
-    name: "vite-plugin-wasm-sharp-assets-resolution",
+    name: "vite-plugin-wasm-sharp-assets-include",
+    config() {
+      return {
+        optimizeDeps: {
+          //TODO: figure out exactly why this works
+          exclude: ["@wasmsharp/core"],
+        },
+      };
+    },
     configResolved(resolved) {
       config = resolved;
     },
@@ -104,7 +108,7 @@ function wasmSharpPlugin(): Plugin {
         this.emitFile({
           type: "asset",
           needsCodeReference: false,
-          fileName: fileName,
+          fileName: path.join(config.build.assetsDir, fileName),
           source: source,
         });
       }

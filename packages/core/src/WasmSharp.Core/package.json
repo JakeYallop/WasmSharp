@@ -1,7 +1,7 @@
 {
   "name": "@wasmsharp/core",
   "version": "0.0.1",
-  "main": "./bin/Debug/net8.0/browser-wasm/AppBundle/WasmCompiler.js",
+  "main": "WasmCompiler.js",
   "scripts": {
     "watch": "tsc --watch"
   },
