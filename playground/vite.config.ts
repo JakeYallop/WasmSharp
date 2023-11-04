@@ -3,12 +3,11 @@ import solidPlugin from "vite-plugin-solid";
 import ignoreDynamicImports from "vite-plugin-ignore-dynamic-imports";
 import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
 import inspect from "vite-plugin-inspect";
-import { ResolvedConfig, ViteDevServer, normalizePath, resolvePackageData, resolvePackageEntry } from "vite";
+import { Plugin, ResolvedConfig, ViteDevServer, normalizePath, resolvePackageData, resolvePackageEntry } from "vite";
 import path from "path";
 import fs from "fs";
 
 export default defineConfig(({ mode }) => {
-  let config: ResolvedConfig;
   return {
     plugins: [
       inspect({
@@ -21,57 +20,8 @@ export default defineConfig(({ mode }) => {
       vanillaExtractPlugin({
         identifiers: mode === "devlopment" ? "debug" : "short",
       }),
-      {
-        configResolved(resolved) {
-          config = resolved;
-        },
-        generateBundle(output) {
-          const data = resolvePackageData("@wasmsharp/core", output.dir!, true);
-          if (!data) {
-            return;
-          }
-          const files = fs.readdirSync(data!.dir, { withFileTypes: true, recursive: true }).filter((x) => {
-            const ext = path.extname(x.name);
-            if (
-              ext === ".ts" ||
-              (ext === ".js" && x.name !== "dotnet.native.js" && x.name !== "dotnet.runtime.js") ||
-              ext === ".pdb" ||
-              ext === ".html" ||
-              ext === ".symbols" ||
-              x.isDirectory()
-            ) {
-              return false;
-            }
-
-            return true;
-          });
-
-          for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const normalizedPath = normalizePath(file.path);
-            const wasmSharpSplitString = "@wasmsharp/core";
-            const parts = normalizedPath.split(wasmSharpSplitString);
-            let finalPath: string;
-            if (parts[1] === undefined) {
-              finalPath = "";
-            } else {
-              finalPath = parts[1].substring(1, parts[1].length);
-            }
-
-            const fileName = path.join(finalPath, file.name);
-            const buffer = fs.readFileSync(path.join(file.path, file.name));
-            const source = new Uint8Array(buffer.buffer);
-            this.emitFile({
-              type: "asset",
-              needsCodeReference: false,
-              fileName: fileName,
-              source: source,
-            });
-          }
-        },
-      },
+      wasmSharpPlugin(),
     ],
-
     server: {
       fs: {
         strict: false,
@@ -107,3 +57,57 @@ export default defineConfig(({ mode }) => {
     },
   };
 });
+
+function wasmSharpPlugin(): Plugin {
+  let config: ResolvedConfig;
+  return {
+    name: "vite-plugin-wasm-sharp-assets-resolution",
+    configResolved(resolved) {
+      config = resolved;
+    },
+    generateBundle(output) {
+      const data = resolvePackageData("@wasmsharp/core", output.dir!, true);
+      if (!data) {
+        return;
+      }
+      const files = fs.readdirSync(data!.dir, { withFileTypes: true, recursive: true }).filter((x) => {
+        const ext = path.extname(x.name);
+        if (
+          ext === ".ts" ||
+          (ext === ".js" && x.name !== "dotnet.native.js" && x.name !== "dotnet.runtime.js") ||
+          ext === ".pdb" ||
+          ext === ".html" ||
+          ext === ".symbols" ||
+          x.isDirectory()
+        ) {
+          return false;
+        }
+
+        return true;
+      });
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const normalizedPath = normalizePath(file.path);
+        const wasmSharpSplitString = "@wasmsharp/core";
+        const parts = normalizedPath.split(wasmSharpSplitString);
+        let finalPath: string;
+        if (parts[1] === undefined) {
+          finalPath = "";
+        } else {
+          finalPath = parts[1].substring(1, parts[1].length);
+        }
+
+        const fileName = path.join(finalPath, file.name);
+        const buffer = fs.readFileSync(path.join(file.path, file.name));
+        const source = new Uint8Array(buffer.buffer);
+        this.emitFile({
+          type: "asset",
+          needsCodeReference: false,
+          fileName: fileName,
+          source: source,
+        });
+      }
+    },
+  };
+}
