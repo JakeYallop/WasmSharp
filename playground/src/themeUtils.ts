@@ -16,3 +16,5 @@ export const spacing = (m1: number, m2?: number, m3?: number, m4?: number) => {
     return `${m1 * spacing}px ${m2! * spacing}px ${m3! * spacing}px ${m4! * spacing}px`;
   }
 };
+
+export const px = (value: number) => `${value}px`;

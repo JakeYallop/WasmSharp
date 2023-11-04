@@ -49,8 +49,6 @@
     <None Remove="dist/**/*" />
   </ItemGroup>
 
-  <!-- TODO: Add tsc build step on publish -->
-
   <!--Copy dotnet.d.ts to AppBundle directory-->
   <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="WasmBuildApp" Condition="'$(WasmAppDir)' != ''">
     <PropertyGroup>
@@ -88,6 +86,11 @@
     <ItemGroup>
     </ItemGroup>
     <Copy SourceFiles="$(MSBuildThisFileDirectory)/package.json" DestinationFiles="$(WasmAppDir)/package.json" />
+  </Target>
+
+  <Target Name="RunPnpmPack" AfterTargets="TypescriptCompileAferPublish" DependsOnTargets="CopyPackageJsonToAppBundle;TypescriptCompileAferPublish">
+    <Message Importance="high" Text="Create tarball package at $(WasmAppDir)" />
+    <Exec Command="pnpm pack" WorkingDirectory="$(WasmAppDir)" />
   </Target>
 </Project>
 
