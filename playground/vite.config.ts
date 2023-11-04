@@ -3,7 +3,7 @@ import solidPlugin from "vite-plugin-solid";
 import ignoreDynamicImports from "vite-plugin-ignore-dynamic-imports";
 import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
 import inspect from "vite-plugin-inspect";
-import { Plugin, ResolvedConfig, ViteDevServer, normalizePath, resolvePackageData, resolvePackageEntry } from "vite";
+import { Plugin, ResolvedConfig, mergeConfig, normalizePath, resolvePackageData } from "vite";
 import path from "path";
 import fs from "fs";
 
@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
         identifiers: mode === "devlopment" ? "debug" : "short",
       }),
       wasmSharpPlugin(),
+      wasmSharpRewriteImportsForWorkspace(),
     ],
     server: {
       fs: {
@@ -115,3 +116,26 @@ function wasmSharpPlugin(): Plugin {
     },
   };
 }
+
+//Fixes an issue where vite resolves the package.json at the package level, but dotnet.js only exists in the output directory
+const wasmSharpRewriteImportsForWorkspace = (): Plugin => {
+  return {
+    name: "vite-plugin-wasm-sharp-rewrite=dotnet-imports-plugin",
+    enforce: "pre",
+    config(config) {
+      return mergeConfig(config, {
+        resolve: {
+          alias: [
+            {
+              find: "@wasmsharp/core",
+              replacement: path.join(
+                process.cwd(),
+                "../packages/core/src/WasmSharp.Core/bin/Debug/net8.0/browser-wasm/AppBundle"
+              ),
+            },
+          ],
+        },
+      });
+    },
+  };
+};

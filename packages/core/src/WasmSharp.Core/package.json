@@ -1,9 +1,10 @@
 {
   "name": "@wasmsharp/core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "WasmCompiler.js",
   "scripts": {
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+     "prepack": "echo Running prepack!!!!!!! ================================================================"
   },
   "devDependencies": {
     "typescript": "^5.2.2"

@@ -13,7 +13,7 @@ function get<T>(json: any): T {
 function getDirectory(path: string) {
   var index = path.lastIndexOf("/");
   if (index !== -1) {
-    return path.substring(0, index);
+    return path.substring(0, index + 1);
   } else {
     return path;
   }
