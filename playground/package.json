@@ -41,7 +41,7 @@
     "@codemirror/view": "^6.21.3",
     "@replit/codemirror-vscode-keymap": "^6.0.2",
     "@solid-primitives/scheduled": "^1.4.1",
-    "@wasmsharp/core": "workspace:*",
+    "@wasmsharp/core": "file:C:/Workspaces/packages/wasmsharp-core-0.0.2.tgz",
     "clsx": "^2.0.0",
     "codemirror": "^6.0.1",
     "normalize.css": "^8.0.1",

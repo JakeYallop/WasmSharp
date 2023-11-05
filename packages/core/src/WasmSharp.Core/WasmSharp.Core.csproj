@@ -76,6 +76,7 @@
       <WasmAppDir>$(OutputPath)/AppBundle</WasmAppDir>
     </PropertyGroup>
     <Message Importance="high" Text="Installing TypeScript"></Message>
+    <!--TODO: Add check to see if tsc is on path already, and check version-->
     <Exec Command="pnpm install --silent" />
     <Message Importance="high" Text="Compiling TypeScript code to $(WasmAppDir)"></Message>
     <Exec Command="pnpm exec tsc -p ./tsconfig.json -outDir $(WasmAppDir)"></Exec>
@@ -89,8 +90,11 @@
   </Target>
 
   <Target Name="RunPnpmPack" AfterTargets="TypescriptCompileAferPublish" DependsOnTargets="CopyPackageJsonToAppBundle;TypescriptCompileAferPublish">
-    <Message Importance="high" Text="Create tarball package at $(WasmAppDir)" />
-    <Exec Command="pnpm pack" WorkingDirectory="$(WasmAppDir)" />
+    <PropertyGroup>
+      <PackOutputDir Condition="'$(PackOutputDir)' == ''">.</PackOutputDir>
+    </PropertyGroup>
+    <Message Importance="high" Text="Create tarball package at $(PackOutputDir)" />
+    <Exec Command="pnpm pack --pack-destination $(PackOutputDir)" WorkingDirectory="$(WasmAppDir)" />
   </Target>
 </Project>
 

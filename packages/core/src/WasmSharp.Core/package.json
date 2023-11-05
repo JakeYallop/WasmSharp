@@ -3,8 +3,7 @@
   "version": "0.0.2",
   "main": "WasmCompiler.js",
   "scripts": {
-    "watch": "tsc --watch",
-     "prepack": "echo Running prepack!!!!!!! ================================================================"
+    "watch": "tsc --watch"
   },
   "devDependencies": {
     "typescript": "^5.2.2"

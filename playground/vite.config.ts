@@ -104,14 +104,19 @@ function wasmSharpPlugin(): Plugin {
         }
 
         const fileName = path.join(finalPath, file.name);
-        const buffer = fs.readFileSync(path.join(file.path, file.name));
-        const source = new Uint8Array(buffer.buffer);
-        this.emitFile({
-          type: "asset",
-          needsCodeReference: false,
-          fileName: path.join(config.build.assetsDir, fileName),
-          source: source,
-        });
+        try {
+          const buffer = fs.readFileSync(path.join(file.path, file.name));
+          const source = new Uint8Array(buffer.buffer);
+          this.emitFile({
+            type: "asset",
+            needsCodeReference: false,
+            fileName: path.join(config.build.assetsDir, fileName),
+            source: source,
+          });
+        } catch (err) {
+          config.logger.error(`Error reading file ${fileName} at path ${path.join(file.path, file.name)}.`);
+          throw err;
+        }
       }
     },
   };
