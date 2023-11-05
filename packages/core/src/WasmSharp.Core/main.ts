@@ -16,6 +16,10 @@ console.log(
 console.log("TODO: Add loading progress hook - see ASP NET Core MonoPlatform.ts for examples.");
 //@ts-ignore
 window.AssemblyContext = WasmSharpModule;
+
+
+WasmSharpModule.initializeAsync();
+
 // const style = `
 // font-size:1.1rem;
 // font-family:sans-serif;

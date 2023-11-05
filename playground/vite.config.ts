@@ -71,25 +71,25 @@ function wasmSharpPlugin(): Plugin {
       config = resolved;
     },
     generateBundle(output) {
-      const data = resolvePackageData("@wasmsharp/core", output.dir!, true);
+      config.logger.info("Copying @wasmsharp/core assets...");
+      const data = resolvePackageData("@wasmsharp/core", output.dir!, false);
       if (!data) {
+        config.logger.warn("Could not resolve package information for @wasmsharp/core");
         return;
       }
+      config.logger.info(`Found @wasmsharp/core assets at ${data.dir}`);
+
+      config.logger.info("Copying @wasmsharp/core assets...");
       const files = fs.readdirSync(data!.dir, { withFileTypes: true, recursive: true }).filter((x) => {
         const ext = path.extname(x.name);
-        if (
-          ext === ".ts" ||
-          (ext === ".js" && x.name !== "dotnet.native.js" && x.name !== "dotnet.runtime.js") ||
-          ext === ".pdb" ||
-          ext === ".html" ||
-          ext === ".symbols" ||
-          x.isDirectory()
-        ) {
+        if (ext === ".ts" || ext === ".html" || x.isDirectory()) {
           return false;
         }
 
         return true;
       });
+
+      config.logger.info(`Found ${files.length} assets to copy`);
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];

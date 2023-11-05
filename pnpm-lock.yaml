@@ -4071,7 +4071,7 @@ packages:
     dev: true
 
   file:../packages/wasmsharp-core-0.0.2.tgz:
-    resolution: {integrity: sha512-a4Qu6sPUJQ8yqU5eYopwc+17b3hml/84pefliNDGYxcfvzGMJ7RlMR6cCohYPAe2WmuRiQGNZ5oWkSgaXcRlnA==, tarball: file:../packages/wasmsharp-core-0.0.2.tgz}
+    resolution: {integrity: sha512-V31jn8tl2I9LYiO+rXmmMIMDtoi6FaTKVk9FMJo0VfFuWb8hEiHbDXC0zvJbnREl25IfyuSIBEEg272OnDoHTw==, tarball: file:../packages/wasmsharp-core-0.0.2.tgz}
     name: '@wasmsharp/core'
     version: 0.0.2
     dev: false
