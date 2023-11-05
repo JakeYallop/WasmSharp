@@ -1,25 +1,3 @@
-## Browser application
+## Application output
 
-## Build
-
-You can build the application from Visual Studio or by dotnet cli
-
-```
-dotnet build -c Debug/Release
-```
-
-After building the application, the result is in the `bin/$(Configuration)/net7.0/browser-wasm/AppBundle` directory.
-
-## Run
-
-You can build the application from Visual Studio or by dotnet cli
-
-```
-dotnet run -c Debug/Release
-```
-
-Or you can start any static file server from the AppBundle directory
-
-```
-dotnet serve -d:bin/$(Configuration)/net7.0/browser-wasm/AppBundle
-```
+Any path passed to dotnet publish is ignored (see https://github.com/dotnet/runtime/issues/94319). Actual runnable output is always in the ./bin/{Configuration}/net8.0/browser-wasm/AppBundle directory.

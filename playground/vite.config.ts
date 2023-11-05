@@ -57,13 +57,19 @@ export default defineConfig(({ mode }) => {
 
 function wasmSharpPlugin(): Plugin {
   let config: ResolvedConfig;
+  let runtimeConfigOutputPath: string | undefined;
+  let runtimeConfigPath: string | undefined;
   return {
-    name: "vite-plugin-wasm-sharp-assets-include",
+    name: "wasm-sharp-include-assets",
+    enforce: "post",
     config() {
       return {
         optimizeDeps: {
           //TODO: figure out exactly why this works
           exclude: ["@wasmsharp/core"],
+        },
+        build: {
+          sourcemap: false,
         },
       };
     },
@@ -72,7 +78,7 @@ function wasmSharpPlugin(): Plugin {
     },
     generateBundle(output) {
       config.logger.info("Copying @wasmsharp/core assets...");
-      const data = resolvePackageData("@wasmsharp/core", output.dir!, false);
+      const data = resolvePackageData("@wasmsharp/core", output.dir!, true);
       if (!data) {
         config.logger.warn("Could not resolve package information for @wasmsharp/core");
         return;
@@ -80,14 +86,7 @@ function wasmSharpPlugin(): Plugin {
       config.logger.info(`Found @wasmsharp/core assets at ${data.dir}`);
 
       config.logger.info("Copying @wasmsharp/core assets...");
-      const files = fs.readdirSync(data!.dir, { withFileTypes: true, recursive: true }).filter((x) => {
-        const ext = path.extname(x.name);
-        if (ext === ".ts" || ext === ".html" || x.isDirectory()) {
-          return false;
-        }
-
-        return true;
-      });
+      const files = fs.readdirSync(data!.dir, { withFileTypes: true, recursive: true }).filter((x) => !x.isDirectory());
 
       config.logger.info(`Found ${files.length} assets to copy`);
 
@@ -96,27 +95,51 @@ function wasmSharpPlugin(): Plugin {
         const normalizedPath = normalizePath(file.path);
         const wasmSharpSplitString = "@wasmsharp/core";
         const parts = normalizedPath.split(wasmSharpSplitString);
-        let finalPath: string;
+        let nestedDirectory: string;
         if (parts[1] === undefined) {
-          finalPath = "";
+          nestedDirectory = "";
         } else {
-          finalPath = parts[1].substring(1, parts[1].length);
+          nestedDirectory = parts[1].substring(1, parts[1].length);
         }
 
-        const fileName = path.join(finalPath, file.name);
+        const finalRelativePath = path.join(nestedDirectory, file.name);
+        if (file.name === "0_runtimeconfig.bin" || file.path.includes("supportFiles")) {
+          if (file.name !== "0_runtimeconfig.bin") {
+            config.logger.error("Extra supportFiles found, check may need updating.");
+          }
+          //TODO: Open an issue on the rollup github to diagnose this issue so we can remove this warning
+          config.logger.warn(
+            "Skipping `this.emitFile` call for 0_runtimeconfig.bin as it ends up getting a sourcemap and other info appended even with type: asset. Instead, we copy it manually inside the closeBundle hook after generateBundle has completed."
+          );
+
+          runtimeConfigPath = path.join(file.path, file.name);
+          runtimeConfigOutputPath = path.join(config.build.outDir, config.build.assetsDir, finalRelativePath);
+          continue;
+        }
         try {
           const buffer = fs.readFileSync(path.join(file.path, file.name));
           const source = new Uint8Array(buffer.buffer);
           this.emitFile({
             type: "asset",
             needsCodeReference: false,
-            fileName: path.join(config.build.assetsDir, fileName),
+            fileName: path.join(config.build.assetsDir, finalRelativePath),
             source: source,
           });
         } catch (err) {
-          config.logger.error(`Error reading file ${fileName} at path ${path.join(file.path, file.name)}.`);
+          config.logger.error(`Error reading file ${finalRelativePath} at path ${path.join(file.path, file.name)}.`);
           throw err;
         }
+      }
+    },
+    closeBundle() {
+      if (runtimeConfigPath && runtimeConfigOutputPath) {
+        config.logger.info(`Copying 0_runtimeconfig.bin from ${runtimeConfigPath} to ${runtimeConfigOutputPath}`);
+        fs.mkdirSync(path.dirname(runtimeConfigOutputPath), { recursive: true });
+        fs.copyFileSync(runtimeConfigPath, runtimeConfigOutputPath);
+      } else {
+        config.logger.warn(
+          "Either `runtimeConfigPath` or `runtimeConfigOutputPath` was not defined. Could not copy 0_runtimeconfig.bin."
+        );
       }
     },
   };
@@ -125,7 +148,7 @@ function wasmSharpPlugin(): Plugin {
 //Fixes an issue where vite resolves the package.json at the package level, but dotnet.js only exists in the output directory
 const wasmSharpRewriteImportsForWorkspace = (): Plugin => {
   return {
-    name: "vite-plugin-wasm-sharp-rewrite=dotnet-imports-plugin",
+    name: "wasm-sharp-rewrite=dotnet-imports-plugin",
     enforce: "pre",
     config(config) {
       return mergeConfig(config, {

@@ -15,6 +15,8 @@
 
     <!-- TODO: Investigate using Webcil format for better compatibility - how do we load DLLs when packaged in this format?-->
     <WasmEnableWebcil>false</WasmEnableWebcil>
+
+    <WasmDebugLevel>-1</WasmDebugLevel>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Jab" Version="0.8.6" PrivateAssets="all" />
@@ -71,25 +73,37 @@
     <Copy SkipUnchangedFiles="true" SourceFiles="@(__FilesToCopy)" DestinationFolder="$(WasmAppDir)" />
   </Target>
 
-  <Target Name="TypescriptCompileAferPublish" BeforeTargets="WasmTriggerPublishApp">
+  <Target Name="TypeScriptCompileAferPublish" AfterTargets="WasmTriggerPublishApp">
     <PropertyGroup Condition="'$(WasmAppDir)' == ''">
       <WasmAppDir>$(OutputPath)/AppBundle</WasmAppDir>
     </PropertyGroup>
-    <Message Importance="high" Text="Installing TypeScript"></Message>
-    <!--TODO: Add check to see if tsc is on path already, and check version-->
-    <Exec Command="pnpm install --silent" />
+
+    <Message Importance="high" Text="Checking dependencies"></Message>
+    <Exec Command="pnpm exec tsc --version" ConsoleToMSBuild="true" IgnoreExitCode="true" ContinueOnError="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="TscVersionCheckOutput"/>
+    </Exec>
+    
+    <Message Importance="high" Text="tsc check output: $(TscVersionCheckOutput)"></Message>
+    <PropertyGroup>
+      <TypeScriptInstalledForCompile>$(TscVersionCheckOutput.StartsWith('Version 5.'))</TypeScriptInstalledForCompile>
+    </PropertyGroup>
+    <Message Importance="high" Text="Is TSC installed? $(TypeScriptInstalledForCompile)"></Message>
+    <Message Importance="high" Text="TypeScript already installed, skipping install step."  Condition="$(TypeScriptInstalledForCompile) == 'True'"></Message>
+    <Message Importance="high" Text="TypeScript not installed. Installing TypeScript uisng pnpm install."  Condition="$(TypeScriptInstalledForCompile) != 'True'"></Message>
+    
+    <Exec Command="pnpm install" Condition="$(TypeScriptInstalledForCompile) != 'True'"/>
     <Message Importance="high" Text="Compiling TypeScript code to $(WasmAppDir)"></Message>
     <Exec Command="pnpm exec tsc -p ./tsconfig.json -outDir $(WasmAppDir)"></Exec>
   </Target>
 
-  <Target Name="CopyPackageJsonToAppBundle" AfterTargets="TypescriptCompileAferPublish">
+  <Target Name="CopyPackageJsonToAppBundle" AfterTargets="TypeScriptCompileAferPublish">
     <Message Importance="high" Text="Copying package.json file to $(WasmAppDir)"></Message>
     <ItemGroup>
     </ItemGroup>
     <Copy SourceFiles="$(MSBuildThisFileDirectory)/package.json" DestinationFiles="$(WasmAppDir)/package.json" />
   </Target>
 
-  <Target Name="RunPnpmPack" AfterTargets="TypescriptCompileAferPublish" DependsOnTargets="CopyPackageJsonToAppBundle;TypescriptCompileAferPublish">
+  <Target Name="RunPnpmPack" AfterTargets="WasmTriggerPublishApp" DependsOnTargets="CopyPackageJsonToAppBundle;TypeScriptCompileAferPublish">
     <PropertyGroup>
       <PackOutputDir Condition="'$(PackOutputDir)' == ''">.</PackOutputDir>
     </PropertyGroup>
