@@ -4,7 +4,7 @@ import { spacing } from "../themeUtils.js";
 
 export const container = style({
   width: "100%",
-  padding: `${spacing(0.5)}`,
+  padding: spacing(0.5),
   backgroundColor: palette.background.container,
 });
 

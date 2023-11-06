@@ -1,6 +1,5 @@
 import { Component, createSignal, onCleanup, onMount } from "solid-js";
 import { basicSetup, EditorView } from "codemirror";
-import { ParseContext, StreamLanguage, syntaxTree } from "@codemirror/language";
 import { linter, Diagnostic as CmDiagnostic } from "@codemirror/lint";
 import "./CodeMirrorEditor.css";
 import { EditorState, Facet, StateField } from "@codemirror/state";

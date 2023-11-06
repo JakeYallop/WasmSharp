@@ -7,7 +7,7 @@ export const setSpacing = (spacing: number) => {
 export const spacing = (m1: number, m2?: number, m3?: number, m4?: number) => {
   const { spacing } = constants;
   if (m2 === undefined && m3 === undefined && m4 === undefined) {
-    return m1 * spacing;
+    return `${m1 * spacing}px`;
   } else if (m2 !== undefined && m3 === undefined && m4 === undefined) {
     return `${m1 * spacing}px ${m2 * spacing}px`;
   } else if (m3 === undefined || m4 === undefined) {

@@ -52,8 +52,10 @@ ${result.diagnostics.map((x) => JSON.stringify(x, undefined, "  ")).join("\n")}`
         <img src={playIcon} alt="run icon" />
       </button>
       <Show when={output()}>
-        <h2>Output</h2>
-        <pre>{output()}</pre>
+        <div class={styles.outputContainer}>
+          <h2>Output</h2>
+          <pre>{output()}</pre>
+        </div>
       </Show>
     </div>
   );
