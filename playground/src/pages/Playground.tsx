@@ -32,7 +32,7 @@ const Playground: Component = () => {
     <>
       <ProgressBar progress={loadedResources()} total={totalResources()} />
       <TwoPaneView>
-        <CodeMirrorEditor onValueChanged={onValueChanged} assemblyContext={context} />
+        <CodeMirrorEditor onValueChanged={onValueChanged} wasmSharpModule={context} />
         <div>
           <Show when={wasmSharpModule.state === "pending"}>
             <h2>Loading compilation tools, please wait...</h2>

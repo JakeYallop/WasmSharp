@@ -1,38 +1,18 @@
 import { Component, createSignal, onCleanup, onMount } from "solid-js";
-import { debounce, throttle } from "@solid-primitives/scheduled";
 import { basicSetup, EditorView } from "codemirror";
-import { StreamLanguage } from "@codemirror/language";
+import { ParseContext, StreamLanguage, syntaxTree } from "@codemirror/language";
 import { linter, Diagnostic as CmDiagnostic } from "@codemirror/lint";
-import { csharp } from "@codemirror/legacy-modes/mode/clike";
 import "./CodeMirrorEditor.css";
-import {
-  Annotation,
-  EditorState,
-  Facet,
-  Prec,
-  StateEffect,
-  StateField,
-  Transaction,
-} from "@codemirror/state";
-import { ViewPlugin } from "@codemirror/view";
+import { EditorState, Facet, StateField } from "@codemirror/state";
 import { TextTag } from "../../../packages/core/src/WasmSharp.Core/dist/Roslyn/TextTags";
-import {
-  Compilation,
-  CompletionItem,
-  DiagnosticSeverity,
-  WasmSharpModule,
-} from "@wasmsharp/core";
-import {
-  CompletionSource,
-  CompletionContext,
-  CompletionResult,
-  autocompletion,
-  Completion,
-} from "@codemirror/autocomplete";
+import { Compilation, CompletionItem, DiagnosticSeverity, WasmSharpModule } from "@wasmsharp/core";
+import { CompletionContext, CompletionResult, autocompletion, Completion } from "@codemirror/autocomplete";
+import { csharp } from "@replit/codemirror-lang-csharp";
+import { oneDark } from "@codemirror/theme-one-dark";
 
 export interface CodeMirrorEditorProps {
   onValueChanged?: (value: string) => void;
-  assemblyContext: Promise<WasmSharpModule>;
+  wasmSharpModule: Promise<WasmSharpModule>;
 }
 const CodeMirrorEditor: Component<CodeMirrorEditorProps> = (props) => {
   const [editor, setEditor] = createSignal<EditorView>();
@@ -52,9 +32,10 @@ Console.WriteLine("Hello, world!");`;
       parent: editorRef!,
       extensions: [
         basicSetup,
-        StreamLanguage.define(csharp),
+        csharp(),
+        oneDark,
         readUpdates,
-        wasmSharpField(props.assemblyContext),
+        wasmSharpField(props.wasmSharpModule),
         csharpLinter({ delay: 0 }),
         autocompletion({ override: [csharpCompletionSource] }),
       ],
@@ -68,9 +49,7 @@ Console.WriteLine("Hello, world!");`;
   return <div style={{ height: "100%" }} ref={editorRef!}></div>;
 };
 
-async function csharpCompletionSource(
-  context: CompletionContext
-): Promise<CompletionResult | null> {
+async function csharpCompletionSource(context: CompletionContext): Promise<CompletionResult | null> {
   const compilation = getCompilation(context.state);
   if (!compilation) {
     return null;
@@ -87,9 +66,7 @@ async function csharpCompletionSource(
   };
 }
 
-function mapCompletionItemToCodeMirrorCompletion(
-  item: CompletionItem
-): Completion {
+function mapCompletionItemToCodeMirrorCompletion(item: CompletionItem): Completion {
   return {
     label: item.displayText,
     detail: item.inlineDescription,
@@ -194,16 +171,16 @@ function mapTextTagToType(tag: TextTag) {
 type LintConfig = NonNullable<Parameters<typeof linter>[1]>;
 interface CSharpLinterConfig extends LintConfig {}
 
-const wasmSharpField = (assemblyContext: Promise<WasmSharpModule>) => {
+const wasmSharpField = (module: Promise<WasmSharpModule>) => {
   const ref = { value: null } as { value: WasmSharpModule | null };
-  assemblyContext.then((c) => (ref.value = c));
-  const facet = assemblyContextFacet.of(() => {
+  module.then((c) => (ref.value = c));
+  const facet = wasmSharpFacet.of(() => {
     return ref.value;
   });
   return [csharpCompilationField.extension, facet];
 };
 
-const assemblyContextFacet = Facet.define<() => WasmSharpModule | null>({
+const wasmSharpFacet = Facet.define<() => WasmSharpModule | null>({
   static: true,
 });
 
@@ -216,7 +193,7 @@ const csharpCompilationField = StateField.define({
   },
   update(value, tr) {
     if (!value.ready) {
-      const compilation = tr.state.facet(assemblyContextFacet)[0]();
+      const compilation = tr.state.facet(wasmSharpFacet)[0]();
       if (compilation) {
         value.ready = true;
         value.compilation = compilation.createCompilation(tr.newDoc.toString());
@@ -260,9 +237,7 @@ export const csharpLinter = (config?: CSharpLinterConfig) => {
   }, config);
 };
 
-const mapSeverity: (
-  severity: DiagnosticSeverity
-) => "info" | "warning" | "error" = (severity) => {
+const mapSeverity: (severity: DiagnosticSeverity) => "info" | "warning" | "error" = (severity) => {
   switch (severity) {
     case "Error":
       return "error";
