@@ -49,5 +49,5 @@
     /* Advanced Options */
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
   },
-  "references": [{ "path": "./packages/core/src/WasmSharp.Core" }, { "path": "./playground" }]
+  "references": [{ "path": "./packages/core" }, { "path": "./playground" }]
 }
