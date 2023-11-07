@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>$(NetVersion)</TargetFramework>
     <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
-    <WasmMainJSPath>dist/main.js</WasmMainJSPath>
+    <WasmMainJSPath>../dist/main.js</WasmMainJSPath>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <!--We don't know exactly what dlls the user might need to compile their program. For now, compile and serve all of them -->
@@ -33,16 +33,17 @@
     <WasmBuildNative>true</WasmBuildNative>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <PackageJsonFile>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)/../package.json'))</PackageJsonFile>
+  </PropertyGroup>
+
   <ItemGroup>
-    <WasmExtraFilesToDeploy Include="index.html" />
-    <WasmExtraFilesToDeploy Include="dist/main.js" />
     <!-- WasmAppDir is not defined yet. -->
     <!-- hardcoded for now until https://github.com/dotnet/runtime/issues/77285 -->
-    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)/dist/main.js" />
-    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/index.js" Original="$(MSBuildThisFileDirectory)/dist/index.js" />
-    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/WasmCompiler.js" Original="$(MSBuildThisFileDirectory)/dist/WasmCompiler.js" />
-    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/package.json" Original="$(MSBuildThisFileDirectory)/package.json" />
-    <!--<UpToDateCheckBuilt Include="$(WasmAppDir)/main.js" Original="$(MSBuildThisFileDirectory)/dist/main.js" />-->
+    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)/../dist/main.js" />
+    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/index.js" Original="$(MSBuildThisFileDirectory)/../dist/index.js" />
+    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/WasmCompiler.js" Original="$(MSBuildThisFileDirectory)/../dist/WasmCompiler.js" />
+    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/package.json" Original="$(PackageJsonFile)" />
   </ItemGroup>
 
   <!--Hide node modules and dist folder-->
@@ -67,15 +68,15 @@
   <!-- Copy dist folder and other required artifacts -->
   <Target Name="_PrivateCopyRequiredArtifacts" AfterTargets="WasmBuildApp" DependsOnTargets="WasmBuildApp" Condition="'$(WasmAppDir)' != ''">
     <ItemGroup>
-      <__FilesToCopy Include="$(MSBuildThisFileDirectory)dist\*.*" />
-      <__FilesToCopy Include="$(MSBuildThisFileDirectory)package.json" />
+      <__FilesToCopy Include="$(MSBuildThisFileDirectory)../dist/**/*.*" />
+      <__FilesToCopy Include="$(PackageJsonFile)" />
     </ItemGroup>
-    <Copy SkipUnchangedFiles="true" SourceFiles="@(__FilesToCopy)" DestinationFolder="$(WasmAppDir)" />
+    <Copy SkipUnchangedFiles="true" SourceFiles="@(__FilesToCopy)" DestinationFolder="$(WasmAppDir)\%(RecursiveDir)" />
   </Target>
 
   <Target Name="TypeScriptCompileAferPublish" AfterTargets="WasmTriggerPublishApp">
     <PropertyGroup Condition="'$(WasmAppDir)' == ''">
-      <WasmAppDir>$(OutputPath)/AppBundle</WasmAppDir>
+      <WasmAppDir>$([MSBuild]::NormalizePath('$(OutputPath)/AppBundle'))</WasmAppDir>
     </PropertyGroup>
 
     <Message Importance="high" Text="Checking dependencies"></Message>
@@ -97,10 +98,8 @@
   </Target>
 
   <Target Name="CopyPackageJsonToAppBundle" AfterTargets="TypeScriptCompileAferPublish">
-    <Message Importance="high" Text="Copying package.json file to $(WasmAppDir)"></Message>
-    <ItemGroup>
-    </ItemGroup>
-    <Copy SourceFiles="$(MSBuildThisFileDirectory)/package.json" DestinationFiles="$(WasmAppDir)/package.json" />
+    <Message Importance="high" Text="Copying package.json $(PackageJsonFile) file to $(WasmAppDir)"></Message>
+    <Copy SourceFiles="$(PackageJsonFile)" DestinationFiles="$(WasmAppDir)/package.json" />
   </Target>
 
   <Target Name="RunPnpmPack" AfterTargets="WasmTriggerPublishApp" DependsOnTargets="CopyPackageJsonToAppBundle;TypeScriptCompileAferPublish">

@@ -4,8 +4,8 @@ import createDotnetRuntime, {
   DotnetModuleConfig,
   DotnetHostBuilder,
 } from "./dotnet.js";
-import { Span } from "./Roslyn/Text";
-import { TextTag } from "./Roslyn/TextTags";
+import { Span } from "./Roslyn/Text.js";
+import type { TextTag } from "./Roslyn/TextTags.js";
 function get<T>(json: any): T {
   return JSON.parse(json) as T;
 }
@@ -171,3 +171,6 @@ export declare class CompilationInterop {
   GetCompletionsAsync(compilationId: CompilationId, caretPosition: number, filterText?: string): Promise<string>;
   RunAsync(compilationId: string): Promise<string>;
 }
+
+export * from "./Roslyn/TextTags.js";
+export * from "./Roslyn/Text.js";

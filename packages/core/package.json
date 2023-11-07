@@ -1,7 +1,7 @@
 {
   "name": "@wasmsharp/core",
-  "version": "0.0.3",
-  "main": "WasmCompiler.js",
+  "version": "0.0.9",
+  "main": "dist/WasmCompiler.js",
   "scripts": {
     "watch": "tsc --watch"
   },

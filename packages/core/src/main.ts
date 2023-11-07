@@ -14,11 +14,7 @@ console.log(
   "TODO: Hook into wasm runtime load and send bytes for arrays to create metadata references. Might not be feasible. (Maybe hook into mono_wasm_add_assembly?)"
 );
 console.log("TODO: Add loading progress hook - see ASP NET Core MonoPlatform.ts for examples.");
-//@ts-ignore
-window.AssemblyContext = WasmSharpModule;
-
-
-WasmSharpModule.initializeAsync();
+console.log("Test message that should be seen.");
 
 // const style = `
 // font-size:1.1rem;
