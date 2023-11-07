@@ -16,7 +16,6 @@
     <!-- TODO: Investigate using Webcil format for better compatibility - how do we load DLLs when packaged in this format?-->
     <WasmEnableWebcil>false</WasmEnableWebcil>
 
-    <WasmDebugLevel>-1</WasmDebugLevel>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Jab" Version="0.8.6" PrivateAssets="all" />
@@ -31,6 +30,7 @@
     <WasmEmitSymbolMap>true</WasmEmitSymbolMap>
     <!--from https://github.com/dotnet/runtime/blob/main/docs/workflow/debugging/mono/wasm-debugging.md#collecting-stack-traces-with-symbols-in-blazor -->
     <WasmBuildNative>true</WasmBuildNative>
+    <WasmDebugLevel>1</WasmDebugLevel>
   </PropertyGroup>
 
   <ItemGroup>

@@ -128,14 +128,27 @@ internal sealed class CodeSession
             //var mainMethod = instance.GetType().GetMethod("$Main");
             //Delegate d = Delegate.CreateDelegate(instance.GetType(), mainMethod);
             //d.DynamicInvoke();
-            assembly.EntryPoint!.Invoke(null, args);
+            var errorOut = "";
+            try
+            {
+                assembly.EntryPoint!.Invoke(null, args);
+            }
+            catch (Exception ex)
+            {
+                var s = ex.ToString();
+                errorOut = s;
+                Console.Error.WriteLine(s);
+            }
+            finally
+            {
+                Console.SetOut(oldOut);
+            }
             var capturedOutput = captureOutput.ToString();
-            Console.SetOut(oldOut);
 
             Console.WriteLine("Captured output: ");
             Console.WriteLine(capturedOutput);
 
-            return RunResult.WithStdOutErr(capturedOutput, "");
+            return RunResult.WithStdOutErr(capturedOutput, errorOut);
         }
         else
         {
