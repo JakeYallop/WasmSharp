@@ -38,18 +38,14 @@
   <PropertyGroup>
     <PackageJsonFile>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)/../package.json'))</PackageJsonFile>
   </PropertyGroup>
-
+  
     <!-- WasmAppDir is not defined yet. -->
     <!-- hardcoded for now until https://github.com/dotnet/runtime/issues/77285 -->
-  <PropertyGroup Condition="'$(WasmAppDir)' == ''">
-    <WasmAppDir>$([MSBuild]::NormalizePath('$(OutputPath)/AppBundle'))</WasmAppDir>
-  </PropertyGroup>
-
   <ItemGroup>
-    <!-- TODO: Replace with a transform *.ts -> *.js to handle all files and nested files -->
-    <UpToDateCheckBuilt Include="$(WasmAppDir)/main.js" Original="$(MSBuildThisFileDirectory)/main.ts" />
-    <UpToDateCheckBuilt Include="$(WasmAppDir)/WasmCompiler.js" Original="$(MSBuildThisFileDirectory)/WasmCompiler.ts" />
-    <UpToDateCheckBuilt Include="$(WasmAppDir)/package.json" Original="$(PackageJsonFile)" />
+    <!-- TODO: Replace with a transform *.ts -> *.js to handle all files and nested files, alos verify if this actually works, as the ts files will be built and so will be different -->
+    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)/main.ts" />
+    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/WasmCompiler.js" Original="$(MSBuildThisFileDirectory)/WasmCompiler.ts" />
+    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/package.json" Original="$(PackageJsonFile)" />
   </ItemGroup>
 
   <!--Hide node modules and dist folder-->
@@ -58,8 +54,14 @@
     <None Remove="dist/**/*" />
   </ItemGroup>
 
+  <Target Name="InitializeWasmAppDir" AfterTargets="WasmBuildApp">
+    <PropertyGroup>
+      <WasmAppDir>$([MSBuild]::NormalizePath('$(OutputPath)/AppBundle'))</WasmAppDir>
+    </PropertyGroup>
+  </Target>
+  
   <!--Copy dotnet.d.ts to AppBundle directory-->
-  <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="WasmBuildApp" Condition="'$(WasmAppDir)' != ''">
+  <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="InitializeWasmAppDir">
     <PropertyGroup>
       <_DotNetTypePath>$(OutputPath)dotnet.d.ts</_DotNetTypePath>
     </PropertyGroup>
@@ -71,7 +73,7 @@
     <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(MSBuildThisFileDirectory)$(WasmRuntimeAssetsLocation)" SkipUnchangedFiles="true" />
   </Target>
 
-  <Target Name="_EnsureTypeScriptOfRequiredVersionInstalled" AfterTargets="WasmBuildApp">
+  <Target Name="_EnsureTypeScriptOfRequiredVersionInstalled" AfterTargets="WasmBuildApp" DependsOnTargets="InitializeWasmAppDir">
     <Message Importance="high" Text="Checking dependencies"></Message>
     <Exec Command="pnpm exec tsc --version" ConsoleToMSBuild="true" IgnoreExitCode="true" ContinueOnError="true">
       <Output TaskParameter="ConsoleOutput" PropertyName="TscVersionCheckOutput" />
@@ -99,8 +101,8 @@
   </Target>-->
 
   <Target Name="_CopyPackageJsonToWasmAppDir" AfterTargets="_TypeScriptCompileAferBuild">
-    <Message Importance="high" Text="Copying package.json $(PackageJsonFile) file to $(WasmAppDir)"></Message>
-    <Copy SourceFiles="$(PackageJsonFile)" DestinationFiles="$(WasmAppDir)/package.json" />
+    <Message Importance="high" Text="Copying package.json $(PackageJsonFile) file to $(WasmAppDir)/package.json"></Message>
+    <Copy ContinueOnError="false" SourceFiles="$(PackageJsonFile)" DestinationFiles="$(WasmAppDir)/package.json" />
   </Target>
 
   <Target Name="_RunPnpmPack" AfterTargets="WasmTriggerPublishApp" DependsOnTargets="_CopyPackageJsonToWasmAppDir;_TypeScriptCompileAferBuild">
