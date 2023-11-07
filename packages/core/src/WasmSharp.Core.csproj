@@ -39,12 +39,17 @@
     <PackageJsonFile>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)/../package.json'))</PackageJsonFile>
   </PropertyGroup>
 
-  <ItemGroup>
     <!-- WasmAppDir is not defined yet. -->
     <!-- hardcoded for now until https://github.com/dotnet/runtime/issues/77285 -->
-    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)/../dist/main.js" />
-    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/WasmCompiler.js" Original="$(MSBuildThisFileDirectory)/../dist/WasmCompiler.js" />
-    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/package.json" Original="$(PackageJsonFile)" />
+  <PropertyGroup Condition="'$(WasmAppDir)' == ''">
+    <WasmAppDir>$([MSBuild]::NormalizePath('$(OutputPath)/AppBundle'))</WasmAppDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- TODO: Replace with a transform *.ts -> *.js to handle all files and nested files -->
+    <UpToDateCheckBuilt Include="$(WasmAppDir)/main.js" Original="$(MSBuildThisFileDirectory)/main.ts" />
+    <UpToDateCheckBuilt Include="$(WasmAppDir)/WasmCompiler.js" Original="$(MSBuildThisFileDirectory)/WasmCompiler.ts" />
+    <UpToDateCheckBuilt Include="$(WasmAppDir)/package.json" Original="$(PackageJsonFile)" />
   </ItemGroup>
 
   <!--Hide node modules and dist folder-->
@@ -66,10 +71,7 @@
     <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(MSBuildThisFileDirectory)$(WasmRuntimeAssetsLocation)" SkipUnchangedFiles="true" />
   </Target>
 
-  <Target Name="TypeScriptCompileAferBuild" AfterTargets="WasmBuildApp">
-    <PropertyGroup Condition="'$(WasmAppDir)' == ''">
-      <WasmAppDir>$([MSBuild]::NormalizePath('$(OutputPath)/AppBundle'))</WasmAppDir>
-    </PropertyGroup>
+  <Target Name="_EnsureTypeScriptOfRequiredVersionInstalled" AfterTargets="WasmBuildApp">
     <Message Importance="high" Text="Checking dependencies"></Message>
     <Exec Command="pnpm exec tsc --version" ConsoleToMSBuild="true" IgnoreExitCode="true" ContinueOnError="true">
       <Output TaskParameter="ConsoleOutput" PropertyName="TscVersionCheckOutput" />
@@ -81,25 +83,27 @@
     <Message Importance="high" Text="Is TSC installed? $(TypeScriptInstalledForCompile)"></Message>
     <Message Importance="high" Text="TypeScript already installed, skipping install step." Condition="$(TypeScriptInstalledForCompile) == 'True'"></Message>
     <Message Importance="high" Text="TypeScript not installed. Installing TypeScript uisng pnpm install." Condition="$(TypeScriptInstalledForCompile) != 'True'"></Message>
-    
     <Exec Command="pnpm install" Condition="$(TypeScriptInstalledForCompile) != 'True'" />
+  </Target>
+
+  <Target Name="_TypeScriptCompileAferBuild" AfterTargets="WasmBuildApp" DependsOnTargets="_EnsureTypeScriptOfRequiredVersionInstalled">
     <Message Importance="high" Text="Compiling TypeScript code to $(WasmAppDir)"></Message>
     <Exec Command="pnpm exec tsc -p ./tsconfig.json -outDir $(WasmAppDir)"></Exec>
   </Target>
 
-  <!--<Target Name="_PrivateCopyRequiredArtifacts" AfterTargets="WasmBuildApp" DependsOnTargets="WasmBuildApp;TypeScriptCompileAferBuild" Condition="'$(WasmAppDir)' != ''">
+  <!--<Target Name="_PrivateCopyRequiredArtifacts" AfterTargets="WasmBuildApp" DependsOnTargets="WasmBuildApp;_TypeScriptCompileAferBuild" Condition="'$(WasmAppDir)' != ''">
     <ItemGroup>
       <__FilesToCopy Include="$(MSBuildThisFileDirectory)../dist/**/*.*" />
     </ItemGroup>
     <Copy SkipUnchangedFiles="true" SourceFiles="@(__FilesToCopy)" DestinationFolder="$(WasmAppDir)\%(RecursiveDir)" />
   </Target>-->
 
-  <Target Name="CopyPackageJsonToAppBundle" AfterTargets="TypeScriptCompileAferBuild">
+  <Target Name="_CopyPackageJsonToWasmAppDir" AfterTargets="_TypeScriptCompileAferBuild">
     <Message Importance="high" Text="Copying package.json $(PackageJsonFile) file to $(WasmAppDir)"></Message>
     <Copy SourceFiles="$(PackageJsonFile)" DestinationFiles="$(WasmAppDir)/package.json" />
   </Target>
 
-  <Target Name="RunPnpmPack" AfterTargets="WasmTriggerPublishApp" DependsOnTargets="CopyPackageJsonToAppBundle;TypeScriptCompileAferBuild">
+  <Target Name="_RunPnpmPack" AfterTargets="WasmTriggerPublishApp" DependsOnTargets="_CopyPackageJsonToWasmAppDir;_TypeScriptCompileAferBuild">
     <PropertyGroup>
       <PackOutputDir Condition="'$(PackOutputDir)' == ''">.</PackOutputDir>
     </PropertyGroup>
