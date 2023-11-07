@@ -129,6 +129,7 @@ internal sealed class CodeSession
             //Delegate d = Delegate.CreateDelegate(instance.GetType(), mainMethod);
             //d.DynamicInvoke();
             var errorOut = "";
+#pragma warning disable CA1031 // Do not catch general exception types
             try
             {
                 assembly.EntryPoint!.Invoke(null, args);
@@ -137,12 +138,13 @@ internal sealed class CodeSession
             {
                 var s = ex.ToString();
                 errorOut = s;
-                Console.Error.WriteLine(s);
+                await Console.Error.WriteLineAsync(s).ConfigureAwait(false);
             }
             finally
             {
                 Console.SetOut(oldOut);
             }
+#pragma warning restore CA1031 // Do not catch general exception types
             var capturedOutput = captureOutput.ToString();
 
             Console.WriteLine("Captured output: ");
