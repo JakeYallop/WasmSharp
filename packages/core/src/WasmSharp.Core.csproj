@@ -60,8 +60,7 @@
     </PropertyGroup>
   </Target>
   
-  <!--Copy dotnet.d.ts to AppBundle directory-->
-  <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="InitializeWasmAppDir" Condition="'$(WasmBuildingForNestedPublish)' != 'True'">
+  <Target Name="_CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="InitializeWasmAppDir" Condition="'$(WasmBuildingForNestedPublish)' != 'True'">
     <PropertyGroup>
       <_DotNetTypePath>$(OutputPath)dotnet.d.ts</_DotNetTypePath>
     </PropertyGroup>
@@ -101,13 +100,11 @@
     <Copy ContinueOnError="false" SourceFiles="$(PackageJsonFile)" DestinationFiles="$(WasmAppDir)/package.json" />
   </Target>
 
-  <!--<Target Name="_RunPnpmPack" AfterTargets="WasmTriggerPublishApp" DependsOnTargets="_CopyPackageJsonToWasmAppDir;_TypeScriptCompileAferBuild;WasmTriggerPublishApp">
-    <PropertyGroup>
-      <PackOutputDir Condition="'$(PackOutputDir)' == ''">.</PackOutputDir>
-    </PropertyGroup>
-    <Message Importance="high" Text="Create tarball package at $(PackOutputDir)" />
-    <Exec Command="pnpm pack --pack-destination $(PackOutputDir)" WorkingDirectory="$(WasmAppDir)" />
-  </Target>-->
-
+  <Target Name="RepublishDeps" AfterTargets="WasmTriggerPublishApp" DependsOnTargets="InitializeWasmAppDir" Condition="!Exists('$(WasmAppDir)/WasmCompiler.js')">
+    <Message Importance="high" Text="Rerunning compile step as previous outputs have been overwritten by the WasmTriggerPublishApp target" />
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="_TypeScriptCompileAferBuild;_CopyPackageJsonToWasmAppDir" Properties="_RanTscDependencyCheck=$(_RanTscDependencyCheck);WasmAppDir=$(WasmAppDir)">
+    </MSBuild>
+  </Target>
+    
   
 </Project>
