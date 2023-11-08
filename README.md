@@ -33,20 +33,20 @@ pnpm test
 ### publish the Core project:
 
 ```
-cd /packages/core/src/WasmSharp.Core && dotnet publish -c Release /p:PackOutputDir=<tarball package output dir>
+cd /packages/core && dotnet publish -c Release
 ```
 
-This automatically generates a tarball at the location specified by `PackOutputDir`. If not specified, it defaults to "bin/{Configuration}/.net8.0/browser-wasm/AppBundle".
-
-### install the tarball package in the playground:
+### Ensure the latest package is referenced in the playground:
 
 ```
 pnpm --filter playground remove @wasmsharp/core
-pnpm --filter playground add <tarball package output dir>
+pnpm --filter playground add @wasmsharp/core
 ```
-This will update the @wasmsharp/core reference inside the package.json file to point directly to the tarball using `file:...`. Once the build is complete, this should be reset to "workspace:*", otherwise new changes made to @wasmsharp/core during development will be ignored.
 
 ### Build the playground
 ```
 pnpm --filter playground build
 ```
+
+Build is created in the playground/dist/ folder.
+

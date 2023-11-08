@@ -61,7 +61,7 @@
   </Target>
   
   <!--Copy dotnet.d.ts to AppBundle directory-->
-  <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="InitializeWasmAppDir">
+  <Target Name="CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="InitializeWasmAppDir" Condition="'$(WasmBuildingForNestedPublish)' != 'True'">
     <PropertyGroup>
       <_DotNetTypePath>$(OutputPath)dotnet.d.ts</_DotNetTypePath>
     </PropertyGroup>
@@ -73,7 +73,7 @@
     <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(MSBuildThisFileDirectory)$(WasmRuntimeAssetsLocation)" SkipUnchangedFiles="true" />
   </Target>
 
-  <Target Name="_EnsureTypeScriptOfRequiredVersionInstalled" AfterTargets="WasmBuildApp" DependsOnTargets="InitializeWasmAppDir">
+  <Target Name="_EnsureTypeScriptOfRequiredVersionInstalled" AfterTargets="WasmBuildApp" DependsOnTargets="InitializeWasmAppDir" Condition="'$(WasmBuildingForNestedPublish)' != 'True' and '$(_RanTscDependencyCheck)' != 'True'">
     <Message Importance="high" Text="Checking dependencies"></Message>
     <Exec Command="pnpm exec tsc --version" ConsoleToMSBuild="true" IgnoreExitCode="true" ContinueOnError="true">
       <Output TaskParameter="ConsoleOutput" PropertyName="TscVersionCheckOutput" />
@@ -86,33 +86,28 @@
     <Message Importance="high" Text="TypeScript already installed, skipping install step." Condition="$(TypeScriptInstalledForCompile) == 'True'"></Message>
     <Message Importance="high" Text="TypeScript not installed. Installing TypeScript uisng pnpm install." Condition="$(TypeScriptInstalledForCompile) != 'True'"></Message>
     <Exec Command="pnpm install" Condition="$(TypeScriptInstalledForCompile) != 'True'" />
+    <PropertyGroup>
+      <_RanTscDependencyCheck>True</_RanTscDependencyCheck>
+    </PropertyGroup>
   </Target>
 
-  <Target Name="_TypeScriptCompileAferBuild" AfterTargets="WasmBuildApp" DependsOnTargets="_EnsureTypeScriptOfRequiredVersionInstalled">
+  <Target Name="_TypeScriptCompileAferBuild" AfterTargets="WasmBuildApp" DependsOnTargets="_EnsureTypeScriptOfRequiredVersionInstalled;">
     <Message Importance="high" Text="Compiling TypeScript code to $(WasmAppDir)"></Message>
     <Exec Command="pnpm exec tsc -p ./tsconfig.json -outDir $(WasmAppDir)"></Exec>
   </Target>
-
-  <!--<Target Name="_PrivateCopyRequiredArtifacts" AfterTargets="WasmBuildApp" DependsOnTargets="WasmBuildApp;_TypeScriptCompileAferBuild" Condition="'$(WasmAppDir)' != ''">
-    <ItemGroup>
-      <__FilesToCopy Include="$(MSBuildThisFileDirectory)../dist/**/*.*" />
-    </ItemGroup>
-    <Copy SkipUnchangedFiles="true" SourceFiles="@(__FilesToCopy)" DestinationFolder="$(WasmAppDir)\%(RecursiveDir)" />
-  </Target>-->
 
   <Target Name="_CopyPackageJsonToWasmAppDir" AfterTargets="_TypeScriptCompileAferBuild">
     <Message Importance="high" Text="Copying package.json $(PackageJsonFile) file to $(WasmAppDir)/package.json"></Message>
     <Copy ContinueOnError="false" SourceFiles="$(PackageJsonFile)" DestinationFiles="$(WasmAppDir)/package.json" />
   </Target>
 
-  <Target Name="_RunPnpmPack" AfterTargets="WasmTriggerPublishApp" DependsOnTargets="_CopyPackageJsonToWasmAppDir;_TypeScriptCompileAferBuild">
+  <!--<Target Name="_RunPnpmPack" AfterTargets="WasmTriggerPublishApp" DependsOnTargets="_CopyPackageJsonToWasmAppDir;_TypeScriptCompileAferBuild;WasmTriggerPublishApp">
     <PropertyGroup>
       <PackOutputDir Condition="'$(PackOutputDir)' == ''">.</PackOutputDir>
     </PropertyGroup>
     <Message Importance="high" Text="Create tarball package at $(PackOutputDir)" />
     <Exec Command="pnpm pack --pack-destination $(PackOutputDir)" WorkingDirectory="$(WasmAppDir)" />
-  </Target>
-</Project>
+  </Target>-->
 
-<!-- IsPublishable = false -->
-<!-- Also - run certain targets _after_ the publish task-->
+  
+</Project>
