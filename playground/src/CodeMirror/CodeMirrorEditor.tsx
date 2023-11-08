@@ -3,8 +3,7 @@ import { basicSetup, EditorView } from "codemirror";
 import { linter, Diagnostic as CmDiagnostic } from "@codemirror/lint";
 import "./CodeMirrorEditor.css";
 import { EditorState, Facet, StateField } from "@codemirror/state";
-import { TextTag } from "../../../packages/core/src/WasmSharp.Core/dist/Roslyn/TextTags";
-import { Compilation, CompletionItem, DiagnosticSeverity, WasmSharpModule } from "@wasmsharp/core";
+import { Compilation, CompletionItem, DiagnosticSeverity, WasmSharpModule, TextTag } from "@wasmsharp/core";
 import { CompletionContext, CompletionResult, autocompletion, Completion } from "@codemirror/autocomplete";
 import { csharp } from "@replit/codemirror-lang-csharp";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -55,7 +54,6 @@ async function csharpCompletionSource(context: CompletionContext): Promise<Compl
   }
 
   const from = context.pos;
-  console.log("Fetching completions");
   const completions = await compilation.getCompletions(from);
 
   return {

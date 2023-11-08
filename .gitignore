@@ -1,2 +1,6 @@
 **/node_modules
 **/dist
+
+#ignore tsbuildinfo files
+
+*.tsbuildinfo

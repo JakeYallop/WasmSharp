@@ -4,8 +4,8 @@ import createDotnetRuntime, {
   DotnetModuleConfig,
   DotnetHostBuilder,
 } from "./dotnet.js";
-import { Span } from "./Roslyn/Text";
-import { TextTag } from "./Roslyn/TextTags";
+import { Span } from "./Roslyn/Text.js";
+import type { TextTag } from "./Roslyn/TextTags.js";
 function get<T>(json: any): T {
   return JSON.parse(json) as T;
 }
@@ -63,7 +63,11 @@ export class WasmSharpModule {
         },
       })
       .withDiagnosticTracing(options?.enableDiagnosticTracing ?? false)
-      .withDebugging(options?.debugLevel ?? 1)
+      //workaround https://github.com/dotnet/runtime/issues/94238
+      //.withDebugging(options?.debugLevel ?? 1)
+      .withConfig({
+        debugLevel: options?.debugLevel ?? 0,
+      })
       .create();
 
     const config = getConfig();
@@ -171,3 +175,6 @@ export declare class CompilationInterop {
   GetCompletionsAsync(compilationId: CompilationId, caretPosition: number, filterText?: string): Promise<string>;
   RunAsync(compilationId: string): Promise<string>;
 }
+
+export * from "./Roslyn/TextTags.js";
+export * from "./Roslyn/Text.js";

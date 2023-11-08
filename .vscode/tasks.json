@@ -7,7 +7,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/packages/core/src/WasmSharp.Core/WasmSharp.Core.csproj",
+        "${workspaceFolder}/packages/core/src/WasmSharp.Core.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -19,7 +19,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/packages/core/src/WasmSharp.Core/WasmSharp.Core.csproj",
+        "${workspaceFolder}/packages/core/src/WasmSharp.Core.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -33,7 +33,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/packages/core/src/WasmSharp.Core/WasmSharp.Core.csproj"
+        "${workspaceFolder}/packages/core/src/WasmSharp.Core.csproj"
       ],
       "problemMatcher": "$msCompile"
     }

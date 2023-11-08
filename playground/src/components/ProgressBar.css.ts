@@ -4,7 +4,6 @@ import { spacing } from "../themeUtils.js";
 
 export const container = style({
   width: "100%",
-  padding: spacing(0.5),
   backgroundColor: palette.background.container,
 });
 
@@ -12,6 +11,6 @@ export const container = style({
 
 export const progressBar = style({
   transition: "width 0.5s ease-in-out",
-  height: spacing(0.25),
+  height: spacing(0.4),
   backgroundColor: palette.accent,
 });

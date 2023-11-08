@@ -15,7 +15,7 @@ importers:
         specifier: ^4.9.3
         version: 4.9.5
 
-  packages/core/src/WasmSharp.Core:
+  packages/core:
     devDependencies:
       typescript:
         specifier: ^5.2.2
@@ -82,8 +82,8 @@ importers:
         specifier: ^1.4.1
         version: 1.4.1(solid-js@1.8.3)
       '@wasmsharp/core':
-        specifier: file:C:/Workspaces/packages/wasmsharp-core-0.0.3.tgz
-        version: file:../packages/wasmsharp-core-0.0.3.tgz
+        specifier: file:../packages/core/src/bin/Debug/net8.0/browser-wasm/AppBundle
+        version: file:packages/core/src/bin/Debug/net8.0/browser-wasm/AppBundle
       clsx:
         specifier: ^2.0.0
         version: 2.0.0
@@ -4102,8 +4102,7 @@ packages:
     engines: {node: '>=12.20'}
     dev: true
 
-  file:../packages/wasmsharp-core-0.0.3.tgz:
-    resolution: {integrity: sha512-KzXnJG/KmiychkooNHY9+04u52bDQjp3jHPA3n9F2AU/0Am0gQ5FnzMFUzPyLe9P/9cuhV3jEiobormp0Op0iA==, tarball: file:../packages/wasmsharp-core-0.0.3.tgz}
+  file:packages/core/src/bin/Debug/net8.0/browser-wasm/AppBundle:
+    resolution: {directory: packages/core/src/bin/Debug/net8.0/browser-wasm/AppBundle, type: directory}
     name: '@wasmsharp/core'
-    version: 0.0.3
     dev: false
