@@ -8,6 +8,7 @@ import { WasmSharpOptions } from "@wasmsharp/core";
 import ProgressBar from "../components/ProgressBar.jsx";
 import TwoPaneView from "../components/TwoPaneVIew.jsx";
 import { CSharpRun } from "../components/CSharpRun.jsx";
+import { spacing } from "../themeUtils.js";
 
 const Playground: Component = () => {
   const wasmSharpOptions: WasmSharpOptions = {
@@ -35,7 +36,7 @@ const Playground: Component = () => {
         <CodeMirrorEditor onValueChanged={onValueChanged} wasmSharpModule={context} />
         <div>
           <Show when={wasmSharpModule.state === "pending"}>
-            <h2>Loading compilation tools, please wait...</h2>
+            <h2 style={{ "margin-left": spacing(3) }}>Loading compilation tools, please wait...</h2>
           </Show>
           <Show when={wasmSharpModule.state === "ready"}>
             <CSharpRun code={code() || ""} wasmSharpModule={wasmSharpModule.latest!} />

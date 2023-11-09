@@ -31,7 +31,7 @@ export const CSharpRun: Component<CSharpRunProps> = (props: CSharpRunProps) => {
   });
 
   return (
-    <div>
+    <div class={styles.container}>
       <Diagnostics diagnostics={diagnostics()} />
       <button
         class={`${styles.runButton} button primary icon`}

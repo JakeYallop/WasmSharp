@@ -59,15 +59,16 @@ function wasmSharpPlugin(): Plugin {
   let config: ResolvedConfig;
   let runtimeConfigOutputPath: string | undefined;
   let runtimeConfigPath: string | undefined;
+
+  const writeCopyProgress = (copied: number, files: fs.Dirent[]) => {
+    config!.logger.info(`Copied ${copied}/${files.length} files`);
+  };
+
   return {
     name: "wasm-sharp-include-assets",
     enforce: "post",
     config() {
       return {
-        optimizeDeps: {
-          //TODO: figure out exactly why this works
-          exclude: ["@wasmsharp/core"],
-        },
         build: {
           sourcemap: false,
         },
@@ -77,10 +78,8 @@ function wasmSharpPlugin(): Plugin {
       config = resolved;
     },
     generateBundle(output) {
-      console.log("process", process.env);
-      config.logger.info("Copying @wasmsharp/core assets...");
+      config.logger.info("\nPreparing to copy @wasmsharp/core assets...");
       const data = resolvePackageData("@wasmsharp/core", output.dir!);
-      console.log(data);
       if (!data) {
         config.logger.warn(
           "Could not resolve package information for @wasmsharp/core, the build may not have completed successfully/"
@@ -92,9 +91,13 @@ function wasmSharpPlugin(): Plugin {
       config.logger.info("Copying @wasmsharp/core assets...");
       const files = fs.readdirSync(data!.dir, { withFileTypes: true, recursive: true }).filter((x) => !x.isDirectory());
 
-      config.logger.info(`Found ${files.length} assets to copy`);
+      config.logger.info(`Found ${files.length} assets to copy.`);
 
+      let intervalStart = Date.now();
       for (let i = 0; i < files.length; i++) {
+        if (Date.now() - intervalStart > 500) {
+          writeCopyProgress(i, files);
+        }
         const file = files[i];
         const normalizedPath = normalizePath(file.path);
         const wasmSharpSplitString = "@wasmsharp/core";
@@ -108,7 +111,7 @@ function wasmSharpPlugin(): Plugin {
 
         const filePath = path.join(file.path, file.name);
         const relativeOutputPath = path.join(nestedDirectory, file.name);
-        config.logger.info(`Emitting asset from ${filePath} to ${relativeOutputPath}`);
+        //config.logger.info(`Emitting asset from ${filePath} to ${relativeOutputPath}`);
         if (file.name === "0_runtimeconfig.bin" || file.path.includes("supportFiles")) {
           if (file.name !== "0_runtimeconfig.bin") {
             config.logger.error("Extra supportFiles found, check may need updating.");
@@ -136,6 +139,7 @@ function wasmSharpPlugin(): Plugin {
           throw err;
         }
       }
+      writeCopyProgress(files.length, files);
     },
     closeBundle() {
       if (runtimeConfigPath && runtimeConfigOutputPath) {
