@@ -18,13 +18,11 @@ pnpm
 pnpm start
 ```
 
-### Run `tsc watch` for wasm/core
+### Building @wasmsharp/core
 
 ```
-pnpm core
+pnpm run build:core
 ```
-
-Don't forget to rebuild the C# project in release after making a change to `@wasmsharp/core`.
 
 ### Run tests
 
@@ -38,13 +36,6 @@ pnpm test
 
 ```
 cd /packages/core && dotnet publish -c Release
-```
-
-### Ensure the latest package is referenced in the playground:
-
-```
-pnpm --filter playground remove @wasmsharp/core
-pnpm --filter playground add @wasmsharp/core
 ```
 
 ### Build the playground
