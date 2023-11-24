@@ -13,6 +13,7 @@ import { spacing } from "../themeUtils.js";
 const Playground: Component = () => {
   const wasmSharpOptions: WasmSharpOptions = {
     onDownloadResourceProgress(loadedResources, totalResources) {
+      console.log(loadedResources, totalResources)
       batch(() => {
         setLoadedResources(totalResources);
         setTotalResources(loadedResources);

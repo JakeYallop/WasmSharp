@@ -1,5 +1,5 @@
 import { WasmSharpModule, type Diagnostic } from "@wasmsharp/core";
-import { Component, createEffect, createSignal, Show } from "solid-js";
+import { Component, createEffect, createResource, createSignal, Show } from "solid-js";
 import * as styles from "./CSharpRun.css";
 import playIcon from "../assets/play.svg";
 import { Compilation } from "@wasmsharp/core";
@@ -12,7 +12,7 @@ export interface CSharpRunProps {
 export const CSharpRun: Component<CSharpRunProps> = (props: CSharpRunProps) => {
   const [output, setOutput] = createSignal<string | null>();
   const [diagnostics, setDiagnostics] = createSignal<Diagnostic[]>([]);
-  const [compilation] = createSignal<Compilation>(props.wasmSharpModule.createCompilation(props.code));
+  const [compilation] = createResource<Compilation>(() => props.wasmSharpModule.createCompilationAsync(props.code));
 
   createEffect((prev) => {
     if (prev === props.code) {
@@ -20,9 +20,11 @@ export const CSharpRun: Component<CSharpRunProps> = (props: CSharpRunProps) => {
       return;
     }
     console.log("recompiling and fetching diagnostics");
-    compilation().recompile(props.code);
-    compilation()
-      .getDiagnosticsAsync()
+    compilation.latest
+      ?.recompileAsync(props.code)
+      .then(() => {
+        return compilation.latest.getDiagnosticsAsync();
+      })
       .then((diagnostics) => {
         setDiagnostics(diagnostics);
       });
@@ -37,7 +39,7 @@ export const CSharpRun: Component<CSharpRunProps> = (props: CSharpRunProps) => {
         class={`${styles.runButton} button primary icon`}
         disabled={diagnostics().filter((x) => x.severity == "Error").length > 0}
         onClick={async () => {
-          const result = await compilation().run();
+          const result = await compilation.latest!.run();
           if (result.success) {
             setOutput(result.stdOut);
           } else {

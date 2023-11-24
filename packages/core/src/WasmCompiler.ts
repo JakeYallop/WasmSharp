@@ -1,25 +1,13 @@
-import createDotnetRuntime, {
-  dotnet as dotnetHostBuilder,
-  MonoConfig,
-  DotnetModuleConfig,
-  DotnetHostBuilder,
-} from "./dotnet.js";
-import { Span } from "./Roslyn/Text.js";
+import type { MonoConfig } from "./dotnet.js";
+import type { Span } from "./Roslyn/Text.js";
 import type { TextTag } from "./Roslyn/TextTags.js";
-function get<T>(json: any): T {
-  return JSON.parse(json) as T;
-}
+import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
+import { WasmSharpWorker } from "./WasmSharpWorker.js";
+import { Compilation } from "./WasmCompiler.js";
+import type { WasmSharpWebWorker } from "./worker.js";
+import type { CompilationInterop } from "./CompilationInterop.js";
 
-function getDirectory(path: string) {
-  var index = path.lastIndexOf("/");
-  if (index !== -1) {
-    return path.substring(0, index + 1);
-  } else {
-    return path;
-  }
-}
-
-export interface WasmSharpOptions {
+export interface WasmSharpModuleOptions {
   /**
    * URL to resolve assemblies from.
    */
@@ -34,85 +22,59 @@ export interface WasmSharpOptions {
    * Note: when debugging is enabled interpreter optimizations are disabled.
    */
   debugLevel?: number;
+}
+
+export interface WasmSharpModuleCallbacks {
   onConfigLoaded?(config: MonoConfig): void;
   onDownloadResourceProgress?(loadedResources: number, totalResources: number): void;
 }
 
+export type WasmSharpOptions = {
+  disableWebWorker?: boolean;
+} & WasmSharpModuleOptions &
+  WasmSharpModuleCallbacks;
+
 export class WasmSharpModule {
-  constructor(private interop: CompilationInterop) {}
+  constructor(private worker: WasmSharpWorker | Comlink.Remote<WasmSharpWebWorker>) {}
   static async initializeAsync(options?: WasmSharpOptions) {
-    type InternalsHostBuilder = DotnetHostBuilder & {
-      //internal method: https://github.com/dotnet/runtime/blob/a270140281a13ab82a4401dff3da6d27fe499087/src/mono/wasm/runtime/loader/run.ts#L26
-      withModuleConfig(config: DotnetModuleConfig): InternalsHostBuilder;
-    };
-    const hostBuilder: InternalsHostBuilder = dotnetHostBuilder as InternalsHostBuilder;
 
-    let resourcesToLoad = 0;
-    const { getAssemblyExports, getConfig } = await hostBuilder
-      .withModuleConfig({
-        onConfigLoaded(config: MonoConfig) {
-          resourcesToLoad = Object.keys(config.resources?.assembly ?? {}).length;
-          resourcesToLoad += Object.keys(config.resources?.pdb ?? {}).length;
-          resourcesToLoad += Object.keys(config.resources?.icu ?? {}).length;
-          //we are off by one when using the above - maybe its the wasm module, maybe its something else. Either way, this resolves the issue for now
-          resourcesToLoad += 1;
-          options?.onConfigLoaded?.(config);
-        },
-        onDownloadResourceProgress(loaded: number, total: number) {
-          options?.onDownloadResourceProgress?.(loaded, resourcesToLoad);
-        },
-      })
-      .withDiagnosticTracing(options?.enableDiagnosticTracing ?? false)
-      //workaround https://github.com/dotnet/runtime/issues/94238
-      //.withDebugging(options?.debugLevel ?? 1)
-      .withConfig({
-        debugLevel: options?.debugLevel ?? 0,
-      })
-      .create();
+    //TODO: Rewrite this using dynamic import so that we do not load web worker code when its disabled, and vice versa.
+    if (options?.disableWebWorker) {
+      const module = await WasmSharpWorker.initializeAsync(options, {
+        onConfigLoaded: options?.onConfigLoaded,
+        onDownloadResourceProgress: options?.onDownloadResourceProgress,
+      });
+      return new WasmSharpModule(module);
+    } else {
+      const worker = new Worker(new URL("./worker.js", import.meta.url).href, { type: "module" });
+      const WorkerClass = Comlink.wrap<typeof WasmSharpWebWorker>(worker);
 
-    const config = getConfig();
-    const assemblyExports: AssemblyExports = await getAssemblyExports(config.mainAssemblyName!);
-    const compilationInterop = assemblyExports.WasmSharp.Core.CompilationInterop;
-    //TODO: Handle nested assets folder (WasmRuntimeAssetsLocation)
-    const resolvedAssembliesUrl = options?.assembliesUrl ?? getDirectory(import.meta.url);
-    console.log(`Initialising assembly context from url: ${resolvedAssembliesUrl}`);
-    const time = performance.now();
-    await compilationInterop.InitAsync(resolvedAssembliesUrl, JSON.stringify(config));
-    const diff = performance.now() - time;
-    console.log(`Finished initialising assembly context in ${diff}ms`);
-    return new WasmSharpModule(compilationInterop);
+      //functions are not structured cloneable
+      if (options?.onConfigLoaded || options?.onDownloadResourceProgress) {
+        const onConfigLoaded = options.onConfigLoaded;
+        const onDownloadResourceProgress = options.onDownloadResourceProgress;
+        worker.addEventListener("message", (e) => {
+          if (e.data.type && e.data.type === "configLoaded" && e.data.config) {
+            onConfigLoaded?.(e.data.config);
+          }
+
+          if (e.data.type && e.data.type === "downloadResourceProgress") {
+            onDownloadResourceProgress?.(e.data.loadedResources, e.data.totalResources);
+          }
+        });
+
+        delete options.onConfigLoaded;
+        delete options.onDownloadResourceProgress;
+      }
+
+      const module = await new WorkerClass();
+      await module.initializeAsync(options);
+      return new WasmSharpModule(module);
+    }
   }
 
-  createCompilation = (code: string) => Compilation.create(code, this.interop);
-}
-
-export class Compilation {
-  private constructor(private compilationId: CompilationId, private interop: CompilationInterop) {}
-
-  static create(code: string, interop: CompilationInterop): Compilation {
-    const compilationId = interop!.CreateNewCompilation(code);
-    return new Compilation(compilationId, interop);
-  }
-
-  recompile(code: string) {
-    return this.interop!.Recompile(this.compilationId, code);
-  }
-
-  async getDiagnosticsAsync() {
-    const diagnostics = await this.interop?.GetDiagnosticsAsync(this.compilationId);
-    return get<Diagnostic[]>(diagnostics);
-  }
-
-  async getCompletions(caretPosition: number, filterText?: string) {
-    const completions = await this.interop.GetCompletionsAsync(this.compilationId, caretPosition, filterText);
-    return get<CompletionItem[]>(completions);
-  }
-
-  async run() {
-    console.debug("Executing code");
-    const runResult = await this.interop!.RunAsync(this.compilationId);
-    return get<RunResult>(runResult);
-  }
+  createCompilationAsync: (code: string) => Promise<Compilation> = async (code: string) =>
+    await this.worker.createCompilationAsync(code);
 }
 
 export type CompletionItem = {
@@ -123,7 +85,7 @@ export type CompletionItem = {
   span: Span;
 };
 
-interface AssemblyExports {
+export interface AssemblyExports {
   WasmSharp: {
     Core: {
       CompilationInterop: CompilationInterop;
@@ -165,16 +127,8 @@ interface RunResultFailure {
 
 export type RunResult = RunResultSuccess | RunResultFailure;
 
-//TODO: Make this private once assembly context is renamed and we have a public API that wraps this
-export declare class CompilationInterop {
-  InitAsync(publicUrl: string, monoConfig: string): Promise<void>;
-
-  CreateNewCompilation(code: string): CompilationId;
-  Recompile(compilationId: CompilationId, code: string): void;
-  GetDiagnosticsAsync(compilationId: CompilationId): Promise<string>;
-  GetCompletionsAsync(compilationId: CompilationId, caretPosition: number, filterText?: string): Promise<string>;
-  RunAsync(compilationId: string): Promise<string>;
-}
-
 export * from "./Roslyn/TextTags.js";
 export * from "./Roslyn/Text.js";
+export * from "./WasmSharpWorker.js";
+
+export { Compilation } from "./Compilation.js";

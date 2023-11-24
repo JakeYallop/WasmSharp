@@ -2,7 +2,7 @@ import { Component, createSignal, onCleanup, onMount } from "solid-js";
 import { basicSetup, EditorView } from "codemirror";
 import { linter, Diagnostic as CmDiagnostic } from "@codemirror/lint";
 import "./CodeMirrorEditor.css";
-import { EditorState, Facet, StateField } from "@codemirror/state";
+import { EditorState, Facet, StateEffect, StateField, Transaction } from "@codemirror/state";
 import { Compilation, CompletionItem, DiagnosticSeverity, WasmSharpModule, TextTag } from "@wasmsharp/core";
 import { CompletionContext, CompletionResult, autocompletion, Completion } from "@codemirror/autocomplete";
 import { csharp } from "@replit/codemirror-lang-csharp";
@@ -168,46 +168,39 @@ function mapTextTagToType(tag: TextTag) {
 type LintConfig = NonNullable<Parameters<typeof linter>[1]>;
 interface CSharpLinterConfig extends LintConfig {}
 
-const wasmSharpField = (module: Promise<WasmSharpModule>) => {
-  const ref = { value: null } as { value: WasmSharpModule | null };
-  module.then((c) => (ref.value = c));
-  const facet = wasmSharpFacet.of(() => {
-    return ref.value;
-  });
-  return [csharpCompilationField.extension, facet];
-};
-
-const wasmSharpFacet = Facet.define<() => WasmSharpModule | null>({
+const wasmSharpModulePromiseFacet = Facet.define<Promise<WasmSharpModule>>({
   static: true,
 });
 
-const csharpCompilationField = StateField.define({
+export const wasmSharpCompilationFacet = Facet.define<Compilation | null>({ 
+  static: true
+});
+
+const wasmSharpField = (module: Promise<WasmSharpModule>) => {
+  const facet = wasmSharpModulePromiseFacet.of(module);
+  return [wasmSharpModuleField.extension, facet];
+};
+
+//TODO: investiage Facet.from as a possible simplification
+const wasmSharpModuleField = StateField.define({
   create(state) {
-    return {
-      ready: false,
-      compilation: null as Compilation | null,
-    };
   },
   update(value, tr) {
-    if (!value.ready) {
-      const compilation = tr.state.facet(wasmSharpFacet)[0]();
-      if (compilation) {
-        value.ready = true;
-        value.compilation = compilation.createCompilation(tr.newDoc.toString());
+      const wasmSharpModulePromise = tr.state.facet(wasmSharpModulePromiseFacet)[0];
+      if (wasmSharpModulePromise) {
+        wasmSharpModulePromise
+          .then(module => module.createCompilationAsync(tr.newDoc.toString()))
+          .then(compilation => tr.state.update({ 
+              effects: [StateEffect.appendConfig.of(wasmSharpCompilationFacet.of(compilation))]
+          }))
       }
-    }
-
-    if (tr.docChanged && value.ready) {
-      value.compilation?.recompile(tr.newDoc.toString());
-    }
-    return value;
   },
 });
 
 const csharpLinterSource = "@WasmSharp";
 
 function getCompilation(state: EditorState) {
-  return state.field(csharpCompilationField).compilation;
+  return state.facet(wasmSharpCompilationFacet)[0]
 }
 
 export const csharpLinter = (config?: CSharpLinterConfig) => {

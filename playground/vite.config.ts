@@ -3,9 +3,11 @@ import solidPlugin from "vite-plugin-solid";
 import ignoreDynamicImports from "vite-plugin-ignore-dynamic-imports";
 import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
 import inspect from "vite-plugin-inspect";
-import { Plugin, ResolvedConfig, mergeConfig, normalizePath, resolvePackageData, resolvePackageEntry } from "vite";
+import { Plugin, ResolvedConfig, normalizePath } from "vite";
 import path from "path";
 import fs from "fs";
+import { findDepPkgJsonPath } from "vitefu";
+import { compareVersions } from "compare-versions"
 
 export default defineConfig(({ mode }) => {
   return {
@@ -33,6 +35,9 @@ export default defineConfig(({ mode }) => {
     build: {
       target: "esnext",
     },
+    worker: {
+      format: "es",
+    },
     resolve: {
       //https://github.com/solidjs/solid-testing-library/issues/30
       conditions: ["browser"],
@@ -54,6 +59,10 @@ export default defineConfig(({ mode }) => {
     },
   };
 });
+
+function atLeastMinimumVersion(currentVersion: string, minimumVersion: string) {
+  return compareVersions(currentVersion, minimumVersion) >= 0;
+}
 
 function wasmSharpPlugin(): Plugin {
   let config: ResolvedConfig;
@@ -77,26 +86,44 @@ function wasmSharpPlugin(): Plugin {
     configResolved(resolved) {
       config = resolved;
     },
-    generateBundle(output) {
-      config.logger.info("\nPreparing to copy @wasmsharp/core assets...");
-      const data = resolvePackageData("@wasmsharp/core", output.dir!);
-      if (!data) {
-        config.logger.warn(
+    async generateBundle(output) {
+      const logger = config.logger;
+
+      const nodeVersion = process.version.startsWith("v") ? process.version.slice(1) : process.version;
+      if (nodeVersion) {
+        if (!atLeastMinimumVersion(nodeVersion, "18.7.0") && !atLeastMinimumVersion(nodeVersion, "20.1.0")) {
+          throw Error("This plugin requires at least node v18.7.0 or v20.1.0 to execute")
+        }
+      }
+      else {
+        logger.warn("Could not determine node version. Continuing with the build, but there may be errors.")
+      }
+
+
+      logger.error("My message!!!!!!!!!!!!");
+      logger.info("\nPreparing to copy @wasmsharp/core assets...");
+      const wasmSharpJsonPath = await findDepPkgJsonPath("@wasmsharp/core", output.dir!);
+      if (!wasmSharpJsonPath) {
+        logger.warn(
           "Could not resolve package information for @wasmsharp/core, the build may not have completed successfully/"
         );
         return;
       }
-      config.logger.info(`Found @wasmsharp/core assets at ${data.dir}`);
+      const wasmSharpPath = path.dirname(wasmSharpJsonPath);
+      logger.info(`Found @wasmsharp/core assets at ${wasmSharpPath}`);
 
-      config.logger.info("Copying @wasmsharp/core assets...");
-      const files = fs.readdirSync(data!.dir, { withFileTypes: true, recursive: true }).filter((x) => !x.isDirectory());
+      logger.info("Copying @wasmsharp/core assets...");
+      const files = fs
+        .readdirSync(wasmSharpPath, { withFileTypes: true, recursive: true })
+        .filter((x) => !x.isDirectory());
 
-      config.logger.info(`Found ${files.length} assets to copy.`);
+      logger.info(`Found ${files.length} assets to copy.`);
 
       let intervalStart = Date.now();
       for (let i = 0; i < files.length; i++) {
         if (Date.now() - intervalStart > 500) {
           writeCopyProgress(i, files);
+          intervalStart = Date.now()
         }
         const file = files[i];
         const normalizedPath = normalizePath(file.path);
@@ -111,13 +138,12 @@ function wasmSharpPlugin(): Plugin {
 
         const filePath = path.join(file.path, file.name);
         const relativeOutputPath = path.join(nestedDirectory, file.name);
-        //config.logger.info(`Emitting asset from ${filePath} to ${relativeOutputPath}`);
         if (file.name === "0_runtimeconfig.bin" || file.path.includes("supportFiles")) {
           if (file.name !== "0_runtimeconfig.bin") {
-            config.logger.error("Extra supportFiles found, check may need updating.");
+            logger.error("Extra supportFiles found, check may need updating.");
           }
           //TODO: Open an issue on the rollup github to diagnose this issue so we can remove this warning
-          config.logger.warn(
+          logger.warn(
             "Skipping `this.emitFile` call for 0_runtimeconfig.bin as it ends up getting a sourcemap and other info appended even with type: asset. Instead, we copy it manually inside the closeBundle hook after generateBundle has completed."
           );
 
@@ -135,7 +161,7 @@ function wasmSharpPlugin(): Plugin {
             source: source,
           });
         } catch (err) {
-          config.logger.error(`Error reading file ${relativeOutputPath} at path ${filePath}.`);
+          logger.error(`Error reading file ${relativeOutputPath} at path ${filePath}.`);
           throw err;
         }
       }
@@ -160,14 +186,14 @@ const wasmSharpRewriteImportsForWorkspace = (): Plugin => {
   const resolvePath = () => {
     const cwd = process.cwd();
     const debugPath = path.join(cwd, "../packages/core/src/bin/Debug/net8.0/browser-wasm/AppBundle");
-    const releasePath = path.join(cwd, "../packages/core/src/bin/Debug/net8.0/browser-wasm/AppBundle");
-
-    if (fs.existsSync(debugPath)) {
-      return debugPath;
-    }
+    const releasePath = path.join(cwd, "../packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle");
 
     if (fs.existsSync(releasePath)) {
       return releasePath;
+    }
+
+    if (fs.existsSync(debugPath)) {
+      return debugPath;
     }
 
     throw Error("Could not find AppBundle directory - ensure @wasmsharp/core has been built!");
