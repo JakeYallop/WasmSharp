@@ -7,6 +7,7 @@ import { Compilation, CompletionItem, DiagnosticSeverity, WasmSharpModule, TextT
 import { CompletionContext, CompletionResult, autocompletion, Completion } from "@codemirror/autocomplete";
 import { csharp } from "@replit/codemirror-lang-csharp";
 import { oneDark } from "@codemirror/theme-one-dark";
+import { ViewPlugin } from "@codemirror/view";
 
 export interface CodeMirrorEditorProps {
   onValueChanged?: (value: string) => void;
@@ -34,7 +35,7 @@ Console.WriteLine("Hello, world!");`;
         oneDark,
         readUpdates,
         wasmSharpField(props.wasmSharpModule),
-        csharpLinter({ delay: 0 }),
+        csharpLinter({ delay: 1000 }),
         autocompletion({ override: [csharpCompletionSource] }),
       ],
     });
@@ -172,35 +173,73 @@ const wasmSharpModulePromiseFacet = Facet.define<Promise<WasmSharpModule>>({
   static: true,
 });
 
-export const wasmSharpCompilationFacet = Facet.define<Compilation | null>({ 
-  static: true
+export const wasmSharpCompilationFacet = Facet.define<Compilation | null>({
+  static: true,
 });
 
 const wasmSharpField = (module: Promise<WasmSharpModule>) => {
   const facet = wasmSharpModulePromiseFacet.of(module);
-  return [wasmSharpModuleField.extension, facet];
+  return [wasmSharpStateField.extension, facet, waitForModuleAndCreateCompilation.extension];
 };
 
+const compilationReadyEffect = StateEffect.define<Compilation>();
+
+const waitForModuleAndCreateCompilation = ViewPlugin.define((state) => {
+  return {
+    update(update) {
+      const field = update.state.field(wasmSharpStateField);
+      if (field.ready) {
+        return;
+      }
+
+      if (!field.modulePending) {
+        //not sure if this is actually allowed, or if we should dispatch a transaction for this - seems to work for the moment though
+        //and ensures we call createCompilationAsync only once.
+        field.modulePending = true;
+        const wasmSharpModulePromise = update.state.facet(wasmSharpModulePromiseFacet)[0];
+        if (wasmSharpModulePromise) {
+          wasmSharpModulePromise
+            .then((module) => {
+              console.log("Calling createCompilation");
+              return module.createCompilationAsync("");
+            })
+            .then((compilation) => update.view.dispatch({ effects: compilationReadyEffect.of(compilation) }));
+        }
+      }
+    },
+  };
+});
+
 //TODO: investiage Facet.from as a possible simplification
-const wasmSharpModuleField = StateField.define({
+const wasmSharpStateField = StateField.define({
   create(state) {
+    return {
+      modulePending: false,
+      ready: false,
+      compilation: null as Compilation | null,
+    };
   },
   update(value, tr) {
-      const wasmSharpModulePromise = tr.state.facet(wasmSharpModulePromiseFacet)[0];
-      if (wasmSharpModulePromise) {
-        wasmSharpModulePromise
-          .then(module => module.createCompilationAsync(tr.newDoc.toString()))
-          .then(compilation => tr.state.update({ 
-              effects: [StateEffect.appendConfig.of(wasmSharpCompilationFacet.of(compilation))]
-          }))
+    if (!value.ready) {
+      for (const effect of tr.effects) {
+        if (effect.is(compilationReadyEffect)) {
+          value.compilation = effect.value;
+          value.ready = true;
+        }
       }
+    }
+
+    if (value.ready && tr.docChanged) {
+      value.compilation!.recompileAsync(tr.newDoc.toString());
+    }
+    return value;
   },
 });
 
 const csharpLinterSource = "@WasmSharp";
 
 function getCompilation(state: EditorState) {
-  return state.facet(wasmSharpCompilationFacet)[0]
+  return state.field(wasmSharpStateField).compilation;
 }
 
 export const csharpLinter = (config?: CSharpLinterConfig) => {
@@ -208,6 +247,7 @@ export const csharpLinter = (config?: CSharpLinterConfig) => {
     const diagnostics: CmDiagnostic[] = [];
     const compilation = getCompilation(view.state);
     if (!compilation) {
+      console.debug("Skipping linting as compilation has not finished initialising");
       return [];
     }
     var wasmSharpDiagnostics = await compilation.getDiagnosticsAsync();
