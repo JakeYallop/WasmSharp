@@ -45,7 +45,7 @@ const Playground: Component = () => {
       </TwoPaneView>
       <Show when={wasmSharpModule.state === "errored"}>
         <h2>Failed to load, please refresh the page.</h2>
-        <pre>{wasmSharpModule.error?.getManageStack() ?? wasmSharpModule.error}</pre>
+        <pre>{wasmSharpModule.error?.getManageStack?.() ?? wasmSharpModule.error}</pre>
       </Show>
     </>
   );

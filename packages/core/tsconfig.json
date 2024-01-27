@@ -8,7 +8,8 @@
     "inlineSources": true,
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "resolveJsonModule": true
   },
   "exclude": ["node_modules", "./src/bin", ".src/obj", "./dist/**", "src/publish"],
   "extends": "../../tsconfig.json"

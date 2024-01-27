@@ -1,0 +1,12 @@
+﻿<linker>
+  <assembly fullname="Microsoft.CodeAnalysis.CSharp" />
+  <assembly fullname="Microsoft.CodeAnalysis.CSharp.Features" />
+  <assembly fullname="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+  <assembly fullname="Microsoft.CSharp" />
+  <assembly fullname="Microsoft.CodeAnalysis" />
+  <assembly fullname="Microsoft.CodeAnalysis.Features" />
+  <assembly fullname="Microsoft.CodeAnalysis.Workspaces" />
+  <assembly fullname="System.Composition.Hosting" />
+  <assembly fullname="System.Composition.TypedParts" />
+</linker>
+

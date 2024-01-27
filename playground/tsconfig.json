@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
+    "lib": ["DOM"],
     "types": ["vite/client"],
     "isolatedModules": true,
     "composite": true

@@ -1,0 +1,10 @@
+﻿<!-- This file is untested, and will need updating to bring it in line with roots.xml when actually doing native AOT stuff -->
+<Directives>
+  <Application>
+    <Assembly Name="Microsoft.CodeAnalysis" Dynamic="Required All" />
+    <Assembly Name="Microsoft.CodeAnalysis.Features" Dynamic="Required All" />
+    <Assembly Name="Microsoft.CodeAnalysis.Workspaces" Dynamic="Required All" />
+    <Assembly Name="System.Composition.Hosting" Dynamic="Required All" />
+    <Assembly Name="System.Composition.TypedParts" Dynamic="Required All" />
+  </Application>
+</Directives>

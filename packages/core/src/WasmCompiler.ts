@@ -37,7 +37,6 @@ export type WasmSharpOptions = {
 export class WasmSharpModule {
   constructor(private worker: WasmSharpWorker | Comlink.Remote<WasmSharpWebWorker>) {}
   static async initializeAsync(options?: WasmSharpOptions) {
-
     //TODO: Rewrite this using dynamic import so that we do not load web worker code when its disabled, and vice versa.
     if (options?.disableWebWorker) {
       const module = await WasmSharpWorker.initializeAsync(options, {

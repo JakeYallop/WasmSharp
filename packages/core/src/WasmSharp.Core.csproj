@@ -6,8 +6,19 @@
     <!--<WasmMainJSPath>../dist/main.js</WasmMainJSPath>-->
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    
     <!--We don't know exactly what dlls the user might need to compile their program. For now, compile and serve all of them -->
-    <PublishTrimmed>false</PublishTrimmed>
+    <IsTrimmable>true</IsTrimmable>
+    <PublishTrimmed>true</PublishTrimmed>
+    
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
+
+    <!-- Space savings when trimming -->
+    <TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
+    <DebuggerSupport>false</DebuggerSupport>
+    <UseNativeHttpHandler>true</UseNativeHttpHandler>
+
     <!-- TOOD: Test publishing-->
     <!--<RunAOTCompilation>true</RunAOTCompilation>-->
 
@@ -19,6 +30,7 @@
     <WasmEnableWebcil>false</WasmEnableWebcil>
 
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Jab" Version="0.8.6" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
@@ -46,6 +58,13 @@
     <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)/main.ts" />
     <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/WasmCompiler.js" Original="$(MSBuildThisFileDirectory)/WasmCompiler.ts" />
     <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/package.json" Original="$(PackageJsonFile)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(PublishTrimmed)' == 'True'">
+    <!-- NativeAOT -->
+    <RdXmlFile Include="rd.xml" />
+    <!-- ILLink -->
+    <TrimmerRootDescriptor Include="roots.xml" />
   </ItemGroup>
 
   <!--Hide node modules and dist folder-->

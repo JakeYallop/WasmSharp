@@ -7,11 +7,13 @@ import { Plugin, ResolvedConfig, normalizePath } from "vite";
 import path from "path";
 import fs from "fs";
 import { findDepPkgJsonPath } from "vitefu";
-import { compareVersions } from "compare-versions"
+import { compareVersions } from "compare-versions";
+import basicSsl from "@vitejs/plugin-basic-ssl";
 
 export default defineConfig(({ mode }) => {
   return {
     plugins: [
+      basicSsl(),
       inspect({
         open: false,
       }),
@@ -92,13 +94,11 @@ function wasmSharpPlugin(): Plugin {
       const nodeVersion = process.version.startsWith("v") ? process.version.slice(1) : process.version;
       if (nodeVersion) {
         if (!atLeastMinimumVersion(nodeVersion, "18.7.0") && !atLeastMinimumVersion(nodeVersion, "20.1.0")) {
-          throw Error("This plugin requires at least node v18.7.0 or v20.1.0 to execute")
+          throw Error("This plugin requires at least node v18.7.0 or v20.1.0 to execute");
         }
+      } else {
+        logger.warn("Could not determine node version. Continuing with the build, but there may be errors.");
       }
-      else {
-        logger.warn("Could not determine node version. Continuing with the build, but there may be errors.")
-      }
-
 
       logger.error("My message!!!!!!!!!!!!");
       logger.info("\nPreparing to copy @wasmsharp/core assets...");
@@ -123,7 +123,7 @@ function wasmSharpPlugin(): Plugin {
       for (let i = 0; i < files.length; i++) {
         if (Date.now() - intervalStart > 500) {
           writeCopyProgress(i, files);
-          intervalStart = Date.now()
+          intervalStart = Date.now();
         }
         const file = files[i];
         const normalizedPath = normalizePath(file.path);

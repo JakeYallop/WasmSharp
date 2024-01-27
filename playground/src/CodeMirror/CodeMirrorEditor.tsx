@@ -34,7 +34,7 @@ Console.WriteLine("Hello, world!");`;
         csharp(),
         oneDark,
         readUpdates,
-        wasmSharpField(props.wasmSharpModule),
+        wasmSharp(props.wasmSharpModule),
         csharpLinter({ delay: 1000 }),
         autocompletion({ override: [csharpCompletionSource] }),
       ],
@@ -177,7 +177,7 @@ export const wasmSharpCompilationFacet = Facet.define<Compilation | null>({
   static: true,
 });
 
-const wasmSharpField = (module: Promise<WasmSharpModule>) => {
+const wasmSharp = (module: Promise<WasmSharpModule>) => {
   const facet = wasmSharpModulePromiseFacet.of(module);
   return [wasmSharpStateField.extension, facet, waitForModuleAndCreateCompilation.extension];
 };
