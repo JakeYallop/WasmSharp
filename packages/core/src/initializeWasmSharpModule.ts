@@ -43,6 +43,10 @@ export async function initializeWasmSharpModule(
     .withConfig({
       debugLevel: options?.debugLevel ?? 0,
     })
+    .withConfig({
+      //TODO: Figure out why we need this, broken since dotnet sdk update to 8.0.101
+      disableIntegrityCheck: true,
+    })
     .create();
 
   const config = getConfig();

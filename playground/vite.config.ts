@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
         include: ["**/dotnet.runtime.js", "**/dotnet.js"],
       }),
       vanillaExtractPlugin({
-        identifiers: mode === "devlopment" ? "debug" : "short",
+        identifiers: mode === "development" ? "debug" : "short",
       }),
       wasmSharpRewriteImportsForWorkspace(),
       wasmSharpPlugin(),
