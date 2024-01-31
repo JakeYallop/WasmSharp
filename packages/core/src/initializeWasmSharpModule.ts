@@ -21,6 +21,26 @@ export async function initializeWasmSharpModule(
   };
   const hostBuilder: InternalsHostBuilder = dotnetHostBuilder as InternalsHostBuilder;
 
+  //see https://github.com/dotnet/runtime/issues/97787 for why this is necessary
+  //@ts-expect-error //running in a service worker, patch these properties to enable Cache use.
+  if (!globalThis.document) {
+    //@ts-expect-error
+    globalThis.document = {
+      baseURI: "",
+      location: {
+        origin: "",
+      },
+      window: {
+        isSecureContext: globalThis.isSecureContext,
+      },
+    };
+
+    //@ts-expect-error
+    self.window = {
+      isSecureContext: globalThis.isSecureContext,
+    };
+  }
+
   let resourcesToLoad = 0;
   const { getAssemblyExports, getConfig } = await hostBuilder
     .withModuleConfig({
@@ -46,6 +66,7 @@ export async function initializeWasmSharpModule(
     .withConfig({
       //TODO: Figure out why we need this, broken since dotnet sdk update to 8.0.101
       disableIntegrityCheck: true,
+      cacheBootResources: true,
     })
     .create();
 
