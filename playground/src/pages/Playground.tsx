@@ -31,7 +31,9 @@ const Playground: Component = () => {
   }, 1000);
   return (
     <>
-      <ProgressBar progress={loadedResources()} total={totalResources()} />
+      <Show when={loadedResources() != totalResources()}>
+        <ProgressBar progress={loadedResources()} total={totalResources()} />
+      </Show>
       <TwoPaneView>
         <CodeMirrorEditor onValueChanged={onValueChanged} wasmSharpModule={context} />
         <div>
