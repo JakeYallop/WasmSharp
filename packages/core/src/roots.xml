@@ -1,5 +1,7 @@
 ﻿<linker>
+  <assembly fullname="Microsoft.DiaSymReader" />
   <assembly fullname="Microsoft.CodeAnalysis.CSharp.Workspaces" />
-  <assembly fullname="Microsoft.CodeAnalysis.Features" />
-  <assembly fullname="Microsoft.CodeAnalysis.Workspaces" />
+  <assembly fullname="Microsoft.CodeAnalysis.Features">
+    <type fullname="Microsoft.CodeAnalysis.SymbolSearch.SymbolSearchUpdateEngine" />
+  </assembly>
 </linker>
