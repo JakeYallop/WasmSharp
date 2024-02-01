@@ -9,6 +9,7 @@ import ProgressBar from "../components/ProgressBar.jsx";
 import TwoPaneView from "../components/TwoPaneVIew.jsx";
 import { CSharpRun } from "../components/CSharpRun.jsx";
 import { spacing } from "../themeUtils.js";
+import * as styles from "./Playground.css";
 
 const Playground: Component = () => {
   const wasmSharpOptions: WasmSharpOptions = {
@@ -32,7 +33,9 @@ const Playground: Component = () => {
   return (
     <>
       <Show when={loadedResources() != totalResources()}>
-        <ProgressBar progress={loadedResources()} total={totalResources()} />
+        <div class={styles.pogressBarContainer}>
+          <ProgressBar progress={loadedResources()} total={totalResources()} />
+        </div>
       </Show>
       <TwoPaneView>
         <CodeMirrorEditor onValueChanged={onValueChanged} wasmSharpModule={context} />
