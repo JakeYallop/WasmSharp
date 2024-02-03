@@ -1,6 +1,5 @@
 import { dotnet as dotnetHostBuilder, type MonoConfig, type DotnetModuleConfig, DotnetHostBuilder } from "./dotnet.js";
 import type { WasmSharpModuleOptions, AssemblyExports, WasmSharpModuleCallbacks } from "./WasmCompiler.js";
-import blazorBootJson from "./blazor.boot.json" assert { type: "json" };
 
 function getDirectory(path: string) {
   var index = path.lastIndexOf("/");
@@ -55,7 +54,6 @@ export async function initializeWasmSharpModule(
       onDownloadResourceProgress(loaded: number, total: number) {
         callbacks?.onDownloadResourceProgress?.(loaded, resourcesToLoad);
       },
-      config: blazorBootJson,
     })
     .withDiagnosticTracing(options?.enableDiagnosticTracing ?? false)
     //workaround https://github.com/dotnet/runtime/issues/94238

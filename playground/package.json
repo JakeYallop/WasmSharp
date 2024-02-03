@@ -47,7 +47,7 @@
     "@replit/codemirror-vscode-keymap": "^6.0.2",
     "@solid-primitives/scheduled": "^1.4.1",
     "@vitejs/plugin-basic-ssl": "^1.1.0",
-    "@wasmsharp/core": "file:../packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle",
+    "@wasmsharp/core": "workspace:*",
     "clsx": "^2.0.0",
     "codemirror": "^6.0.1",
     "normalize.css": "^8.0.1",

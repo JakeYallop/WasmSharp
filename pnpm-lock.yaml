@@ -20,7 +20,17 @@ importers:
     devDependencies:
       typescript:
         specifier: ^5.2.2
-        version: 5.2.2
+        version: 5.3.2
+
+  packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle:
+    dependencies:
+      comlink:
+        specifier: ^4.4.1
+        version: 4.4.1
+    devDependencies:
+      typescript:
+        specifier: ^5.2.2
+        version: 5.3.2
 
   packages/vite-plugin-ignore-dynamic-imports:
     dependencies:
@@ -86,8 +96,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(vite@5.0.2)
       '@wasmsharp/core':
-        specifier: file:../packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle
-        version: file:packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle
+        specifier: workspace:*
+        version: link:../packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle
       clsx:
         specifier: ^2.0.0
         version: 2.0.0
@@ -4106,12 +4116,6 @@ packages:
     hasBin: true
     dev: true
 
-  /typescript@5.2.2:
-    resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-    dev: true
-
   /typescript@5.3.2:
     resolution: {integrity: sha512-6l+RyNy7oAHDfxC4FzSJcz9vnjTKxrLpDG5M2Vu4SHRVNg6xzqZp6LYSR9zjqQTu8DU/f5xwxUdADOkbrIX2gQ==}
     engines: {node: '>=14.17'}
@@ -4622,10 +4626,3 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: true
-
-  file:packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle:
-    resolution: {directory: packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle, type: directory}
-    name: '@wasmsharp/core'
-    dependencies:
-      comlink: 4.4.1
-    dev: false

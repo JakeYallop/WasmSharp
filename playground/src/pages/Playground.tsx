@@ -19,6 +19,8 @@ const Playground: Component = () => {
         setTotalResources(loadedResources);
       });
     },
+    debugLevel: 1,
+    enableDiagnosticTracing: false,
   };
 
   const context = WasmSharpModule.initializeAsync(wasmSharpOptions);

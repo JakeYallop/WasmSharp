@@ -11,7 +11,10 @@
     "lib": ["DOM"],
     "types": ["vite/client"],
     "isolatedModules": true,
-    "composite": true
+    "composite": true,
+    "paths": {
+      "@wasmsharp/core": ["../packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle", "../packages/core/src/bin/Debug/net8.0/browser-wasm/AppBundle"],
+    }
   },
   "extends": "../tsconfig.json"
 }

@@ -6,10 +6,10 @@
     <!--<WasmMainJSPath>../dist/main.js</WasmMainJSPath>-->
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    
+
     <IsTrimmable>true</IsTrimmable>
     <PublishTrimmed>true</PublishTrimmed>
-    
+
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
 
@@ -44,14 +44,15 @@
     <!--from https://github.com/dotnet/runtime/blob/main/docs/workflow/debugging/mono/wasm-debugging.md#collecting-stack-traces-with-symbols-in-blazor -->
     <WasmBuildNative>true</WasmBuildNative>
     <WasmDebugLevel>1</WasmDebugLevel>
+    <WasmNativeDebugSymbols>true</WasmNativeDebugSymbols>
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageJsonFile>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)/../package.json'))</PackageJsonFile>
   </PropertyGroup>
-  
-    <!-- WasmAppDir is not defined yet. -->
-    <!-- hardcoded for now until https://github.com/dotnet/runtime/issues/77285 -->
+
+  <!-- WasmAppDir is not defined yet. -->
+  <!-- hardcoded for now until https://github.com/dotnet/runtime/issues/77285 -->
   <ItemGroup>
     <!-- TODO: Replace with a transform *.ts -> *.js to handle all files and nested files, alos verify if this actually works, as the ts files will be built and so will be different -->
     <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)/main.ts" />
@@ -77,7 +78,7 @@
       <WasmAppDir>$([MSBuild]::NormalizePath('$(OutputPath)/AppBundle'))</WasmAppDir>
     </PropertyGroup>
   </Target>
-  
+
   <Target Name="_CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="InitializeWasmAppDir" Condition="'$(WasmBuildingForNestedPublish)' != 'True'">
     <PropertyGroup>
       <_DotNetTypePath>$(OutputPath)dotnet.d.ts</_DotNetTypePath>
@@ -123,5 +124,64 @@
     <MSBuild Projects="$(MSBuildProjectFile)" Targets="_TypeScriptCompileAferBuild;_CopyPackageJsonToWasmAppDir" Properties="_RanTscDependencyCheck=$(_RanTscDependencyCheck);WasmAppDir=$(WasmAppDir)">
     </MSBuild>
   </Target>
+
+
+
+  <!-- Regenerate generated imports file only when bundle generation is also run --><!--
+  --><!-- WasmNestedPublishAppResultItems only exists when a bundle has been generated --><!--
+  <Target Name="GatherFilesForBundlerIntegration" AfterTargets="WasmTriggerPublishApp">
+    --><!--Condition="'@(_WasmAssembliesInternal);@(WasmExtraFilesToDeploy);$(WasmIcuDataFileName);@(WasmNativeAsset)' != ''"--><!--
+    --><!--Inputs="@(WasmNestedPublishAppResultItems)" Outputs="$(WasmAppDir)/assets.g.ts"--><!--
+
+    <ItemGroup>
+      <_CollectedAssets Include="@(_WasmAssembliesInternal);@(WasmExtraFilesToDeploy);$(WasmIcuDataFileName);@(WasmNativeAsset)" />
+      <_CollectedAssets Include="@(FileWrites)" />
+    </ItemGroup>
+
+    <ItemGroup>
+      --><!-- I have no clue why the .Contains in the Condition works (after calling NormalizePath) - the same pattern does not work in the Include --><!--
+      --><!--<_FilePathsForImport Include="@(_CollectedAssets->'%(FullPath)')" Condition="'$([MSBuild]::NormalizePath(%(_CollectedAssets.Identity)).Contains($(WasmAppDir)))'" />--><!--
+      --><!--<_FilePathsForImport Include="@(_CollectedAssets->'$([MSBuild]::NormalizePath(%(Identity)))')" Condition="'$([MSBuild]::NormalizePath(%(_CollectedAssets.Identity)).Contains($(WasmAppDir)))'" />--><!--
+
+      --><!-- TODO: Convert to use https://learn.microsoft.com/en-us/visualstudio/msbuild/findunderpath-task?view=vs-2022 FindUnderPath task instead--><!--
+      <_PathsForImport Include="@(_CollectedAssets)">
+        <IsMatch>$([System.String]::Copy('%(_CollectedAssets.FullPath)').Contains($(WasmAppDir)))</IsMatch>
+        <ActualPath>'%(_CollectedAssets.FullPath)'</ActualPath>
+      </_PathsForImport>
+
+      <_FilePathsForImport Include="@(_PathsForImport->'%(ActualPath)')" Condition="'%(_PathsForImport.IsMatch)'" />
+    </ItemGroup>
+
+    <Message Importance="high" Text="Extensions:" />
+    <Message Importance="high" Text="%(_FilePathsForImport.Extension)" />
+  </Target>
+
+  <Target Name="WriteImportsFileForBundlerIntegration" AfterTargets="GatherFilesForBundlerIntegration" Condition="@(_FilePathsForImport-&gt;Count()) &gt; 0">
+    <Message Importance="high" Text="Generating assets.g.ts imports file." />
+
+    <PropertyGroup>
+      <_WasmAppDirSubstringLength>$([MSBuild]::Add($(WasmAppDir.Length), 1))</_WasmAppDirSubstringLength>
+    </PropertyGroup>
+
+    <ItemGroup>
+      --><!-- Workaround the limitation that we cannot call functions on metadata items, instead we create a new metadata
+           item with the function call applied to that.
+      --><!--
+      <_ProcessPaths Include="@(_FilePathsForImport)">
+        <Transform>$([System.String]::Copy('%(_FilePathsForImport.Identity)').Substring($(_WasmAppDirSubstringLength)))</Transform>
+      </_ProcessPaths>
+      
+      <_RelativePathsForImport Include="@(_ProcessPaths->'%(Transform)')" />
+      <_LinesDefault Include="@(_RelativePathsForImport->'import &quot;./%(Identity)&quot;;')" />
+      
+      <_ProcessPaths2 Include="@(_LinesDefault)">
+        <Transform2>$([System.String]::Copy('%(_LinesDefault.Identity)').Replace("\", "/"))</Transform2>
+      </_ProcessPaths2>
+      
+      <_Lines Include="@(_ProcessPaths2->'%(Transform2)')" />
+    </ItemGroup>
     
+    <WriteLinesToFile Overwrite="true" File="$(WasmAppDir)/assets.g.ts" Lines="@(_Lines)" />
+  </Target>-->
+
 </Project>

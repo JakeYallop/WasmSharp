@@ -1,3 +1,5 @@
 packages:
-  - "packages/*"
+  - "packages/vite-plugin-ignore-dynamic-imports"
+  - "packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle"
+  - "packages/core"
   - "playground"

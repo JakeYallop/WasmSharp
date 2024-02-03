@@ -3,7 +3,7 @@ import solidPlugin from "vite-plugin-solid";
 import ignoreDynamicImports from "vite-plugin-ignore-dynamic-imports";
 import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
 import inspect from "vite-plugin-inspect";
-import { Plugin, ResolvedConfig, normalizePath } from "vite";
+import { Logger, Plugin, ResolvedConfig, normalizePath } from "vite";
 import path from "path";
 import fs from "fs";
 import { findDepPkgJsonPath } from "vitefu";
@@ -68,51 +68,50 @@ function atLeastMinimumVersion(currentVersion: string, minimumVersion: string) {
 
 function wasmSharpPlugin(): Plugin {
   let config: ResolvedConfig;
-  let runtimeConfigOutputPath: string | undefined;
-  let runtimeConfigPath: string | undefined;
+  let logger: Logger;
+  const additionalFilesToCopy: { src: string; dest: string }[] = [];
 
   const writeCopyProgress = (copied: number, files: fs.Dirent[]) => {
     config!.logger.info(`Copied ${copied}/${files.length} files`);
   };
 
+  const ensureSupportedNodeVersion = () => {
+    const nodeVersion = process.version.startsWith("v") ? process.version.slice(1) : process.version;
+    if (nodeVersion) {
+      if (!atLeastMinimumVersion(nodeVersion, "18.7.0") && !atLeastMinimumVersion(nodeVersion, "20.1.0")) {
+        throw Error("This plugin requires at least node v18.7.0 or v20.1.0 to execute");
+      }
+    } else {
+      logger.warn("Could not determine node version. Continuing with the build, but there may be errors.");
+    }
+  };
+
   return {
     name: "wasm-sharp-include-assets",
     enforce: "post",
-    config() {
-      return {
-        build: {
-          sourcemap: false,
-        },
-      };
-    },
+    config() {},
     configResolved(resolved) {
       config = resolved;
+      logger = config.logger;
     },
     async generateBundle(output) {
       const logger = config.logger;
 
-      const nodeVersion = process.version.startsWith("v") ? process.version.slice(1) : process.version;
-      if (nodeVersion) {
-        if (!atLeastMinimumVersion(nodeVersion, "18.7.0") && !atLeastMinimumVersion(nodeVersion, "20.1.0")) {
-          throw Error("This plugin requires at least node v18.7.0 or v20.1.0 to execute");
-        }
-      } else {
-        logger.warn("Could not determine node version. Continuing with the build, but there may be errors.");
-      }
+      ensureSupportedNodeVersion();
 
-      logger.error("My message!!!!!!!!!!!!");
       logger.info("\nPreparing to copy @wasmsharp/core assets...");
       const wasmSharpJsonPath = await findDepPkgJsonPath("@wasmsharp/core", output.dir!);
       if (!wasmSharpJsonPath) {
         logger.warn(
-          "Could not resolve package information for @wasmsharp/core, the build may not have completed successfully/"
+          "Could not resolve package information for @wasmsharp/core, the build may not have completed successfully."
         );
         return;
       }
-      const wasmSharpPath = path.dirname(wasmSharpJsonPath);
-      logger.info(`Found @wasmsharp/core assets at ${wasmSharpPath}`);
+      const wasmSharpPath = normalizePath(path.dirname(wasmSharpJsonPath));
 
+      logger.info(`Found @wasmsharp/core assets at ${wasmSharpPath}`);
       logger.info("Copying @wasmsharp/core assets...");
+
       const files = fs
         .readdirSync(wasmSharpPath, { withFileTypes: true, recursive: true })
         .filter((x) => !x.isDirectory());
@@ -125,19 +124,11 @@ function wasmSharpPlugin(): Plugin {
           writeCopyProgress(i, files);
           intervalStart = Date.now();
         }
-        const file = files[i];
-        const normalizedPath = normalizePath(file.path);
-        const wasmSharpSplitString = "@wasmsharp/core";
-        const parts = normalizedPath.split(wasmSharpSplitString);
-        let nestedDirectory: string;
-        if (parts[1] === undefined) {
-          nestedDirectory = "";
-        } else {
-          nestedDirectory = parts[1].substring(1, parts[1].length);
-        }
 
-        const filePath = path.join(file.path, file.name);
-        const relativeOutputPath = path.join(nestedDirectory, file.name);
+        const file = files[i];
+        const filePath = normalizePath(path.join(file.path, file.name));
+        const relativeOutputPath = path.relative(wasmSharpPath, filePath);
+
         if (file.name === "0_runtimeconfig.bin" || file.path.includes("supportFiles")) {
           if (file.name !== "0_runtimeconfig.bin") {
             logger.error("Extra supportFiles found, check may need updating.");
@@ -147,13 +138,17 @@ function wasmSharpPlugin(): Plugin {
             "Skipping `this.emitFile` call for 0_runtimeconfig.bin as it ends up getting a sourcemap and other info appended even with type: asset. Instead, we copy it manually inside the closeBundle hook after generateBundle has completed."
           );
 
-          runtimeConfigPath = filePath;
-          runtimeConfigOutputPath = path.join(config.build.outDir, config.build.assetsDir, relativeOutputPath);
+          additionalFilesToCopy.push({
+            src: filePath,
+            dest: path.join(config.build.outDir, config.build.assetsDir, relativeOutputPath),
+          });
           continue;
         }
+
         try {
           const buffer = fs.readFileSync(filePath);
           const source = new Uint8Array(buffer.buffer);
+
           this.emitFile({
             type: "asset",
             needsCodeReference: false,
@@ -168,14 +163,14 @@ function wasmSharpPlugin(): Plugin {
       writeCopyProgress(files.length, files);
     },
     closeBundle() {
-      if (runtimeConfigPath && runtimeConfigOutputPath) {
-        config.logger.info(`Copying 0_runtimeconfig.bin from ${runtimeConfigPath} to ${runtimeConfigOutputPath}`);
-        fs.mkdirSync(path.dirname(runtimeConfigOutputPath), { recursive: true });
-        fs.copyFileSync(runtimeConfigPath, runtimeConfigOutputPath);
-      } else {
-        config.logger.warn(
-          "Either `runtimeConfigPath` or `runtimeConfigOutputPath` was not defined. Could not copy 0_runtimeconfig.bin."
-        );
+      for (let index = 0; index < additionalFilesToCopy.length; index++) {
+        const file = additionalFilesToCopy[index];
+        if (!fs.existsSync(path.dirname(file.dest))) {
+          fs.mkdirSync(path.dirname(file.dest), { recursive: true });
+        }
+
+        fs.copyFileSync(file.src, file.dest);
+        logger.info(`Copying additional file ${file.src} to ${file.dest}`);
       }
     },
   };
