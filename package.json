@@ -10,6 +10,6 @@
     "build:core": "pnpm --filter core build:release"
   },
   "devDependencies": {
-    "typescript": "^4.9.3"
+    "typescript": "^5.3.3"
   }
 }

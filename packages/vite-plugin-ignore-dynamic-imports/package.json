@@ -17,10 +17,10 @@
   },
   "dependencies": {
     "unplugin-ast": "^0.8.2",
-    "vite": "^5.0.2"
+    "vite": "^5.0.12"
   },
   "devDependencies": {
-    "@babel/types": "^7.23.4",
+    "@babel/types": "^7.23.9",
     "cpy-cli": "^5.0.0",
     "unbuild": "^2.0.0"
   }
