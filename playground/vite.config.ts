@@ -114,7 +114,7 @@ function wasmSharpPlugin(): Plugin {
 
       const files = fs
         .readdirSync(wasmSharpPath, { withFileTypes: true, recursive: true })
-        .filter((x) => !x.isDirectory());
+        .filter((x) => !x.isDirectory() && !x.path.includes("node_modules"));
 
       logger.info(`Found ${files.length} assets to copy.`);
 

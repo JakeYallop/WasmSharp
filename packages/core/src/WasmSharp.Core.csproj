@@ -9,9 +9,10 @@
 
     <IsTrimmable>true</IsTrimmable>
     <PublishTrimmed>true</PublishTrimmed>
-
+    
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
+    
 
     <!-- Space savings when trimming -->
     <TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
