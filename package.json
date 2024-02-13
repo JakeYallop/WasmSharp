@@ -7,7 +7,9 @@
     "test": "pnpm --filter @wasmsharp/playground test",
     "core": "pnpm --filter @wasmsharp/core run watch",
     "build:playground": "pnpm --filter @wasmsharp/playground run build",
-    "build:core": "pnpm --filter core build:release"
+    "publish:core": "cd ./packages/core && dotnet publish -c Release",
+    "serve:playground": "dotnet serve -d ./playground/dist -S -o",
+    "all": "pnpm run publish:core && pnpm run build:playground && pnpm run serve:playground"
   },
   "devDependencies": {
     "typescript": "^5.3.3"

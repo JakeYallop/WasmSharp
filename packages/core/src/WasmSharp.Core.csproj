@@ -11,7 +11,7 @@
     <PublishTrimmed>true</PublishTrimmed>
     
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
-    <SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
+    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
     
 
     <!-- Space savings when trimming -->
