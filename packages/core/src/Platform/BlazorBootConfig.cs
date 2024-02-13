@@ -126,7 +126,7 @@ public class ResourcesData
     /// <summary>
     /// "assembly" (.dll) resources
     /// </summary>
-    public ResourceHashesByNameDictionary Assembly { get; set; } = new ResourceHashesByNameDictionary();
+    public ResourceHashesByNameDictionary Assembly { get; set; } = [];
 
     /// <summary>
     /// "debug" (.pdb) resources

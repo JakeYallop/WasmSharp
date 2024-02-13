@@ -1,10 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.Logging;
 using WasmSharp.Core.Platform;
-using CompletionItem = WasmSharp.Core.Services.CompletionItem;
-using Diagnostic = WasmSharp.Core.Services.Diagnostic;
 
 namespace WasmSharp.Core.Services;
 
@@ -13,7 +10,7 @@ namespace WasmSharp.Core.Services;
 /// </summary>
 internal sealed class WasmSolution(ILogger<WasmSolution> logger)
 {
-    private static readonly Dictionary<string, CodeSession> CompilationCache = new();
+    private static readonly Dictionary<string, CodeSession> CompilationCache = [];
     private readonly ILogger<WasmSolution> _logger = logger;
 
     internal static async Task InitializeAsync(string publicUrl, BootJsonData config)

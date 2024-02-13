@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Components.WebAssembly.Services;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using WasmSharp.Core.Hosting;
 
 namespace WasmSharp.Core.Services;

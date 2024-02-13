@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using Microsoft.CodeAnalysis;
-using Diagnostic = WasmSharp.Core.Services.Diagnostic;
 
 namespace WasmSharp.Core.Services;
 

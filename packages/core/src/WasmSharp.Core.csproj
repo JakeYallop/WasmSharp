@@ -2,8 +2,6 @@
   <PropertyGroup>
     <TargetFramework>$(NetVersion)</TargetFramework>
     <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
-    <!--TODO: See of we can remove this-->
-    <!--<WasmMainJSPath>../dist/main.js</WasmMainJSPath>-->
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
@@ -12,16 +10,12 @@
     
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
-    
 
     <!-- Space savings when trimming -->
     <TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
     <DebuggerSupport>false</DebuggerSupport>
     <UseNativeHttpHandler>true</UseNativeHttpHandler>
-
-    <!-- TOOD: Test publishing-->
-    <!--<RunAOTCompilation>true</RunAOTCompilation>-->
-
+    
     <!--TODO: Write this variable to an env file to be read by Vite during build, so that assembly lookup is done correctly -->
     <!--TODO: How would we use this in the plugin/export it from WasmCompiler? -->
     <WasmRuntimeAssetsLocation>./</WasmRuntimeAssetsLocation>
@@ -42,7 +36,7 @@
   <PropertyGroup Condition="$(Configuration) == 'Debug'">
     <WasmNativeStrip>false</WasmNativeStrip>
     <WasmEmitSymbolMap>true</WasmEmitSymbolMap>
-    <!--from https://github.com/dotnet/runtime/blob/main/docs/workflow/debugging/mono/wasm-debugging.md#collecting-stack-traces-with-symbols-in-blazor -->
+    <!--from https://github.com/dotnet/runtime/blob/4765dd1b9f1aa58f16d6922438bcc6cb01b4a666/docs/workflow/debugging/mono/wasm-debugging.md#collecting-stack-traces-with-symbols-in-blazor -->
     <WasmBuildNative>true</WasmBuildNative>
     <WasmDebugLevel>1</WasmDebugLevel>
     <WasmNativeDebugSymbols>true</WasmNativeDebugSymbols>
@@ -62,8 +56,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(PublishTrimmed)' == 'True'">
-    <!-- NativeAOT -->
-    <RdXmlFile Include="rd.xml" />
     <!-- ILLink -->
     <TrimmerRootDescriptor Include="roots.xml" />
   </ItemGroup>

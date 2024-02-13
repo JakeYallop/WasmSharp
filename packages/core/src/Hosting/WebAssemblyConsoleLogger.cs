@@ -3,29 +3,23 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics;
 using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.Components.WebAssembly.Services;
 
-internal sealed class WebAssemblyConsoleLogger<T> : ILogger<T>, ILogger
+internal sealed class WebAssemblyConsoleLogger<T>(string name) : ILogger<T>, ILogger
 {
     private const string LoglevelPadding = ": ";
     private static readonly string MessagePadding = new(' ', GetLogLevelString(LogLevel.Information).Length + LoglevelPadding.Length);
     private static readonly string NewLineWithMessagePadding = Environment.NewLine + MessagePadding;
     private static readonly StringBuilder LogBuilder = new();
 
-    private readonly string _name;
+    private readonly string _name = name ?? throw new ArgumentNullException(nameof(name));
 
     public WebAssemblyConsoleLogger() : this(string.Empty)
     {
-    }
-
-    public WebAssemblyConsoleLogger(string name)
-    {
-        _name = name ?? throw new ArgumentNullException(nameof(name));
     }
 
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull
@@ -84,6 +78,7 @@ internal sealed class WebAssemblyConsoleLogger<T> : ILogger<T>, ILogger
                     case LogLevel.Critical:
                         ConsoleLoggerInterop.ConsoleError(formattedMessage);
                         break;
+                    case LogLevel.None:
                     default: // invalid enum values
                         ConsoleLoggerInterop.ConsoleError("WriteMessage unexpectedly called with LogLevel.None.");
                         ConsoleLoggerInterop.ConsoleError(formattedMessage);
@@ -142,13 +137,14 @@ internal sealed class WebAssemblyConsoleLogger<T> : ILogger<T>, ILogger
             LogLevel.Warning => "warn",
             LogLevel.Error => "fail",
             LogLevel.Critical => "crit",
+            LogLevel.None => "info",
             _ => throw new ArgumentOutOfRangeException(nameof(logLevel)),
         };
     }
 
     private sealed class NoOpDisposable : IDisposable
     {
-        public static NoOpDisposable Instance = new NoOpDisposable();
+        public static NoOpDisposable Instance = new();
 
         public void Dispose() { }
     }
