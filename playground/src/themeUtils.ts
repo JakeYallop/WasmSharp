@@ -1,4 +1,6 @@
-import { constants } from "./theme.css";
+export const constants = {
+  spacing: 8,
+};
 
 export const setSpacing = (spacing: number) => {
   constants.spacing = spacing;

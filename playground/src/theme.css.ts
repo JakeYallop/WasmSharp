@@ -1,19 +1,5 @@
-import {
-  CSSProperties,
-  ComplexStyleRule,
-  assignVars,
-  createGlobalTheme,
-  createGlobalThemeContract,
-  createTheme,
-  createThemeContract,
-  createVar,
-  style,
-} from "@vanilla-extract/css";
+import { CSSProperties, createGlobalTheme, createThemeContract } from "@vanilla-extract/css";
 import c from "tinycolor2";
-
-export const constants = {
-  spacing: 8,
-};
 
 const black = c("black");
 const white = c("white");

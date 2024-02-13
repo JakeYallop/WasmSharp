@@ -3,16 +3,11 @@ using WasmSharp.Core.Hosting;
 
 namespace WasmSharp.Core.Services;
 
-internal sealed class Tracer : IDisposable
+internal sealed class Tracer(string actionName) : IDisposable
 {
     private readonly DateTime _startTime = DateTime.UtcNow;
-    private readonly string _actionName;
+    private readonly string _actionName = actionName;
     private readonly ILogger<Tracer> _logger = Host.Services.GetService<ILogger<Tracer>>();
-
-    public Tracer(string actionName)
-    {
-        _actionName = actionName;
-    }
 
     public static Tracer Trace(string actionName)
     {

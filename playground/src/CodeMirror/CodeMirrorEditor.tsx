@@ -35,7 +35,7 @@ Console.WriteLine("Hello, world!");`;
         oneDark,
         readUpdates,
         wasmSharp(props.wasmSharpModule),
-        csharpLinter({ delay: 1000 }),
+        csharpLinter({ delay: 0 }),
         autocompletion({ override: [csharpCompletionSource] }),
       ],
     });
@@ -61,6 +61,7 @@ async function csharpCompletionSource(context: CompletionContext): Promise<Compl
     from: from,
     options: completions.map(mapCompletionItemToCodeMirrorCompletion),
     validFor: /\w*$/,
+    filter: false,
   };
 }
 
@@ -76,7 +77,7 @@ function mapAndGetBestMatchingTypeFromTag(tags: TextTag[]) {
   var mappedTags = tags.map(mapTextTagToType);
   if (mappedTags.length === 0) {
     if (process.env.NODE_ENV === "development") {
-      console.debug("No tags found for completion.");
+      console.debug(`No tags found for completion, falling back to "keyword".`);
     }
     return "keyword";
   }
@@ -88,6 +89,7 @@ function mapAndGetBestMatchingTypeFromTag(tags: TextTag[]) {
   return mappedTags[0];
 }
 
+const warnMap: Record<string, any> = {};
 /**
  * From code mirror:
  * The base library defines simple icons for class, constant, enum, function,
@@ -156,11 +158,14 @@ function mapTextTagToType(tag: TextTag) {
       return "keyword";
     default:
       if (process.env.NODE_ENV === "development") {
-        // console.warn(
-        //   `Unmapped tag: ${tag}\n` +
-        //     "Consider mapping this tag inside the `mapTextTagToType` function.\n" +
-        //     'Falling back to "keyword".\n'
-        // );
+        const message =
+          `Unmapped tag: "${tag}"\n` +
+          "Consider mapping this tag inside the `mapTextTagToType` function.\n" +
+          'Falling back to "keyword".\n';
+        if (!warnMap[message]) {
+          console.warn(message);
+          warnMap[message] = true;
+        }
       }
       return "keyword";
   }

@@ -1,4 +1,5 @@
-import { defineConfig } from "vitest/config";
+/// <reference types="vitest" />
+import { defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
 import ignoreDynamicImports from "vite-plugin-ignore-dynamic-imports";
 import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
@@ -40,24 +41,8 @@ export default defineConfig(({ mode }) => {
     worker: {
       format: "es",
     },
-    resolve: {
-      //https://github.com/solidjs/solid-testing-library/issues/30
-      conditions: ["browser"],
-    },
     test: {
-      deps: {
-        inline: [
-          //https://github.com/solidjs/solid-testing-library/issues/10
-          "@solidjs/testing-library",
-          /\@solidjs\/testing-library/,
-          /solid-testing-library/,
-        ],
-      },
-      environment: "happy-dom",
-      //https://vitest.dev/config/#transformmode
-      transformMode: {
-        web: [/\.[jt]sx$/],
-      },
+      environment: "node",
     },
   };
 });
