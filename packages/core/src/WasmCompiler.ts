@@ -1,25 +1,31 @@
 import type { MonoConfig } from "./dotnet.js";
 import type { Span } from "./Roslyn/Text.js";
-import type { TextTag } from "./Roslyn/TextTags.js";
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 import { WasmSharpWorker } from "./WasmSharpWorker.js";
 import { Compilation } from "./WasmCompiler.js";
 import type { WasmSharpWebWorker } from "./worker.js";
 import type { CompilationInterop } from "./CompilationInterop.js";
+import { WellKnownTagArray } from "./Roslyn/WellKnownTags.js";
 
 export interface WasmSharpModuleOptions {
   /**
    * URL to resolve assemblies from.
+   * @default import.meta.url
    */
   assembliesUrl?: string;
+  /**
+   * @default false
+   */
   enableDiagnosticTracing?: boolean;
-  /*
+  /**
    * https://github.com/dotnet/runtime/blob/a270140281a13ab82a4401dff3da6d27fe499087/src/mono/wasi/runtime/driver.c#L470
-   * debug_level > 0 enables debugging and sets the debug log level to debug_level
-   * debug_level == 0 disables debugging and enables interpreter optimizations
-   * debug_level < 0 enabled debugging and disables debug logging.
+   * * debug_level > 0 enables debugging and sets the debug log level to debug_level
+   * * debug_level == 0 disables debugging and enables interpreter optimizations
+   * * debug_level < 0 enabled debugging and disables debug logging.
    *
    * Note: when debugging is enabled interpreter optimizations are disabled.
+   *
+   * @default 0
    */
   debugLevel?: number;
 }
@@ -80,7 +86,7 @@ export type CompletionItem = {
   displayText: string;
   sortText: string;
   inlineDescription: string;
-  tags: TextTag[];
+  tags: WellKnownTagArray;
   span: Span;
 };
 
@@ -126,8 +132,8 @@ interface RunResultFailure {
 
 export type RunResult = RunResultSuccess | RunResultFailure;
 
-export * from "./Roslyn/TextTags.js";
 export * from "./Roslyn/Text.js";
+export * from "./Roslyn/WellKnownTags.js";
 export * from "./WasmSharpWorker.js";
 
 export { Compilation } from "./Compilation.js";

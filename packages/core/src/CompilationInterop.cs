@@ -58,7 +58,6 @@ internal sealed partial class CompilationInterop
     }
 }
 
-
 [JsonSourceGenerationOptions(
     GenerationMode = JsonSourceGenerationMode.Metadata,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,

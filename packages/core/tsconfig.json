@@ -1,10 +1,12 @@
 {
+  "buildOptions": {
+    "incremental": false
+  },
   "compilerOptions": {
-    "composite": true,
     "declaration": true /* Generates corresponding '.d.ts' file. */,
-    "outDir": "dist" /* Redirect output structure to the directory. */,
-    "rootDir": "src",
-    "lib": ["ES2020", "DOM"],
+    "outDir": "./dist" /* Redirect output structure to the directory. */,
+    "rootDir": "./src",
+    "lib": [ "ES2020", "DOM" ],
     "inlineSourceMap": true,
     "inlineSources": true,
     "target": "ESNext",
@@ -12,6 +14,6 @@
     "moduleResolution": "node",
     "resolveJsonModule": true
   },
-  "exclude": ["node_modules", "./src/bin", ".src/obj", "./dist/**", "src/publish"],
+  "exclude": [ "node_modules", "src/bin", "src/obj", "dist/**", "src/publish" ],
   "extends": "../../tsconfig.json"
 }

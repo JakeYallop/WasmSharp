@@ -3,11 +3,12 @@ import { basicSetup, EditorView } from "codemirror";
 import { linter, Diagnostic as CmDiagnostic } from "@codemirror/lint";
 import "./CodeMirrorEditor.css";
 import { EditorState, Facet, StateEffect, StateField, Transaction } from "@codemirror/state";
-import { Compilation, CompletionItem, DiagnosticSeverity, WasmSharpModule, TextTag } from "@wasmsharp/core";
+import { Compilation, CompletionItem, DiagnosticSeverity, WasmSharpModule, WellKnownTagArray } from "@wasmsharp/core";
 import { CompletionContext, CompletionResult, autocompletion, Completion } from "@codemirror/autocomplete";
 import { csharp } from "@replit/codemirror-lang-csharp";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { ViewPlugin } from "@codemirror/view";
+import "./CodeMirrorEditor.autocomplete.css";
 
 export interface CodeMirrorEditorProps {
   onValueChanged?: (value: string) => void;
@@ -69,106 +70,23 @@ function mapCompletionItemToCodeMirrorCompletion(item: CompletionItem): Completi
   return {
     label: item.displayText,
     detail: item.inlineDescription,
-    type: mapAndGetBestMatchingTypeFromTag(item.tags),
+    type: mapTextTagsToType(item.tags),
   };
 }
 
-function mapAndGetBestMatchingTypeFromTag(tags: TextTag[]) {
-  var mappedTags = tags.map(mapTextTagToType);
-  if (mappedTags.length === 0) {
-    if (process.env.NODE_ENV === "development") {
-      console.debug(`No tags found for completion, falling back to "keyword".`);
+function mapTextTagsToType(tags: WellKnownTagArray) {
+  if (process.env.NODE_ENV === "development") {
+    //@ts-expect-error
+    if (tags.length === 0) {
+      console.warn(`No tag found for completion, falling back to "keyword".`);
+      return "keyword";
     }
-    return "keyword";
-  }
-  const priority = mappedTags.find((x) => x !== "keyword");
-  if (priority) {
-    return priority;
   }
 
-  return mappedTags[0];
-}
-
-const warnMap: Record<string, any> = {};
-/**
- * From code mirror:
- * The base library defines simple icons for class, constant, enum, function,
- * interface, keyword, method, namespace, property, text, type, and variable.
- */
-
-function mapTextTagToType(tag: TextTag) {
-  //TODO: Get rid of this and just support the tags directly via cm-* classes?
-  switch (tag) {
-    //constants
-    case "Constant":
-      return "constant";
-    //enums
-    case "Enum":
-    case "EnumMember":
-      return "enum";
-    //variables
-    case "Parameter":
-    case "Local":
-    case "RangeVariable":
-      return "variable";
-    //interfaces
-    case "Interface":
-      return "interface";
-    //methods/functions
-    case "Method":
-    case "ExtensionMethod":
-    case "Delegate":
-      return "method";
-    //properties
-    case "Field":
-    case "Property":
-      return "property";
-    //namespaces
-    case "Namespace":
-    case "Module":
-    case "Assembly":
-      return "namespace";
-    //classes/types
-    case "Class":
-    case "Record":
-    case "RecordStruct":
-    case "Struct":
-      return "class";
-    //text
-    case "Text":
-    case "NumericLiteral":
-    case "StringLiteral":
-      return "text";
-    //and return keyword for all the rest
-    case "Keyword":
-    case "Alias":
-    case "ErrorType":
-    case "Event":
-    case "Label":
-    case "LineBreak":
-    case "Operator":
-    case "Punctuation":
-    case "Space":
-    case "AnonymousTypeIndicator":
-    case "TypeParameter":
-    case "ContainerStart":
-    case "ContainerEnd":
-    case "CodeBlockStart":
-    case "CodeBlockEnd":
-      return "keyword";
-    default:
-      if (process.env.NODE_ENV === "development") {
-        const message =
-          `Unmapped tag: "${tag}"\n` +
-          "Consider mapping this tag inside the `mapTextTagToType` function.\n" +
-          'Falling back to "keyword".\n';
-        if (!warnMap[message]) {
-          console.warn(message);
-          warnMap[message] = true;
-        }
-      }
-      return "keyword";
+  if (tags.length == 1) {
+    return tags[0].toLowerCase();
   }
+  return `${tags[0].toLowerCase()}-${tags[1].toLowerCase()}`;
 }
 
 type LintConfig = NonNullable<Parameters<typeof linter>[1]>;

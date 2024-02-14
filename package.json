@@ -8,7 +8,8 @@
     "core": "pnpm --filter @wasmsharp/core run watch",
     "build:playground": "pnpm --filter @wasmsharp/playground run build",
     "publish:core": "cd ./packages/core && dotnet publish -c Release",
-    "serve:playground": "dotnet serve -d ./playground/dist -S -o",
+    "serve": "dotnet serve -d ./playground/dist -S -o",
+    "bserve": "pnpm run build:playground && pnpm run serve",
     "all": "pnpm run publish:core && pnpm run build:playground && pnpm run serve:playground"
   },
   "devDependencies": {
