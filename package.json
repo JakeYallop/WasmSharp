@@ -10,8 +10,8 @@
     "build:playground": "pnpm --filter @wasmsharp/playground run build",
     "publish:core": "cd ./packages/core && dotnet publish -c Release",
     "serve": "dotnet serve -d ./playground/dist -S -o",
-    "bserve": "pnpm run build:playground && pnpm run serve",
-    "all": "pnpm run publish:core && pnpm run build:playground && pnpm run serve:playground"
+    "build-serve": "pnpm run build:playground && pnpm run serve",
+    "all": "pnpm run publish:core && pnpm run build:playground && pnpm run serve"
   },
   "devDependencies": {
     "typescript": "^5.3.3"

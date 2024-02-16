@@ -1,6 +1,7 @@
 /// <reference no-default-lib="true"/>
 /// <reference lib="webworker" />
 /// <reference lib="esnext" />
+
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 import { Compilation } from "./Compilation";
 import type { MonoConfig } from "./dotnet";

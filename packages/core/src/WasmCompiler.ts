@@ -1,5 +1,6 @@
 import type { MonoConfig } from "./dotnet.js";
 import type { Span } from "./Roslyn/Text.js";
+import { type Remote } from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 import { WasmSharpWorker } from "./WasmSharpWorker.js";
 import { Compilation } from "./WasmCompiler.js";
@@ -41,7 +42,7 @@ export type WasmSharpOptions = {
   WasmSharpModuleCallbacks;
 
 export class WasmSharpModule {
-  constructor(private worker: WasmSharpWorker | Comlink.Remote<WasmSharpWebWorker>) {}
+  constructor(private worker: WasmSharpWorker | Remote<WasmSharpWebWorker>) {}
   static async initializeAsync(options?: WasmSharpOptions) {
     //TODO: Rewrite this using dynamic import so that we do not load web worker code when its disabled, and vice versa.
     if (options?.disableWebWorker) {

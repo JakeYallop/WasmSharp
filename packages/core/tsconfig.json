@@ -11,9 +11,11 @@
     "inlineSources": true,
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true
+    //TODO: Bundler isn't really the correct choice here - instead we'd want Node16 or NodeNext. However with Node16 or NodeNext, we cannot use import.meta.url
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
   },
   "exclude": [ "node_modules", "src/bin", "src/obj", "dist/**", "src/publish" ],
+  "include": [ "src" ],
   "extends": "../../tsconfig.json"
 }
