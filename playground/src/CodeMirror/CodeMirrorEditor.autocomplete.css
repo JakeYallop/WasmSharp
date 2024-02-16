@@ -1,5 +1,8 @@
 .cm-editor .cm-completionIcon {
   opacity: 1;
+  width: 1em;
+  padding-right: 0.3em;
+  font-size: 100%;
 }
 
 .cm-editor .cm-completionIcon.cm-completionIcon-assembly {
