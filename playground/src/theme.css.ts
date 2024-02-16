@@ -43,8 +43,8 @@ const darkPalette: Palette = {
   primaryMuted: "#2154AC",
   accent: "#9A2CE6",
   text: {
-    body: white.darken(5).toString(),
-    muted: white.darken(10).toString(),
+    body: white.darken(15).toString(),
+    muted: white.darken(22).toString(),
   },
   background: {
     main: black.lighten(10).toString(),

@@ -57,6 +57,7 @@ function TwoPaneView(props: TwoPaneViewProps) {
     if (!separator) return;
     separator.addEventListener("mousedown", onMouseDown);
 
+    //TODO: Check if container queries are supported, and use those instead of a resize event
     const onResize = () => {
       document.body.style.cursor = "";
       setIsPortrait(props.disableResponsiveLayout ? false : window.innerHeight > window.innerWidth);
