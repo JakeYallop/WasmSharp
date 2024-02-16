@@ -10,7 +10,7 @@
     "build": "vite build",
     "test": "vitest",
     "serve": "vite preview",
-    "test-ct": "playwright test -c playwright-ct.config.ts",
+    "test:e2e": "playwright test -c playwright-ct.config.ts",
     "pw:open": "pnpm exec playwright show-report"
   },
   "license": "MIT",

@@ -16,10 +16,10 @@ export const CSharpRun: Component<CSharpRunProps> = (props: CSharpRunProps) => {
 
   createEffect((prev) => {
     if (prev === props.code) {
-      console.log("Skipping compilation as code is unchanged.");
+      console.debug("Skipping compilation as code is unchanged.");
       return;
     }
-    console.log("recompiling and fetching diagnostics");
+    console.debug("recompiling and fetching diagnostics");
     compilation.latest
       ?.recompileAsync(props.code)
       .then(() => {

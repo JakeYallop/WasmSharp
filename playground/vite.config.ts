@@ -114,31 +114,14 @@ function wasmSharpPlugin(): Plugin {
         const filePath = normalizePath(path.join(file.path, file.name));
         const relativeOutputPath = path.relative(wasmSharpPath, filePath);
 
-        if (file.name === "0_runtimeconfig.bin" || file.path.includes("supportFiles")) {
-          if (file.name !== "0_runtimeconfig.bin") {
-            logger.error("Extra supportFiles found, check may need updating.");
-          }
-          //TODO: Open an issue on the rollup github to diagnose this issue so we can remove this warning
-          logger.warn(
-            "Skipping `this.emitFile` call for 0_runtimeconfig.bin as it ends up getting a sourcemap and other info appended even with type: asset. Instead, we copy it manually inside the closeBundle hook after generateBundle has completed."
-          );
-
-          additionalFilesToCopy.push({
-            src: filePath,
-            dest: path.join(config.build.outDir, config.build.assetsDir, relativeOutputPath),
-          });
-          continue;
-        }
-
         try {
           const buffer = fs.readFileSync(filePath);
-          const source = new Uint8Array(buffer.buffer);
 
           this.emitFile({
             type: "asset",
             needsCodeReference: false,
             fileName: path.join(config.build.assetsDir, relativeOutputPath),
-            source: source,
+            source: buffer,
           });
         } catch (err) {
           logger.error(`Error reading file ${relativeOutputPath} at path ${filePath}.`);
