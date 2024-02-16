@@ -39,7 +39,7 @@ const Playground: Component = () => {
           <ProgressBar progress={loadedResources()} total={totalResources()} />
         </div>
       </Show>
-      <TwoPaneView>
+      <TwoPaneView separatorStyle={styles.separator}>
         <CodeMirrorEditor onValueChanged={onValueChanged} wasmSharpModule={context} />
         <div>
           <Show when={wasmSharpModule.state === "pending"}>

@@ -6,9 +6,9 @@ import { EditorState, Facet, StateEffect, StateField, Transaction } from "@codem
 import { Compilation, CompletionItem, DiagnosticSeverity, WasmSharpModule, WellKnownTagArray } from "@wasmsharp/core";
 import { CompletionContext, CompletionResult, autocompletion, Completion } from "@codemirror/autocomplete";
 import { csharp } from "@replit/codemirror-lang-csharp";
-import { oneDark } from "@codemirror/theme-one-dark";
 import { ViewPlugin } from "@codemirror/view";
 import "./CodeMirrorEditor.autocomplete.css";
+import { darkModern } from "./dark-theme";
 
 export interface CodeMirrorEditorProps {
   onValueChanged?: (value: string) => void;
@@ -33,7 +33,7 @@ Console.WriteLine("Hello, world!");`;
       extensions: [
         basicSetup,
         csharp(),
-        oneDark,
+        darkModern,
         readUpdates,
         wasmSharp(props.wasmSharpModule),
         csharpLinter({ delay: 0 }),

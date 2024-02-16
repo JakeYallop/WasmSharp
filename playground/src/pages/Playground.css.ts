@@ -1,4 +1,5 @@
 import { style } from "@vanilla-extract/css";
+import { palette } from "../theme.css";
 
 export const pogressBarContainer = style({
   position: "absolute",
@@ -6,3 +7,5 @@ export const pogressBarContainer = style({
   width: "100%",
   zIndex: 9999,
 });
+
+export const separator = style({});
