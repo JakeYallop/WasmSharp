@@ -10,6 +10,7 @@ import fs from "fs";
 import { findDepPkgJsonPath } from "vitefu";
 import { compareVersions } from "compare-versions";
 import basicSsl from "@vitejs/plugin-basic-ssl";
+import postCssNesting from "postcss-nesting";
 
 export default defineConfig(({ mode }) => {
   return {
@@ -34,6 +35,11 @@ export default defineConfig(({ mode }) => {
       },
       open: true,
       port: 3000,
+    },
+    css: {
+      postcss: {
+        plugins: [postCssNesting()],
+      },
     },
     build: {
       target: "esnext",
