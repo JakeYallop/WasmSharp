@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext"
+  },
+  "extends": "../../tsconfig.json",
+  "files": ["index.ts"]
+}

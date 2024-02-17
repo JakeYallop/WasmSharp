@@ -3,3 +3,4 @@ packages:
   - "packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle"
   - "packages/core"
   - "playground"
+  - "tools/icon-processor"

@@ -243,19 +243,19 @@
     }
 
     &.cm-completionIcon-structure-public {
-      content: url("../assets/editor/vs-icon-library/StructurePublic.svg");
+      content: url("../assets/editor/vs-icon-library/ValueTypePublic.svg");
     }
 
     &.cm-completionIcon-structure-protected {
-      content: url("../assets/editor/vs-icon-library/StructureProtected.svg");
+      content: url("../assets/editor/vs-icon-library/ValueTypeProtected.svg");
     }
 
     &.cm-completionIcon-structure-private {
-      content: url("../assets/editor/vs-icon-library/StructurePrivate.svg");
+      content: url("../assets/editor/vs-icon-library/ValueTypePrivate.svg");
     }
 
     &.cm-completionIcon-structure-internal {
-      content: url("../assets/editor/vs-icon-library/StructureInternal.svg");
+      content: url("../assets/editor/vs-icon-library/ValueTypeInternal.svg");
     }
 
     &.cm-completionIcon-typeparameter {
@@ -270,12 +270,264 @@
 
 .dark .cm-editor {
   & .cm-completionIcon {
+    &.cm-completionIcon-assembly {
+      content: url("../assets/editor/vs-icon-library/Assembly-dark.svg");
+    }
+
+    &.cm-completionIcon-class-public {
+      content: url("../assets/editor/vs-icon-library/ClassPublic-dark.svg");
+    }
+
+    &.cm-completionIcon-class-protected {
+      content: url("../assets/editor/vs-icon-library/ClassProtected-dark.svg");
+    }
+
+    &.cm-completionIcon-class-private {
+      content: url("../assets/editor/vs-icon-library/ClassPrivate-dark.svg");
+    }
+
+    &.cm-completionIcon-class-internal {
+      content: url("../assets/editor/vs-icon-library/ClassInternal-dark.svg");
+    }
+
+    &.cm-completionIcon-constant-public {
+      content: url("../assets/editor/vs-icon-library/ConstantPublic-dark.svg");
+    }
+
+    &.cm-completionIcon-constant-protected {
+      content: url("../assets/editor/vs-icon-library/ConstantProtected-dark.svg");
+    }
+
+    &.cm-completionIcon-constant-private {
+      content: url("../assets/editor/vs-icon-library/ConstantPrivate-dark.svg");
+    }
+
+    &.cm-completionIcon-constant-internal {
+      content: url("../assets/editor/vs-icon-library/ConstantInternal-dark.svg");
+    }
+
+    &.cm-completionIcon-delegate-public {
+      content: url("../assets/editor/vs-icon-library/DelegatePublic-dark.svg");
+    }
+
+    &.cm-completionIcon-delegate-protected {
+      content: url("../assets/editor/vs-icon-library/DelegateProtected-dark.svg");
+    }
+
+    &.cm-completionIcon-delegate-private {
+      content: url("../assets/editor/vs-icon-library/DelegatePrivate-dark.svg");
+    }
+
+    &.cm-completionIcon-delegate-internal {
+      content: url("../assets/editor/vs-icon-library/DelegateInternal-dark.svg");
+    }
+
+    &.cm-completionIcon-enum-public {
+      content: url("../assets/editor/vs-icon-library/EnumerationPublic-dark.svg");
+    }
+
+    &.cm-completionIcon-enum-protected {
+      content: url("../assets/editor/vs-icon-library/EnumerationProtected-dark.svg");
+    }
+
+    &.cm-completionIcon-enum-private {
+      content: url("../assets/editor/vs-icon-library/EnumerationPrivate-dark.svg");
+    }
+
+    &.cm-completionIcon-enum-internal {
+      content: url("../assets/editor/vs-icon-library/EnumerationInternal-dark.svg");
+    }
+
+    &.cm-completionIcon-enummember-public {
+      content: url("../assets/editor/vs-icon-library/EnumerationItemPublic-dark.svg");
+    }
+
+    &.cm-completionIcon-enummember-protected {
+      content: url("../assets/editor/vs-icon-library/EnumerationMemberProtected-dark.svg");
+    }
+
+    &.cm-completionIcon-enummember-private {
+      content: url("../assets/editor/vs-icon-library/EnumerationMemberPrivate-dark.svg");
+    }
+
+    &.cm-completionIcon-enummember-internal {
+      content: url("../assets/editor/vs-icon-library/EnumerationMemberInternal-dark.svg");
+    }
+
+    &.cm-completionIcon-event-public {
+      content: url("../assets/editor/vs-icon-library/EventPublic-dark.svg");
+    }
+
+    &.cm-completionIcon-event-protected {
+      content: url("../assets/editor/vs-icon-library/EventProtected-dark.svg");
+    }
+
+    &.cm-completionIcon-event-private {
+      content: url("../assets/editor/vs-icon-library/EventPrivate-dark.svg");
+    }
+
+    &.cm-completionIcon-event-internal {
+      content: url("../assets/editor/vs-icon-library/EventInternal-dark.svg");
+    }
+
     &.cm-completionIcon-extensionmethod-public {
       content: url("../assets/editor/vs-icon-library/ExtensionMethod-dark.svg");
     }
 
+    &.cm-completionIcon-extensionmethod-protected {
+      content: url("../assets/editor/vs-icon-library/ExtensionMethod-dark.svg");
+    }
+
+    &.cm-completionIcon-extensionmethod-private {
+      content: url("../assets/editor/vs-icon-library/ExtensionMethod-dark.svg");
+    }
+
+    &.cm-completionIcon-extensionmethod-internal {
+      content: url("../assets/editor/vs-icon-library/ExtensionMethod-dark.svg");
+    }
+
+    &.cm-completionIcon-field-public {
+      content: url("../assets/editor/vs-icon-library/FieldPublic-dark.svg");
+    }
+
+    &.cm-completionIcon-field-protected {
+      content: url("../assets/editor/vs-icon-library/FieldProtected-dark.svg");
+    }
+
+    &.cm-completionIcon-field-private {
+      content: url("../assets/editor/vs-icon-library/FieldPrivate-dark.svg");
+    }
+
+    &.cm-completionIcon-field-internal {
+      content: url("../assets/editor/vs-icon-library/FieldInternal-dark.svg");
+    }
+
+    &.cm-completionIcon-interface-public {
+      content: url("../assets/editor/vs-icon-library/InterfacePublic-dark.svg");
+    }
+
+    &.cm-completionIcon-interface-protected {
+      content: url("../assets/editor/vs-icon-library/InterfaceProtected-dark.svg");
+    }
+
+    &.cm-completionIcon-interface-private {
+      content: url("../assets/editor/vs-icon-library/InterfacePrivate-dark.svg");
+    }
+
+    &.cm-completionIcon-interface-internal {
+      content: url("../assets/editor/vs-icon-library/InterfaceInternal-dark.svg");
+    }
+
+    &.cm-completionIcon-intrinsic {
+      content: url("../assets/editor/vs-icon-library/Intrinsic-dark.svg");
+    }
+
     &.cm-completionIcon-keyword {
       content: url("../assets/editor/vs-icon-library/IntelliSenseKeyword-dark.svg");
+    }
+
+    &.cm-completionIcon-label {
+      content: url("../assets/editor/vs-icon-library/Label-dark.svg");
+    }
+
+    &.cm-completionIcon-local {
+      content: url("../assets/editor/vs-icon-library/LocalVariable-dark.svg");
+    }
+
+    &.cm-completionIcon-namespace {
+      content: url("../assets/editor/vs-icon-library/Namespace-dark.svg");
+    }
+
+    &.cm-completionIcon-method-public {
+      content: url("../assets/editor/vs-icon-library/MethodPublic-dark.svg");
+    }
+
+    &.cm-completionIcon-method-protected {
+      content: url("../assets/editor/vs-icon-library/MethodProtected-dark.svg");
+    }
+
+    &.cm-completionIcon-method-private {
+      content: url("../assets/editor/vs-icon-library/MethodPrivate-dark.svg");
+    }
+
+    &.cm-completionIcon-method-internal {
+      content: url("../assets/editor/vs-icon-library/MethodInternal-dark.svg");
+    }
+
+    &.cm-completionIcon-module-public {
+      content: url("../assets/editor/vs-icon-library/ModulePublic-dark.svg");
+    }
+
+    &.cm-completionIcon-module-protected {
+      content: url("../assets/editor/vs-icon-library/ModuleProtected-dark.svg");
+    }
+
+    &.cm-completionIcon-module-private {
+      content: url("../assets/editor/vs-icon-library/ModulePrivate-dark.svg");
+    }
+
+    &.cm-completionIcon-module-internal {
+      content: url("../assets/editor/vs-icon-library/ModuleInternal-dark.svg");
+    }
+
+    &.cm-completionIcon-folder {
+      content: url("../assets/editor/vs-icon-library/FolderClosed-dark.svg");
+    }
+
+    &.cm-completionIcon-operator {
+      content: url("../assets/editor/vs-icon-library/Operator-dark.svg");
+    }
+
+    &.cm-completionIcon-parameter {
+      content: url("../assets/editor/vs-icon-library/Parameter-dark.svg");
+    }
+
+    &.cm-completionIcon-property-public {
+      content: url("../assets/editor/vs-icon-library/PropertyPublic-dark.svg");
+    }
+
+    &.cm-completionIcon-property-protected {
+      content: url("../assets/editor/vs-icon-library/PropertyProtected-dark.svg");
+    }
+
+    &.cm-completionIcon-property-private {
+      content: url("../assets/editor/vs-icon-library/PropertyPrivate-dark.svg");
+    }
+
+    &.cm-completionIcon-property-internal {
+      content: url("../assets/editor/vs-icon-library/PropertyInternal-dark.svg");
+    }
+
+    &.cm-completionIcon-rangeVariable {
+      content: url("../assets/editor/vs-icon-library/RangeVariable-dark.svg");
+    }
+
+    &.cm-completionIcon-reference {
+      content: url("../assets/editor/vs-icon-library/Reference-dark.svg");
+    }
+
+    &.cm-completionIcon-structure-public {
+      content: url("../assets/editor/vs-icon-library/ValueTypePublic-dark.svg");
+    }
+
+    &.cm-completionIcon-structure-protected {
+      content: url("../assets/editor/vs-icon-library/ValueTypeInternal-dark.svg");
+    }
+
+    &.cm-completionIcon-structure-private {
+      content: url("../assets/editor/vs-icon-library/ValueTypePrivate-dark.svg");
+    }
+
+    &.cm-completionIcon-structure-internal {
+      content: url("../assets/editor/vs-icon-library/ValueTypeInternal-dark.svg");
+    }
+
+    &.cm-completionIcon-typeparameter {
+      content: url("../assets/editor/vs-icon-library/TypeParameter-dark.svg");
+    }
+
+    &.cm-completionIcon-snippet {
+      content: url("../assets/editor/vs-icon-library/Snippet-dark.svg");
     }
   }
 }
