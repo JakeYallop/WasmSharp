@@ -21,8 +21,7 @@ const CodeMirrorEditor: Component<CodeMirrorEditorProps> = (props) => {
   onMount(() => {
     const initialDocument = `using System;
 
-Console.WriteLine("Hello, world!");
-`;
+Console.WriteLine("Hello, world!");`;
     const readUpdates = EditorView.updateListener.of((update) => {
       const document = update.state.doc.toString();
       props.onValueChanged?.(document);

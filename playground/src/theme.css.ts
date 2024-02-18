@@ -56,7 +56,7 @@ const lightPalette: Palette = {
   //TOOD: Write the light mode colors
   primary: "#00",
   primaryMuted: "#00",
-  accent: "#00",
+  accent: "#9A2CE6",
   text: {
     body: black.lighten(5).toString(),
     muted: black.lighten(10).toString(),

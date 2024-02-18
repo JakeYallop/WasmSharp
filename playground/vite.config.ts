@@ -11,6 +11,8 @@ import { findDepPkgJsonPath } from "vitefu";
 import { compareVersions } from "compare-versions";
 import basicSsl from "@vitejs/plugin-basic-ssl";
 import postCssNesting from "postcss-nesting";
+//@ts-expect-error
+import postCssScrollbar from "postcss-scrollbar";
 
 export default defineConfig(({ mode }) => {
   return {
@@ -38,7 +40,7 @@ export default defineConfig(({ mode }) => {
     },
     css: {
       postcss: {
-        plugins: [postCssNesting()],
+        plugins: [postCssNesting(), postCssScrollbar()],
       },
     },
     build: {
