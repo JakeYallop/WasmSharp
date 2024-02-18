@@ -4,7 +4,7 @@
   "types": "./WasmCompiler.d.ts",
   "scripts": {
     "watch": "tsc --watch",
-    "build:release": "dotnet build -c Release"
+    "build": "dotnet publish -c Release"
   },
   "devDependencies": {
     "typescript": "^5.2.2"

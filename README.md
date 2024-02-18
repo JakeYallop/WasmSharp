@@ -6,6 +6,14 @@ https://wasmsharp.pages.dev/
 
 This project uses pnpm. Installation instructions for pnpm can be found [here](https://pnpm.io/installation).
 
+### Prerequisites
+* pnpm
+* .NET 8.0 SDK or greater
+  * Ensure the `wasm-tools` workload is installed. It can be installed using
+  ```
+  dotnet workload install wasm-tools
+  ```
+
 ### Install packages
 ```
 pnpm i
@@ -36,12 +44,6 @@ pnpm test
 
 ## Deploying the Playground
 
-### publish the Core project:
-
-```
-cd /packages/core && dotnet publish -c Release
-```
-
 ### Build the playground
 ```
 pnpm --filter playground build
@@ -59,7 +61,7 @@ Building and serving the playground has a shortcut command:
 pnpm build-serve
 ```
 
-Publishing WasmSharp, building the playground has a shortcut command:
+Building @wasmsharp/core, building the playground, and then previewing it has a shortcut command:
 ```
 pnpm all
 ```

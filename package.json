@@ -2,19 +2,18 @@
   "name": "@wasmsharp/monorepo",
   "private": true,
   "scripts": {
-    "init-playground-deps": "pnpm run publish:core && pnpm run build:imports-plugin",
-    "start": "pnpm --filter @wasmsharp/playground run start",
+    "init-playground-deps": "pnpm run build:core && pnpm run build:imports-plugin",
+    "start": "pnpm --filter playground run start",
     "playground": "pnpm run start",
-    "test": "pnpm --filter @wasmsharp/playground test",
-    "e2e": "pnpm --filter @wasmsharp/playground test:e2e",
-    "core": "pnpm --filter @wasmsharp/core run watch",
-    "build:playground": "pnpm --filter @wasmsharp/playground run build",
-    "publish:core": "cd ./packages/core && dotnet publish -c Release",
-    "serve": "dotnet serve -d ./playground/dist -S -o",
+    "test": "pnpm --filter playground test",
+    "e2e": "pnpm --filter playground test:e2e",
+    "core": "pnpm --filter core run watch",
+    "build:playground": "pnpm --filter playground run build",
+    "build:core": "pnpm --filter core build",
+    "serve": "pnpm --filter playground serve",
     "build-serve": "pnpm run build:playground && pnpm run serve",
-    "all": "pnpm run publish:core && pnpm run build-serve",
+    "all": "pnpm run build:core && pnpm run build-serve",
     "build:imports-plugin": "pnpm --filter vite-plugin-ignore-dynamic-imports run build"
-
   },
   "devDependencies": {
     "typescript": "^5.3.3"

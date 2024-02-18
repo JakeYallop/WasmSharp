@@ -53,6 +53,7 @@ export default defineConfig(({ mode }) => {
     },
     test: {
       environment: "node",
+      exclude: ["node_modules", "e2e"],
     },
   };
 });
@@ -71,7 +72,7 @@ function wasmSharpPlugin(options?: WasmSharpPluginOptions): Plugin {
   const additionalFilesToCopy: { src: string; dest: string }[] = [];
 
   const writeCopyProgress = (copied: number, files: fs.Dirent[]) => {
-    config!.logger.info(`Copied ${copied}/${files.length} files`);
+    logger.info(`Copied ${copied}/${files.length} files`);
   };
 
   const ensureSupportedNodeVersion = () => {
