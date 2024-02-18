@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { defineConfig } from "vite";
+import { createLogger, defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
 import ignoreDynamicImports from "vite-plugin-ignore-dynamic-imports";
 import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
@@ -29,7 +29,9 @@ export default defineConfig(({ mode }) => {
         identifiers: mode === "development" ? "debug" : "short",
       }),
       wasmSharpRewriteImportsForWorkspace(),
-      wasmSharpPlugin(),
+      wasmSharpPlugin({
+        assetsPath: resolveInternalMonorepoPath(),
+      }),
     ],
     server: {
       fs: {
@@ -59,9 +61,13 @@ function atLeastMinimumVersion(currentVersion: string, minimumVersion: string) {
   return compareVersions(currentVersion, minimumVersion) >= 0;
 }
 
-function wasmSharpPlugin(): Plugin {
+interface WasmSharpPluginOptions {
+  assetsPath?: string;
+}
+
+function wasmSharpPlugin(options?: WasmSharpPluginOptions): Plugin {
   let config: ResolvedConfig;
-  let logger: Logger;
+  const logger = createLogger("info", { allowClearScreen: true });
   const additionalFilesToCopy: { src: string; dest: string }[] = [];
 
   const writeCopyProgress = (copied: number, files: fs.Dirent[]) => {
@@ -85,15 +91,16 @@ function wasmSharpPlugin(): Plugin {
     config() {},
     configResolved(resolved) {
       config = resolved;
-      logger = config.logger;
     },
     async generateBundle(output) {
-      const logger = config.logger;
-
       ensureSupportedNodeVersion();
 
       logger.info("\nPreparing to copy @wasmsharp/core assets...");
-      const wasmSharpJsonPath = await findDepPkgJsonPath("@wasmsharp/core", output.dir!);
+      let wasmSharpJsonPath = options?.assetsPath;
+      if (!wasmSharpJsonPath) {
+        wasmSharpJsonPath = await findDepPkgJsonPath("@wasmsharp/core", output.dir!);
+      }
+
       if (!wasmSharpJsonPath) {
         logger.warn(
           "Could not resolve package information for @wasmsharp/core, the build may not have completed successfully."
@@ -110,6 +117,12 @@ function wasmSharpPlugin(): Plugin {
         .filter((x) => !x.isDirectory() && !x.path.includes("node_modules"));
 
       logger.info(`Found ${files.length} assets to copy.`);
+
+      if (files.length > 250) {
+        throw new Error(
+          "Stopping copy - too many files found, something is probably wrong. Double check the path to WasmSharm assets."
+        );
+      }
 
       let intervalStart = Date.now();
       for (let i = 0; i < files.length; i++) {
@@ -152,24 +165,27 @@ function wasmSharpPlugin(): Plugin {
   };
 }
 
+function resolveInternalMonorepoPath(disableErrorOnFailure?: false): string;
+function resolveInternalMonorepoPath(disableErrorOnFailure?: boolean): string | undefined {
+  const cwd = process.cwd();
+  const releasePath = path.join(cwd, "../packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle/WasmCompiler.js");
+  const debugPath = path.join(cwd, "../packages/core/src/bin/Debug/net8.0/browser-wasm/AppBundle/WasmCompiler.js");
+
+  if (fs.existsSync(releasePath)) {
+    return releasePath;
+  }
+
+  if (fs.existsSync(debugPath)) {
+    return debugPath;
+  }
+
+  if (!disableErrorOnFailure) {
+    throw Error("Could not find AppBundle directory - ensure @wasmsharp/core has been built!");
+  }
+}
+
 //Fixes an issue where vite resolves the package.json at the package level, but dotnet.js only exists in the output directory
 const wasmSharpRewriteImportsForWorkspace = (): Plugin => {
-  const resolvePath = () => {
-    const cwd = process.cwd();
-    const debugPath = path.join(cwd, "../packages/core/src/bin/Debug/net8.0/browser-wasm/AppBundle");
-    const releasePath = path.join(cwd, "../packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle");
-
-    if (fs.existsSync(releasePath)) {
-      return releasePath;
-    }
-
-    if (fs.existsSync(debugPath)) {
-      return debugPath;
-    }
-
-    throw Error("Could not find AppBundle directory - ensure @wasmsharp/core has been built!");
-  };
-
   return {
     name: "wasm-sharp-rewrite=dotnet-imports-plugin",
     enforce: "pre",
@@ -179,7 +195,7 @@ const wasmSharpRewriteImportsForWorkspace = (): Plugin => {
           alias: [
             {
               find: "@wasmsharp/core",
-              replacement: resolvePath(),
+              replacement: resolveInternalMonorepoPath(),
             },
           ],
         },

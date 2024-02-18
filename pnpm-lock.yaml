@@ -22,16 +22,6 @@ importers:
         specifier: ^5.2.2
         version: 5.3.2
 
-  packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle:
-    dependencies:
-      comlink:
-        specifier: ^4.4.1
-        version: 4.4.1
-    devDependencies:
-      typescript:
-        specifier: ^5.2.2
-        version: 5.3.2
-
   packages/vite-plugin-ignore-dynamic-imports:
     dependencies:
       unplugin-ast:
@@ -94,7 +84,7 @@ importers:
         version: 1.4.2(solid-js@1.8.12)
       '@wasmsharp/core':
         specifier: workspace:*
-        version: link:../packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle
+        version: link:../packages/core
       clsx:
         specifier: ^2.1.0
         version: 2.1.0

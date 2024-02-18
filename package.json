@@ -2,6 +2,7 @@
   "name": "@wasmsharp/monorepo",
   "private": true,
   "scripts": {
+    "init-playground-deps": "pnpm run publish:core && pnpm run build:imports-plugin",
     "start": "pnpm --filter @wasmsharp/playground run start",
     "playground": "pnpm run start",
     "test": "pnpm --filter @wasmsharp/playground test",
@@ -11,7 +12,9 @@
     "publish:core": "cd ./packages/core && dotnet publish -c Release",
     "serve": "dotnet serve -d ./playground/dist -S -o",
     "build-serve": "pnpm run build:playground && pnpm run serve",
-    "all": "pnpm run publish:core && pnpm run build:playground && pnpm run serve"
+    "all": "pnpm run publish:core && pnpm run build-serve",
+    "build:imports-plugin": "pnpm --filter vite-plugin-ignore-dynamic-imports run build"
+
   },
   "devDependencies": {
     "typescript": "^5.3.3"

@@ -11,7 +11,8 @@
     "test": "vitest",
     "serve": "vite preview",
     "test:e2e": "playwright test -c playwright-ct.config.ts",
-    "pw:open": "pnpm exec playwright show-report"
+    "pw:open": "pnpm exec playwright show-report",
+    "tsc:traceres": "pnpm exec tsc -p tsconfig.json --traceResolution"
   },
   "license": "MIT",
   "devDependencies": {

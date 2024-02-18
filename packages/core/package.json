@@ -1,7 +1,7 @@
 {
   "name": "@wasmsharp/core",
   "version": "0.0.9",
-  "main": "WasmCompiler.js",
+  "types": "./WasmCompiler.d.ts",
   "scripts": {
     "watch": "tsc --watch",
     "build:release": "dotnet build -c Release"
