@@ -58,14 +58,18 @@ async function csharpCompletionSource(context: CompletionContext): Promise<Compl
   const from = context.pos;
   const completions = await compilation.getCompletions(from);
 
-  const filter = context.matchBefore(/[\w\d]+/)?.text?.toUpperCase();
-  const filteredCompletions = filter
-    ? completions.filter((x) => x.filterText.toUpperCase().startsWith(filter))
+  const matchContext = context.matchBefore(/[\w\d]+/);
+  const prefixUpper = matchContext?.text.toUpperCase();
+  const filteredCompletions = prefixUpper
+    ? completions.filter((x) => {
+        const upper = x.filterText.toUpperCase();
+        return upper.startsWith(prefixUpper) && upper !== prefixUpper;
+      })
     : completions;
 
   const mappedCompletions = filteredCompletions.map(mapCompletionItemToCodeMirrorCompletion);
   return {
-    from: from,
+    from: matchContext?.from ?? from,
     options: mappedCompletions,
     filter: false,
   };
