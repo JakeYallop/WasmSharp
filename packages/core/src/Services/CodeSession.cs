@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using WasmSharp.Core.Hosting;
 
 namespace WasmSharp.Core.Services;
-
 internal sealed class CodeSession
 {
     private static readonly SourceText EmptySourceText = SourceText.From("");
@@ -57,6 +56,27 @@ internal sealed class CodeSession
         }
     }
 
+    private CompletionService? _completionService;
+    public CompletionService? CompletionService
+    {
+        get
+        {
+            EnsureUpToDate();
+            if (_completionService is null)
+            {
+                using var t = new Tracer("Fetching completion service");
+                _completionService = CompletionService.GetService(CurrentDocument);
+            }
+
+            if (_completionService is null)
+            {
+                _logger.LogWarning($"Could not find completion service for document '{CurrentDocument.Name}'.");
+            }
+
+            return _completionService;
+        }
+    }
+
     private bool _outOfDate;
 
     private void EnsureUpToDate()
@@ -65,7 +85,6 @@ internal sealed class CodeSession
         {
             return;
         }
-        _logger.LogTrace("Workspace is out of date");
         _currentDocument = _currentDocument.WithText(SourceText);
         Workspace.TryApplyChanges(_currentDocument.Project.Solution);
         _outOfDate = false;
@@ -73,37 +92,56 @@ internal sealed class CodeSession
 
     public void Recompile(string code)
     {
-        _logger.LogDebug("Recompiling");
         SourceText = SourceText.From(code);
         EnsureUpToDate();
     }
 
     public async Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync()
     {
-        using var t = new Tracer("Fetching diagnostics");
+        using var t2 = new Tracer("Fetching diagnostics");
         var compilation = (await CurrentDocument.Project.GetCompilationAsync().ConfigureAwait(false))!;
         return compilation.GetDiagnostics().ToWasmSharpDiagnostics();
     }
 
+    public Task<bool> ShouldTriggerCompletions(int caretPosition) => ShouldTriggerCompletions(caretPosition, '\0', CharacterOperation.None);
+    public Task<bool> ShouldTriggerCompletions(int caretPosition, char @char, CharacterOperation kind = CharacterOperation.Inserted)
+    {
+        CompletionTrigger None(CharacterOperation operation)
+        {
+            _logger.LogWarning($"Unexpected character operation '{operation}'. Using '{nameof(CharacterOperation)}.{nameof(CharacterOperation.None)}' instead.");
+            return CompletionTrigger.Invoke;
+        }
+
+        var trigger = kind switch
+        {
+            CharacterOperation.None => CompletionTrigger.Invoke,
+            CharacterOperation.Inserted => CompletionTrigger.CreateInsertionTrigger(@char),
+            CharacterOperation.Deleted => CompletionTrigger.CreateDeletionTrigger(@char),
+            _ => None(kind)
+        };
+        return ShouldTriggerCompletions(caretPosition, trigger);
+    }
+
+    private Task<bool> ShouldTriggerCompletions(int caretPosition, CompletionTrigger completionTrigger)
+    {
+        var service = CompletionService;
+        if (service is null)
+        {
+            return Task.FromResult(true);
+        }
+
+        return Task.FromResult(service.ShouldTriggerCompletion(SourceText, caretPosition, completionTrigger));
+    }
+
     public async Task<IEnumerable<CompletionItem>> GetCompletionsAsync(int caretPosition)
     {
-        EnsureUpToDate();
-        CompletionService? completionService = null;
-        using (var t = new Tracer("Fetching completion service"))
+        if (CompletionService is not { } service)
         {
-            completionService = CompletionService.GetService(CurrentDocument);
-        }
-        if (completionService is null)
-        {
-            Console.WriteLine($"Could not find completion service for document '{CurrentDocument.Name}'.");
             return Array.Empty<CompletionItem>();
         }
-        //using var t2 = new Tracer("Fetching completions");
-        //Console.WriteLine($"caretPosition: {caretPosition}");
-        //var tree = await CurrentDocument.GetSyntaxTreeAsync();
-        //Console.WriteLine($"CurrentDocument: {tree}");
-        var completions = await completionService.GetCompletionsAsync(CurrentDocument, caretPosition).ConfigureAwait(false);
-        return completions.ItemsList.Select(x => new CompletionItem(x.DisplayText, x.SortText, x.InlineDescription, x.Tags, x.Span));
+        using var t2 = new Tracer("Fetching completions");
+        var completions = await service.GetCompletionsAsync(CurrentDocument, caretPosition).ConfigureAwait(false);
+        return completions.ItemsList.Select(x => new CompletionItem(x.DisplayText, x.FilterText, x.SortText, x.InlineDescription, x.Tags, x.Span));
     }
 
     public async Task<RunResult> RunAsync()

@@ -56,6 +56,11 @@ internal sealed partial class CompilationInterop
         var completions = await Host.Dispatch(s => s.GetCompletionsAsync(compilationId, caretPosition)).ConfigureAwait(false);
         return JsonSerializer.Serialize(completions, JsonContext.Default.CompletionItems);
     }
+
+    public static Task<bool> ShouldTriggerCompletionsAsync(string compilationId, int caretPosition)
+        => Host.Dispatch(s => s.ShouldTriggerCompletionAsync(compilationId, caretPosition));
+    public static Task<bool> ShouldTriggerCompletionsAsync(string compilationId, int caretPosition, char @char, CharacterOperation operation)
+        => Host.Dispatch(s => s.ShouldTriggerCompletionAsync(compilationId, caretPosition, @char, operation));
 }
 
 [JsonSourceGenerationOptions(

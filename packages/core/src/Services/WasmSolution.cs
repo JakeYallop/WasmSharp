@@ -42,11 +42,14 @@ internal sealed class WasmSolution(ILogger<WasmSolution> logger)
     public void Recompile(string compilationId, string code) => GetCompilation(compilationId).Recompile(code);
     public Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(string compilationId) => GetCompilation(compilationId).GetDiagnosticsAsync();
     public Task<IEnumerable<CompletionItem>> GetCompletionsAsync(string compilationId, int caretPosition) => GetCompilation(compilationId).GetCompletionsAsync(caretPosition);
+    public Task<bool> ShouldTriggerCompletionAsync(string compilationId, int caretPosition) => GetCompilation(compilationId).ShouldTriggerCompletions(caretPosition);
+    public Task<bool> ShouldTriggerCompletionAsync(string compilationId, int caretPosition, char @char, CharacterOperation operation) => GetCompilation(compilationId).ShouldTriggerCompletions(caretPosition, @char, operation);
     public Task<RunResult> RunAsync(string compilationId) => GetCompilation(compilationId).RunAsync();
 
+#pragma warning disable CA1822 // Mark members as static
     private CodeSession GetCompilation(string compilationId)
+#pragma warning restore CA1822 // Mark members as static
     {
-        _logger.LogTrace($"Getting compilation {compilationId}.");
         if (!CompilationCache.TryGetValue(compilationId, out var compilation))
         {
             //TODO: Better custom exception/message/return bool and don't throw at all?

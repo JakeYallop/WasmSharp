@@ -18,6 +18,6 @@ internal sealed class Tracer(string actionName) : IDisposable
     public void Dispose()
     {
         var endTime = DateTime.UtcNow;
-        _logger.LogInformation($"{_actionName} took {(endTime - _startTime).TotalMilliseconds}ms");
+        _logger.LogDebug($"{_actionName} took {(endTime - _startTime).TotalMilliseconds}ms");
     }
 }

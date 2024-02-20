@@ -85,6 +85,7 @@ export class WasmSharpModule {
 
 export type CompletionItem = {
   displayText: string;
+  filterText: string;
   sortText: string;
   inlineDescription: string;
   tags: WellKnownTagArray;
@@ -98,8 +99,6 @@ export interface AssemblyExports {
     };
   };
 }
-
-export type CompilationId = string;
 
 export type DiagnosticSeverity = "Error" | "Warning" | "Info" | "Hidden";
 
