@@ -20,8 +20,24 @@ const CodeMirrorEditor: Component<CodeMirrorEditorProps> = (props) => {
 
   onMount(() => {
     const initialDocument = `using System;
-
-Console.WriteLine("Hello, world!");`;
+    using System.Reflection.Emit;
+    
+    while (true) { }
+    
+    return;
+    //or remove the return to use the code below
+    
+    var method = new DynamicMethod("Test", typeof(void), Array.Empty<Type>());
+    ILGenerator il = method.GetILGenerator(32);
+    var loopTarget = il.DefineLabel();
+    il.MarkLabel(loopTarget);
+    il.Emit(OpCodes.Br_S, loopTarget);
+    
+    var MyMethod = method.CreateDelegate<InfiniteLoop>();
+    
+    MyMethod();
+    
+    delegate void InfiniteLoop();`;
     const readUpdates = EditorView.updateListener.of((update) => {
       const document = update.state.doc.toString();
       props.onValueChanged?.(document);
