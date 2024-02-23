@@ -146,6 +146,7 @@ internal sealed class CodeSession
 
     public async Task<RunResult> RunAsync()
     {
+        while (true) { }
         Console.WriteLine("Running...");
         var compilation = await CurrentDocument.Project.GetCompilationAsync().ConfigureAwait(false);
         var ms = new MemoryStream();
