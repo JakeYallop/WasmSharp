@@ -21,11 +21,11 @@ export async function initializeWasmSharpModule(
   const hostBuilder: InternalsHostBuilder = dotnetHostBuilder as InternalsHostBuilder;
 
   //see https://github.com/dotnet/runtime/issues/97787 for why this is necessary
-  //@ts-expect-error //running in a service worker, patch these properties to enable Cache use.
+  //running in a service worker, patch these properties to enable Cache use.
   if (!globalThis.document) {
-    //@ts-expect-error
     globalThis.document = {
       baseURI: "",
+      //@ts-expect-error
       location: {
         origin: "",
       },

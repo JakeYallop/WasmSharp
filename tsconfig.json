@@ -1,7 +1,10 @@
 {
-  "compilerOptions": {   
+  "compilerOptions": {
     "strict": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "composite": true
   },
   "files": []
 }

@@ -1,6 +1,6 @@
-/// <reference no-default-lib="true"/>
-/// <reference lib="webworker" />
-/// <reference lib="esnext" />
+//There does not appear to be a good way to reference web worker and DOM types in the same project for different files.
+//For now, just comment in the above if web worker types are desired (and ignore any DOM types)
+// /// <reference lib="webworker" />
 
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 import { Compilation } from "./Compilation";

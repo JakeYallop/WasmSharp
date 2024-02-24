@@ -3,19 +3,18 @@
     "incremental": false
   },
   "compilerOptions": {
-    "declaration": true /* Generates corresponding '.d.ts' file. */,
-    "outDir": "./dist" /* Redirect output structure to the directory. */,
+    "declaration": true,
+    "outDir": "./dist",
     "rootDir": "./src",
-    "lib": [ "ES2020", "DOM" ],
+    "lib": ["ES2020", "DOM"],
+    //TODO: tweak these sourcemap properties, ideally we want to keep initial payload size as small as possible
     "inlineSourceMap": true,
     "inlineSources": true,
-    "target": "ESNext",
-    "module": "ESNext",
     //TODO: Bundler isn't really the correct choice here - instead we'd want Node16 or NodeNext. However with Node16 or NodeNext, we cannot use import.meta.url
     "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
+    "resolveJsonModule": true
   },
-  "exclude": [ "node_modules", "src/bin", "src/obj", "dist/**", "src/publish" ],
-  "include": [ "src" ],
+  "exclude": ["node_modules", "src/bin", "src/obj", "dist/**", "src/publish"],
+  "include": ["src"],
   "extends": "../../tsconfig.json"
 }
