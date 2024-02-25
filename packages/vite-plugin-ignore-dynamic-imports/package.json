@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "unplugin-ast": "^0.8.2",
-    "vite": "^5.0.12"
+    "vite": "^5.1.4"
   },
   "devDependencies": {
     "@babel/types": "^7.23.9",

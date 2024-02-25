@@ -102,9 +102,9 @@ function wasmSharpPlugin(options?: WasmSharpPluginOptions): Plugin {
         wasmSharpJsonPath = await findDepPkgJsonPath("@wasmsharp/core", output.dir!);
       }
 
-      if (!wasmSharpJsonPath) {
+      if (!wasmSharpJsonPath || !fs.existsSync(wasmSharpJsonPath)) {
         logger.warn(
-          "Could not resolve package information for @wasmsharp/core, the build may not have completed successfully."
+          `Could not resolve package information for @wasmsharp/core, the build may not have completed successfully. Search path: '${wasmSharpJsonPath}'`
         );
         return;
       }
@@ -170,18 +170,21 @@ function resolveInternalMonorepoPath(disableErrorOnFailure?: false): string;
 function resolveInternalMonorepoPath(disableErrorOnFailure?: boolean): string | undefined {
   const cwd = process.cwd();
   const releasePath = path.join(cwd, "../packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle/WasmCompiler.js");
-  const debugPath = path.join(cwd, "../packages/core/src/bin/Debug/net8.0/browser-wasm/AppBundle/WasmCompiler.js");
 
   if (fs.existsSync(releasePath)) {
     return releasePath;
   }
 
-  if (fs.existsSync(debugPath)) {
-    return debugPath;
+  if (fs.existsSync(path.dirname(releasePath))) {
+    throw Error(
+      "Found AppBundle directory, but could not find WasmCompiler.js - ensure @wasmsharp/core has been built, there may be an issue with the build. Check if there is an incremental build info file created by tsc in the parent directory."
+    );
   }
 
   if (!disableErrorOnFailure) {
-    throw Error("Could not find AppBundle directory - ensure @wasmsharp/core has been built!");
+    throw Error(
+      `Could not find AppBundle directory - ensure @wasmsharp/core has been built!\n Search path: ${releasePath}`
+    );
   }
 }
 
