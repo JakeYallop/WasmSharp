@@ -42,8 +42,8 @@ internal sealed class WasmSolution(ILogger<WasmSolution> logger)
     public void Recompile(string compilationId, string code) => GetCompilation(compilationId).Recompile(code);
     public Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync(string compilationId) => GetCompilation(compilationId).GetDiagnosticsAsync();
     public Task<IEnumerable<CompletionItem>> GetCompletionsAsync(string compilationId, int caretPosition) => GetCompilation(compilationId).GetCompletionsAsync(caretPosition);
-    public Task<bool> ShouldTriggerCompletionAsync(string compilationId, int caretPosition) => GetCompilation(compilationId).ShouldTriggerCompletions(caretPosition);
-    public Task<bool> ShouldTriggerCompletionAsync(string compilationId, int caretPosition, char @char, CharacterOperation operation) => GetCompilation(compilationId).ShouldTriggerCompletions(caretPosition, @char, operation);
+    public Task<bool> ShouldTriggerCompletionAsync(string compilationId, int caretPosition) => GetCompilation(compilationId).ShouldTriggerCompletionsAsync(caretPosition);
+    public Task<bool> ShouldTriggerCompletionAsync(string compilationId, int caretPosition, char @char, CharacterOperation operation) => GetCompilation(compilationId).ShouldTriggerCompletionsAsync(caretPosition, @char, operation);
     public Task<RunResult> RunAsync(string compilationId) => GetCompilation(compilationId).RunAsync();
 
 #pragma warning disable CA1822 // Mark members as static

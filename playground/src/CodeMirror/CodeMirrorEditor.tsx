@@ -1,10 +1,19 @@
 import { Component, createSignal, onCleanup, onMount } from "solid-js";
 import { basicSetup, EditorView } from "codemirror";
 import { linter, Diagnostic as CmDiagnostic } from "@codemirror/lint";
+import { syntaxTree } from "@codemirror/language";
 import "./CodeMirrorEditor.css";
 import { EditorState, Facet, StateEffect, StateField, Transaction } from "@codemirror/state";
 import { Compilation, CompletionItem, DiagnosticSeverity, WasmSharpModule, WellKnownTagArray } from "@wasmsharp/core";
-import { CompletionContext, CompletionResult, autocompletion, Completion } from "@codemirror/autocomplete";
+import {
+  CompletionContext,
+  CompletionResult,
+  autocompletion,
+  Completion,
+  ifNotIn,
+  startCompletion,
+  closeCompletion,
+} from "@codemirror/autocomplete";
 import { csharp } from "@replit/codemirror-lang-csharp";
 import { ViewPlugin } from "@codemirror/view";
 import "./CodeMirrorEditor.autocomplete.css";
@@ -25,6 +34,11 @@ Console.WriteLine("Hello, world!");`;
     const readUpdates = EditorView.updateListener.of((update) => {
       const document = update.state.doc.toString();
       props.onValueChanged?.(document);
+      // syntaxTree(update.state).iterate({
+      //   enter(node) {
+      //     console.log(node.name);
+      //   },
+      // });
     });
 
     const e = new EditorView({
@@ -37,7 +51,7 @@ Console.WriteLine("Hello, world!");`;
         readUpdates,
         wasmSharp(props.wasmSharpModule),
         csharpLinter({ delay: 0 }),
-        autocompletion({ override: [csharpCompletionSource] }),
+        autocompletion({ override: [ifNotIn([";", "{", "}"], csharpCompletionSource)] }),
       ],
     });
     setEditor(e);
@@ -56,17 +70,10 @@ async function csharpCompletionSource(context: CompletionContext): Promise<Compl
   }
 
   const from = context.pos;
-  const completions = await compilation.getCompletions(from);
+  const filteredCompletions = await compilation.getCompletions(from);
 
+  //TODO: Do not rely on this, instead, return this information from the getCompletions call
   const matchContext = context.matchBefore(/[\w\d]+/);
-  const prefixUpper = matchContext?.text.toUpperCase();
-  const filteredCompletions = prefixUpper
-    ? completions.filter((x) => {
-        const upper = x.filterText.toUpperCase();
-        return upper.startsWith(prefixUpper) && upper !== prefixUpper;
-      })
-    : completions;
-
   const mappedCompletions = filteredCompletions.map(mapCompletionItemToCodeMirrorCompletion);
   return {
     from: matchContext?.from ?? from,

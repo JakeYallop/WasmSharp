@@ -4,8 +4,8 @@
   <assembly fullname="Microsoft.CodeAnalysis.CSharp.Features" />
   <assembly fullname="Microsoft.CodeAnalysis.Workspaces" />
   <assembly fullname="Microsoft.CodeAnalysis.Features">
+    <type fullname="Microsoft.CodeAnalysis.Completion*" />
     <type fullname="Microsoft.CodeAnalysis.EmbeddedLanguages.EmbeddedLanguageMetadata" />
-    <type fullname="Microsoft.CodeAnalysis.Completion.Providers.CompletionProviderMetadata" />
     <type fullname="Microsoft.CodeAnalysis.Shared.DefaultDocumentSupportsFeatureService" />
   </assembly>
 </linker>

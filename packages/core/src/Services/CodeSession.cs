@@ -1,7 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
+using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
 using WasmSharp.Core.Hosting;
@@ -98,13 +101,13 @@ internal sealed class CodeSession
 
     public async Task<IEnumerable<Diagnostic>> GetDiagnosticsAsync()
     {
-        using var t2 = new Tracer("Fetching diagnostics");
+        //using var t2 = new Tracer("Fetching diagnostics");
         var compilation = (await CurrentDocument.Project.GetCompilationAsync().ConfigureAwait(false))!;
         return compilation.GetDiagnostics().ToWasmSharpDiagnostics();
     }
 
-    public Task<bool> ShouldTriggerCompletions(int caretPosition) => ShouldTriggerCompletions(caretPosition, '\0', CharacterOperation.None);
-    public Task<bool> ShouldTriggerCompletions(int caretPosition, char @char, CharacterOperation kind = CharacterOperation.Inserted)
+    public Task<bool> ShouldTriggerCompletionsAsync(int caretPosition) => ShouldTriggerCompletionsAsync(caretPosition, '\0', CharacterOperation.None);
+    public Task<bool> ShouldTriggerCompletionsAsync(int caretPosition, char @char, CharacterOperation kind = CharacterOperation.Inserted)
     {
         CompletionTrigger None(CharacterOperation operation)
         {
@@ -119,10 +122,10 @@ internal sealed class CodeSession
             CharacterOperation.Deleted => CompletionTrigger.CreateDeletionTrigger(@char),
             _ => None(kind)
         };
-        return ShouldTriggerCompletions(caretPosition, trigger);
+        return ShouldTriggerCompletionsAsync(caretPosition, trigger);
     }
 
-    private Task<bool> ShouldTriggerCompletions(int caretPosition, CompletionTrigger completionTrigger)
+    private Task<bool> ShouldTriggerCompletionsAsync(int caretPosition, CompletionTrigger completionTrigger)
     {
         var service = CompletionService;
         if (service is null)
@@ -139,9 +142,24 @@ internal sealed class CodeSession
         {
             return Array.Empty<CompletionItem>();
         }
+
         using var t2 = new Tracer("Fetching completions");
+
+        if (!await ShouldTriggerCompletionsAsync(caretPosition).ConfigureAwait(false))
+        {
+            _logger.LogDebug("ShouldTriggerCompletionsAsync false, skipping.");
+            return [];
+        }
+
         var completions = await service.GetCompletionsAsync(CurrentDocument, caretPosition).ConfigureAwait(false);
-        return completions.ItemsList.Select(x => new CompletionItem(x.DisplayText, x.FilterText, x.SortText, x.InlineDescription, x.Tags, x.Span));
+        var typedSpan = CompletionService.GetDefaultCompletionListSpan(SourceText, caretPosition);
+        var typedText = SourceText.GetSubText(typedSpan).ToString();
+
+        var filteredItems = typedText.Length != 0
+            ? CompletionService.FilterItems(CurrentDocument, [.. completions.ItemsList], typedText)
+            : completions.ItemsList;
+
+        return filteredItems.Select(x => new CompletionItem(x.DisplayText, x.FilterText, x.SortText, x.InlineDescription, x.Tags, x.Span));
     }
 
     public async Task<RunResult> RunAsync()

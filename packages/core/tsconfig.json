@@ -3,6 +3,7 @@
     "incremental": false
   },
   "compilerOptions": {
+    "incremental": false,
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src",
