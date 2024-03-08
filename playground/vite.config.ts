@@ -119,9 +119,13 @@ function wasmSharpPlugin(options?: WasmSharpPluginOptions): Plugin {
 
       logger.info(`Found ${files.length} assets to copy.`);
 
-      if (files.length > 350) {
+      if (files.length > 250) {
         throw new Error(
-          "Stopping copy - too many files found, something is probably wrong. Double check the path to WasmSharm assets. If the number is correct, then this threshold probably needs tweaking."
+          "Stopping copy - too many files found, something is probably wrong.\n" +
+            "(1) Check that the path to WasmSharm assets is correct \n" +
+            "(2) Ensure the core package has been built with trimming enabled. A normal build (e.g `dotnet build`) will not enable trimming, " +
+            "instead a publish must be used. A large number of assets may signify that the assets were created without trimming enabled. \n" +
+            "If the number is correct, then this threshold probably needs tweaking."
         );
       }
 
