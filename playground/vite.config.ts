@@ -119,9 +119,9 @@ function wasmSharpPlugin(options?: WasmSharpPluginOptions): Plugin {
 
       logger.info(`Found ${files.length} assets to copy.`);
 
-      if (files.length > 250) {
+      if (files.length > 350) {
         throw new Error(
-          "Stopping copy - too many files found, something is probably wrong. Double check the path to WasmSharm assets."
+          "Stopping copy - too many files found, something is probably wrong. Double check the path to WasmSharm assets. If the number is correct, then this threshold probably needs tweaking."
         );
       }
 
