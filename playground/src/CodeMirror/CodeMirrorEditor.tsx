@@ -17,6 +17,7 @@ import {
 import { csharp } from "@replit/codemirror-lang-csharp";
 import { ViewPlugin } from "@codemirror/view";
 import "./CodeMirrorEditor.autocomplete.css";
+import "./CodeMirrorEditor.css";
 import { darkModern } from "./dark-theme";
 
 export interface CodeMirrorEditorProps {

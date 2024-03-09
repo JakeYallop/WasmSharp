@@ -1,0 +1,11 @@
+.cm-editor {
+  height: 100%;
+
+  & .cm-scroller {
+    font-family: monaco, Consolas, "Lucida Console", monospace;
+  }
+
+  & .cm-tooltip.cm-tooltip-autocomplete > ul {
+    font-family: monaco, Consolas, "Lucida Console", monospace;
+  }
+}
