@@ -1,7 +1,8 @@
 {
   "name": "@wasmsharp/core",
   "version": "0.0.9",
-  "types": "./WasmCompiler.d.ts",
+  "exports": "./index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "watch": "tsc --watch",
     "build": "dotnet publish -c Release"

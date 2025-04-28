@@ -2,6 +2,55 @@
 
 https://wasmsharp.pages.dev/
 
+## Getting started
+
+Compile and run C# programs using WASM:
+```typescript
+const module = await WasmSharpModule.initializeAsync()
+const compilation = await module.createCompilationAsync(`
+  using System;
+  Console.WriteLine("Hello World!");
+`)
+const result = await compilation.run();
+console.log(result.success); // true
+console.log(result.stdOut); // Hello World!
+```
+
+```typescript
+const module = await WasmSharpModule.initializeAsync()
+const compilation = await module.createCompilationAsync(`
+  using System;
+  WriteLine("Hello World!");
+`)
+const result = await compilation.run();
+console.log(result.success); // false
+console.log(result.diagnostics);
+/*
+[
+  {
+    "id": "CS0103",
+    "message": "The name 'WriteLine' does not exist in the current context",
+    "location": {
+      "start": 3,
+      "end": 12,
+      "length": 9,
+      "isEmpty": false
+    },
+    "severity": "Error"
+  }
+]
+*/
+```
+
+## Troubleshooting
+
+Web worker mode (the default mode) requires a HTTPS URL (or localhost in some browsers). Disable web worker mode using `disableWebWorker: true`:
+```ts
+const module = await WasmSharpModule.initializeAsync({
+  disableWebWorker: true
+})
+```
+
 ## Development setup
 
 This project uses pnpm. Installation instructions for pnpm can be found [here](https://pnpm.io/installation).

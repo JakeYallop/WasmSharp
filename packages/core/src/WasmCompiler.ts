@@ -37,6 +37,10 @@ export interface WasmSharpModuleCallbacks {
 }
 
 export type WasmSharpOptions = {
+  /**
+   * Disable the web worker. Web workers provide a large performance boost as compilation and
+   * execution can happen in the background. However Web Workers require a HTTPS URL.
+   */
   disableWebWorker?: boolean;
 } & WasmSharpModuleOptions &
   WasmSharpModuleCallbacks;
