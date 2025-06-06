@@ -37,7 +37,6 @@ export default defineConfig(({ mode }) => {
       fs: {
         strict: false,
       },
-      open: true,
       port: 3000,
     },
     css: {
@@ -173,7 +172,7 @@ function wasmSharpPlugin(options?: WasmSharpPluginOptions): Plugin {
 function resolveInternalMonorepoPath(disableErrorOnFailure?: false): string;
 function resolveInternalMonorepoPath(disableErrorOnFailure?: boolean): string | undefined {
   const cwd = process.cwd();
-  const releasePath = path.join(cwd, "../packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle/WasmCompiler.js");
+  const releasePath = path.join(cwd, "../packages/core/src/bin/Release/net10.0/browser-wasm/AppBundle/WasmCompiler.js");
 
   if (fs.existsSync(releasePath)) {
     return releasePath;
@@ -195,7 +194,7 @@ function resolveInternalMonorepoPath(disableErrorOnFailure?: boolean): string | 
 //Fixes an issue where vite resolves the package.json at the package level, but dotnet.js only exists in the output directory
 const wasmSharpRewriteImportsForWorkspace = (): Plugin => {
   return {
-    name: "wasm-sharp-rewrite=dotnet-imports-plugin",
+    name: "wasm-sharp-rewrite-dotnet-imports-plugin",
     enforce: "pre",
     config() {
       return {

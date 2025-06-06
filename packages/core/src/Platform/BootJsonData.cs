@@ -137,7 +137,7 @@ public class ResourcesData
     /// </summary>
     public string Hash { get; set; }
 
-    public Dictionary<string, string> fingerprinting { get; set; }
+    public Dictionary<string, string> Fingerprinting { get; set; }
 
     /// <summary>
     /// .NET Wasm runtime resources (dotnet.wasm, dotnet.js) etc.

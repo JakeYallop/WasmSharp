@@ -18,7 +18,7 @@ internal sealed class WasmSolution(ILogger<WasmSolution> logger)
         var resolver = new WasmMetadataReferenceResolver(publicUrl);
         var referenceTasks = new ConcurrentBag<Task<MetadataReference>>();
 
-        foreach (var asset in config.Resources.Assembly)
+        foreach (var asset in config.Resources.CoreAssembly.Concat(config.Resources.Assembly))
         {
             //TODO: Handle WasmRuntimeAssetsLocation correctly here
             referenceTasks.Add(resolver.ResolveReferenceAsync("./", asset.Key));

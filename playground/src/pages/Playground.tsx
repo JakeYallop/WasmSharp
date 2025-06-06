@@ -13,6 +13,9 @@ import * as styles from "./Playground.css";
 
 const Playground: Component = () => {
   const wasmSharpOptions: WasmSharpOptions = {
+    onConfigLoaded(config) {
+      console.log(config);
+    },
     onDownloadResourceProgress(loadedResources, totalResources) {
       batch(() => {
         setLoadedResources(totalResources);
