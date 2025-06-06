@@ -4,6 +4,5 @@
     "forceConsistentCasingInFileNames": true,
     "target": "ESNext",
     "module": "ESNext"
-  },
-  "files": []
+  }
 }

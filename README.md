@@ -43,7 +43,7 @@ console.log(result.diagnostics);
 ```
 
 ## Troubleshooting
-
+ 
 Web worker mode (the default mode) requires a HTTPS URL (or localhost in some browsers). Disable web worker mode using `disableWebWorker: true`:
 ```ts
 const module = await WasmSharpModule.initializeAsync({
@@ -57,7 +57,7 @@ This project uses pnpm. Installation instructions for pnpm can be found [here](h
 
 ### Prerequisites
 * pnpm
-* .NET 8.0 SDK or greater
+* .NET 10.0 SDK or greater
   * Ensure the `wasm-tools` workload is installed. It can be installed using
   ```
   dotnet workload install wasm-tools

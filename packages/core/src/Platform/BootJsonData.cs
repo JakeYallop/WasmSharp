@@ -9,11 +9,20 @@ namespace WasmSharp.Core.Platform;
 #nullable disable
 
 /// <summary>
-/// Defines the structure of a Blazor boot JSON file
+/// Defines the structure of dotnet.boot.js file.
 /// </summary>
+/// <remarks>
+/// This file may be inlined by the build process into the dotnet.js file.
+/// </remarks>
 public class BootJsonData
 {
     public string MainAssemblyName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the application environment. This is typically used to differentiate
+    /// between development, staging, and production environments.
+    /// </summary>
+    public string ApplicationEnvironment { get; set; }
 
     /// <summary>
     /// Gets the set of resources needed to boot the application. This includes the transitive
@@ -66,11 +75,6 @@ public class BootJsonData
     public string GlobalizationMode { get; set; }
 
     /// <summary>
-    /// Gets or sets a value that determines if the caching startup memory is enabled.
-    /// </summary>
-    public bool? StartupMemoryCache { get; set; }
-
-    /// <summary>
     /// Gets a value for mono runtime options.
     /// </summary>
     public string[] RuntimeOptions { get; set; }
@@ -83,7 +87,12 @@ public class BootJsonData
     /// <summary>
     /// Gets or sets environment variables.
     /// </summary>
-    public object EnvironmentVariables { get; set; }
+    public Dictionary<string, string> EnvironmentVariables { get; set; }
+
+    /// <summary>
+    /// Subset of runtimeconfig.json
+    /// </summary>
+    public RuntimeConfigData RuntimeConfig { get; set; }
 
     /// <summary>
     /// Gets or sets diagnostic tracing.
@@ -91,9 +100,34 @@ public class BootJsonData
     public object DiagnosticTracing { get; set; }
 
     /// <summary>
-    /// Gets or sets pthread pool size.
+    /// Gets or sets pthread pool initial size.
     /// </summary>
-    public int? PthreadPoolSize { get; set; }
+    public int? PthreadPoolInitialSize { get; set; }
+
+    /// <summary>
+    /// Gets or sets pthread pool unused size.
+    /// </summary>
+    public int? PthreadPoolUnusedSize { get; set; }
+}
+
+
+/// <summary>
+/// Subset of runtimeconfig.json
+/// </summary>
+public class RuntimeConfigData
+{
+    /// <summary>
+    /// Runtime options
+    /// </summary>
+    public RuntimeOptionsData RuntimeOptions { get; set; }
+}
+
+public class RuntimeOptionsData
+{
+    /// <summary>
+    /// Config properties for the runtime
+    /// </summary>
+    public Dictionary<string, object> ConfigProperties { get; set; }
 }
 
 public class ResourcesData
@@ -102,6 +136,8 @@ public class ResourcesData
     /// Gets a hash of all resources
     /// </summary>
     public string Hash { get; set; }
+
+    public Dictionary<string, string> fingerprinting { get; set; }
 
     /// <summary>
     /// .NET Wasm runtime resources (dotnet.wasm, dotnet.js) etc.
@@ -112,6 +148,8 @@ public class ResourcesData
     public ResourceHashesByNameDictionary Runtime { get; set; }
 
     public ResourceHashesByNameDictionary JsModuleWorker { get; set; }
+
+    public ResourceHashesByNameDictionary JsModuleDiagnostics { get; set; }
 
     public ResourceHashesByNameDictionary JsModuleNative { get; set; }
 
@@ -124,9 +162,19 @@ public class ResourcesData
     public ResourceHashesByNameDictionary Icu { get; set; }
 
     /// <summary>
+    /// "assembly" (.dll) resources needed to start MonoVM
+    /// </summary>
+    public ResourceHashesByNameDictionary CoreAssembly { get; set; } = [];
+
+    /// <summary>
     /// "assembly" (.dll) resources
     /// </summary>
     public ResourceHashesByNameDictionary Assembly { get; set; } = [];
+
+    /// <summary>
+    /// "debug" (.pdb) resources needed to start MonoVM
+    /// </summary>
+    public ResourceHashesByNameDictionary CorePdb { get; set; }
 
     /// <summary>
     /// "debug" (.pdb) resources
@@ -164,6 +212,8 @@ public class ResourcesData
     /// </summary>
     public Dictionary<string, AdditionalAsset> RuntimeAssets { get; set; }
 
+    public Dictionary<string, ResourceHashesByNameDictionary> CoreVfs { get; set; }
+
     public Dictionary<string, ResourceHashesByNameDictionary> Vfs { get; set; }
 
     public IList<string> RemoteSources { get; set; }
@@ -193,11 +243,6 @@ public enum GlobalizationMode : int
     /// Load custom icu file provided by the developer.
     /// </summary>
     Custom = 3,
-
-    /// <summary>
-    /// Use the reduced icudt_hybrid.dat file
-    /// </summary>
-    Hybrid = 4,
 }
 
 public class AdditionalAsset
