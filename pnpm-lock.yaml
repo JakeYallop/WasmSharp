@@ -24,6 +24,9 @@ importers:
 
   packages/vite-plugin-ignore-dynamic-imports:
     dependencies:
+      '@babel/generator':
+        specifier: ^7.27.5
+        version: 7.27.5
       unplugin-ast:
         specifier: ^0.15.0
         version: 0.15.0
@@ -34,6 +37,9 @@ importers:
       '@babel/types':
         specifier: ^7.27.6
         version: 7.27.6
+      '@types/babel__generator':
+        specifier: ^7.27.0
+        version: 7.27.0
       cpy-cli:
         specifier: ^5.0.0
         version: 5.0.0

@@ -13,14 +13,16 @@
     }
   },
   "scripts": {
-    "build": "unbuild && cpy ./src/index.d.ts dist --flat"
+    "build": "unbuild"
   },
   "dependencies": {
     "unplugin-ast": "^0.15.0",
+    "@babel/generator": "^7.27.5",
     "vite": "^6.3.5"
   },
   "devDependencies": {
     "@babel/types": "^7.27.6",
+    "@types/babel__generator": "^7.27.0",
     "cpy-cli": "^5.0.0",
     "unbuild": "^3.5.0"
   }
