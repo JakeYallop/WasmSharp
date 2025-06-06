@@ -13,4 +13,5 @@ export const progressBar = style({
   transition: "width 0.5s ease-in-out",
   height: spacing(0.4),
   backgroundColor: palette.accent,
+  maxWidth: "100%",
 });
