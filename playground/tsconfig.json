@@ -21,7 +21,7 @@
     "types": ["vite/client"],
 
     "paths": {
-      "@wasmsharp/core": ["../packages/core/src/bin/Release/net8.0/browser-wasm/AppBundle"]
+      "@wasmsharp/core": ["../packages/core/src/bin/Release/net10.0/browser-wasm/AppBundle"]
     }
   },
   "include": ["src", "e2e"],
