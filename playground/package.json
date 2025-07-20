@@ -23,6 +23,7 @@
     "@vanilla-extract/css-utils": "^0.1.4",
     "@vanilla-extract/vite-plugin": "^5.0.3",
     "@vitejs/plugin-basic-ssl": "^2.0.0",
+    "@wasmsharp/rollup-plugin-copy-assets": "workspace:^",
     "compare-versions": "^6.1.1",
     "postcss-nesting": "^13.0.1",
     "postcss-scrollbar": "^0.5.1",

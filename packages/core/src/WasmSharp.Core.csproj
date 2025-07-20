@@ -20,9 +20,10 @@
     <!--TODO: How would we use this in the plugin/export it from WasmCompiler? -->
     <WasmRuntimeAssetsLocation>./</WasmRuntimeAssetsLocation>
 
+    <WasmBootConfigFileName>dotnet.boot.json</WasmBootConfigFileName>
+
     <!-- TODO: Investigate using Webcil format for better compatibility - how do we load DLLs when packaged in this format?-->
     <WasmEnableWebcil>false</WasmEnableWebcil>
-
   </PropertyGroup>
 
   <ItemGroup>

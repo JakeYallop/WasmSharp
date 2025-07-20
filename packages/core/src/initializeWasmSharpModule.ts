@@ -40,6 +40,7 @@ export async function initializeWasmSharpModule(
     };
   }
 
+  const time = performance.now();
   let resourcesToLoad = 0;
   const { getAssemblyExports, getConfig } = await hostBuilder
     .withModuleConfig({
@@ -74,10 +75,11 @@ export async function initializeWasmSharpModule(
   //TODO: Handle nested assets folder (WasmRuntimeAssetsLocation)z
   //TODO: Rewrite this to use new URL()
   const resolvedAssembliesUrl = options?.assembliesUrl ?? getDirectory(import.meta.url);
-  console.log(`Initialising assembly context from url: ${resolvedAssembliesUrl}`);
-  const time = performance.now();
+  const diff1 = performance.now() - time;
+  console.log(`Finished initialising runtime in ${diff1}ms`);
+  console.log(`Using following location for assemblies: ${resolvedAssembliesUrl}`);
   await compilationInterop.InitAsync(resolvedAssembliesUrl, JSON.stringify(config));
-  const diff = performance.now() - time;
-  console.log(`Finished initialising assembly context in ${diff}ms`);
+  const diff2 = performance.now() - time;
+  console.log(`Finished loading assemblies in ${diff2}ms`);
   return compilationInterop;
 }
