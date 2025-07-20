@@ -16,14 +16,14 @@
     "build": "unbuild"
   },
   "dependencies": {
-    "unplugin-ast": "^0.15.0",
-    "@babel/generator": "^7.27.5",
+    "unplugin-ast": "catalog:",
+    "@babel/generator": "catalog:",
     "vite": "^6.3.5"
   },
   "devDependencies": {
-    "@babel/types": "^7.27.6",
-    "@types/babel__generator": "^7.27.0",
-    "cpy-cli": "^5.0.0",
-    "unbuild": "^3.5.0"
+    "@babel/types": "catalog:",
+    "@types/babel__generator": "catalog:",
+    "cpy-cli": "catalog:",
+    "unbuild": "catalog:"
   }
 }

@@ -17,6 +17,6 @@
     "build:imports-plugin": "pnpm --filter vite-plugin-ignore-dynamic-imports run build"
   },
   "devDependencies": {
-    "typescript": "^5.3.3"
+    "typescript": "catalog:"
   }
 }

@@ -8,9 +8,9 @@
     "build": "dotnet publish -c Release"
   },
   "devDependencies": {
-    "typescript": "^5.3.3"
+    "typescript": "catalog:"
   },
   "dependencies": {
-    "comlink": "^4.4.1"
+    "comlink": "catalog:"
   }
 }
