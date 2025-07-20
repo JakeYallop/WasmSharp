@@ -24,7 +24,6 @@
     "@vanilla-extract/vite-plugin": "catalog:",
     "@vitejs/plugin-basic-ssl": "catalog:",
     "@wasmsharp/rollup-plugin-copy-assets": "workspace:^",
-    "compare-versions": "catalog:",
     "postcss-nesting": "catalog:",
     "postcss-scrollbar": "catalog:",
     "tinycolor2": "catalog:",
@@ -33,8 +32,6 @@
     "vite-plugin-ignore-dynamic-imports": "workspace:*",
     "vite-plugin-inspect": "catalog:",
     "vite-plugin-solid": "catalog:",
-    "vite-plugin-utils": "catalog:",
-    "vitefu": "catalog:",
     "vitest": "catalog:"
   },
   "dependencies": {

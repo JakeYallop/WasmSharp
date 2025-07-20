@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { createLogger, defineConfig } from "vite";
+import { defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
 import ignoreDynamicImports from "vite-plugin-ignore-dynamic-imports";
 import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
