@@ -10,7 +10,7 @@
     "@types/node": "catalog:",
     "argparse": "catalog:",
     "typescript": "catalog:",
-    "vite": "^5.1.3",
+    "vite": "^5.4.19",
     "vite-node": "catalog:"
   },
   "dependencies": {
