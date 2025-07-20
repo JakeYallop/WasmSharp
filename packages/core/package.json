@@ -1,8 +1,8 @@
 {
   "name": "@wasmsharp/core",
   "version": "0.0.9",
-  "exports": "./index.js",
-  "types": "./index.d.ts",
+  "exports": "./src/bin/Release/net10.0/browser-wasm/AppBundle/index.js",
+  "types": "./src/bin/Release/net10.0/browser-wasm/AppBundle/index.d.ts",
   "scripts": {
     "watch": "tsc --watch",
     "build": "dotnet publish -c Release"

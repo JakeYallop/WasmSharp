@@ -1,9 +1,10 @@
 packages:
   - packages/vite-plugin-ignore-dynamic-imports
-  - packages/rollup-plugin-copy-assets
+  - packages/rollup-plugin
   - packages/core
   - playground
   - tools/icon-processor
+  - packages/rollup-plugin/tests/projects/*
 catalog:
   "@babel/generator": ^7.27.5
   "@babel/types": ^7.27.6
@@ -24,7 +25,7 @@ catalog:
   "@solid-primitives/scheduled": ^1.5.1
   "@types/argparse": ^2.0.14
   "@types/babel__generator": ^7.27.0
-  "@types/node": ^22.15.30
+  "@types/node": ^24.0.15
   "@types/tinycolor2": ^1.4.6
   "@vanilla-extract/css": ^1.17.2
   "@vanilla-extract/css-utils": ^0.1.4
@@ -42,7 +43,7 @@ catalog:
   postcss-nesting: ^13.0.1
   postcss-scrollbar: ^0.5.1
   prettier: ^3.6.2
-  rollup: 4.41.2
+  rollup: ^4.41.2
   rollup-plugin-copy: ^3.5.0
   solid-js: ^1.9.7
   tinycolor2: ^1.6.0
@@ -54,4 +55,6 @@ catalog:
   vite-plugin-solid: ^2.11.6
   vite-plugin-utils: ^0.4.5
   vitefu: ^1.0.6
+  vite: ^6.3.5
   vitest: ^3.2.2
+

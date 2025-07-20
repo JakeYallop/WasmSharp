@@ -1,10 +1,7 @@
-import type { Plugin, PluginContext } from "rollup";
-import { normalizePath } from "@rollup/pluginutils";
-import path, { basename, dirname, join, resolve } from "node:path";
-import { readdirSync, readFileSync } from "node:fs";
-import process from "node:process";
+import type { Plugin } from "rollup";
+import path, { dirname, join, resolve } from "node:path";
 import { readFile, stat } from "node:fs/promises";
-import type { BootConfig, ResourceMap } from "./boot";
+import type { BootConfig } from "./boot";
 import emitPossibleBugWarning from "./emit";
 import validateBootConfig from "./validateBootConfig";
 
@@ -20,12 +17,12 @@ const copyAssetsPlugin = (options?: WasmSharpRollupPluginCopyAssetsOptions): Plu
   let basePath: string | undefined;
 
   return {
-    name: "wasm-sharp-rollup-plugin-copy-assets",
+    name: "wasm-sharp-rollup-plugin",
     resolveId: {
       order: "pre",
       async handler(source, importer, options) {
         if (source.startsWith(".") && source.endsWith("dotnet.js") && importer) {
-          this.info({
+          this.debug({
             message: `Resolving asset: ${source} from importer: ${importer} options: ${options.isEntry}`,
             pluginCode: "RESOLVE_ASSET",
           });

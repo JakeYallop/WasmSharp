@@ -18,7 +18,7 @@
   "dependencies": {
     "unplugin-ast": "catalog:",
     "@babel/generator": "catalog:",
-    "vite": "^6.3.5"
+    "vite": "catalog:"
   },
   "devDependencies": {
     "@babel/types": "catalog:",

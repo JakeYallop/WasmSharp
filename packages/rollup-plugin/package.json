@@ -1,5 +1,5 @@
 {
-  "name": "@wasmsharp/rollup-plugin-copy-assets",
+  "name": "@wasmsharp/rollup-plugin",
   "version": "1.0.0",
   "type": "module",
   "exports": "./dist/index.mjs",
@@ -7,15 +7,8 @@
   "scripts": {
     "build": "unbuild"
   },
-  "dependencies": {
-    "@rollup/pluginutils": "catalog:",
-    "@types/node": "catalog:",
-    "@yukiakai/resolve-package": "catalog:",
-    "compare-versions": "catalog:",
-    "rollup-plugin-copy": "catalog:"
-  },
   "peerDependencies": {
-    "rollup": "*"
+    "rollup": "4.x"
   },
   "peerDependenciesMeta": {
     "rollup": {
@@ -23,6 +16,7 @@
     }
   },
   "devDependencies": {
+    "@types/node": "catalog:",
     "prettier": "catalog:",
     "rollup": "catalog:",
     "unbuild": "catalog:"

@@ -11,7 +11,7 @@ import basicSsl from "@vitejs/plugin-basic-ssl";
 import postCssNesting from "postcss-nesting";
 //@ts-expect-error
 import postCssScrollbar from "postcss-scrollbar";
-import wasmSharpCopyAssets from "@wasmsharp/rollup-plugin-copy-assets";
+import wasmSharpCopyAssets from "@wasmsharp/rollup-plugin";
 
 export default defineConfig(({ mode }) => {
   return {
