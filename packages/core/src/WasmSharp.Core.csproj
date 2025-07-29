@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
   <PropertyGroup>
     <TargetFramework>$(NetVersion)</TargetFramework>
     <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
@@ -11,19 +11,24 @@
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
 
-    <!-- Space savings when trimming -->
-    <TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
-    <DebuggerSupport>false</DebuggerSupport>
-    <UseNativeHttpHandler>true</UseNativeHttpHandler>
-
     <!--TODO: Write this variable to an env file to be read by Vite during build, so that assembly lookup is done correctly -->
     <!--TODO: How would we use this in the plugin/export it from WasmCompiler? -->
     <WasmRuntimeAssetsLocation>./</WasmRuntimeAssetsLocation>
 
-    <WasmBootConfigFileName>dotnet.boot.json</WasmBootConfigFileName>
+    <!-- <WasmBootConfigFileName>dotnet.boot.json</WasmBootConfigFileName> -->
+    <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <CompressionEnabled>false</CompressionEnabled>
+    <WasmBundlerFriendlyBootConfig>true</WasmBundlerFriendlyBootConfig>
 
     <!-- TODO: Investigate using Webcil format for better compatibility - how do we load DLLs when packaged in this format?-->
     <WasmEnableWebcil>false</WasmEnableWebcil>
+  </PropertyGroup>
+
+  <!-- Space savings when trimming -->
+  <PropertyGroup Condition="$(Configuration) == 'Release'">
+    <TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
+    <DebuggerSupport>false</DebuggerSupport>
+    <UseNativeHttpHandler>true</UseNativeHttpHandler>
   </PropertyGroup>
 
   <ItemGroup>
@@ -66,25 +71,30 @@
     <None Remove="dist/**/*" />
   </ItemGroup>
 
-  <Target Name="InitializeWasmAppDir" AfterTargets="WasmBuildApp">
-    <PropertyGroup>
-      <WasmAppDir>$([MSBuild]::NormalizePath('$(OutputPath)/AppBundle'))</WasmAppDir>
-    </PropertyGroup>
-  </Target>
+  <Target Name="_WasmBuildTarget" BeforeTargets="AssignTargetPaths" />
 
-  <Target Name="_CopyDotNetTypesDeclarationFile" AfterTargets="WasmBuildApp" DependsOnTargets="InitializeWasmAppDir" Condition="'$(WasmBuildingForNestedPublish)' != 'True'">
-    <PropertyGroup>
-      <_DotNetTypePath>$(OutputPath)dotnet.d.ts</_DotNetTypePath>
-    </PropertyGroup>
-    <Message Importance="High" Text="Copying dotnet.d.ts from $(OutputPath)dotnet.d.ts to $(WasmAppDir)$(WasmRuntimeAssetsLocation) and $(MSBuildThisFileDirectory)$(WasmRuntimeAssetsLocation)" />
+  <Target Name="_PreserveDotNetTypesDeclarationFile" AfterTargets="_ResolveWasmOutputs" BeforeTargets="CopyFilesToOutputDirectory">
     <ItemGroup>
-      <FilesToCopy Include="$(_DotNetTypePath)" />
+      <!-- Find the dotnet.d.ts file from the wasm output candidates, and manually copy it -->
+      <!-- TODO: Find a more permanent fix rather than relying on _WasmBuildFilesToRemove -->
+      <_DotNetTypesFile Include="@(_WasmBuildFilesToRemove)" Condition="'%(FileName)%(Extension)' == 'dotnet.d.ts'" />
     </ItemGroup>
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(WasmAppDir)$(WasmRuntimeAssetsLocation)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(MSBuildThisFileDirectory)$(WasmRuntimeAssetsLocation)" SkipUnchangedFiles="true" />
+
+    <Message Importance="high" Text="Found dotnet.d.ts at: @(_DotNetTypesFile)" Condition="'@(_DotNetTypesFile)' != ''" />
+    <Copy SourceFiles="@(_DotNetTypesFile)" DestinationFiles="$(MSBuildThisFileDirectory)/dotnet.d.ts" SkipUnchangedFiles="true" Condition="'@(_DotNetTypesFile)' != ''" />
+
+    <ItemGroup>
+      <FileWrites Include="$(MSBuildThisFileDirectory)/dotnet.d.ts" Condition="'@(_DotNetTypesFile)' != ''" />
+    </ItemGroup>
   </Target>
 
-  <Target Name="_EnsureTypeScriptOfRequiredVersionInstalled" AfterTargets="WasmBuildApp" DependsOnTargets="InitializeWasmAppDir" Condition="'$(WasmBuildingForNestedPublish)' != 'True' and '$(_RanTscDependencyCheck)' != 'True'">
+  <Target Name="_AddDotnetTypesToPackageDeps" AfterTargets="_WasmBuildTarget;_PreserveDotNetTypesDeclarationFile" Condition="Exists('$(MSBuildThisFileDirectory)/dotnet.d.ts')">
+    <ItemGroup>
+      <WasmSharpPackageDeps Include="$(MSBuildThisFileDirectory)/dotnet.d.ts" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="_EnsureTypeScriptOfRequiredVersionInstalled" AfterTargets="_WasmBuildTarget" Condition="'$(_RanTscDependencyCheck)' != 'True'">
     <Message Importance="high" Text="Checking dependencies"></Message>
     <Exec Command="pnpm exec tsc --version" ConsoleToMSBuild="true" IgnoreExitCode="true" ContinueOnError="true">
       <Output TaskParameter="ConsoleOutput" PropertyName="TscVersionCheckOutput" />
@@ -102,79 +112,33 @@
     </PropertyGroup>
   </Target>
 
-  <Target Name="_TypeScriptCompileAferBuild" AfterTargets="WasmBuildApp" DependsOnTargets="_EnsureTypeScriptOfRequiredVersionInstalled;">
-    <Message Importance="high" Text="Compiling TypeScript code to $(WasmAppDir)"></Message>
-    <Exec Command="pnpm exec tsc -p ./tsconfig.json -outDir $(WasmAppDir)"></Exec>
-  </Target>
-
-  <Target Name="_CopyPackageJsonToWasmAppDir" AfterTargets="_TypeScriptCompileAferBuild">
-    <Message Importance="high" Text="Copying package.json $(PackageJsonFile) file to $(WasmAppDir)/package.json"></Message>
-    <Copy ContinueOnError="false" SourceFiles="$(PackageJsonFile)" DestinationFiles="$(WasmAppDir)/package.json" />
-  </Target>
-
-  <Target Name="RepublishDeps" AfterTargets="WasmTriggerPublishApp" DependsOnTargets="InitializeWasmAppDir" Condition="!Exists('$(WasmAppDir)/WasmCompiler.js')">
-    <Message Importance="high" Text="Rerunning compile step as previous outputs have been overwritten by the WasmTriggerPublishApp target" />
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="_TypeScriptCompileAferBuild;_CopyPackageJsonToWasmAppDir" Properties="_RanTscDependencyCheck=$(_RanTscDependencyCheck);WasmAppDir=$(WasmAppDir)">
-    </MSBuild>
-  </Target>
-
-
-
-  <!-- Regenerate generated imports file only when bundle generation is also run -->  <!--
-  -->  <!-- WasmNestedPublishAppResultItems only exists when a bundle has been generated -->  <!--
-  <Target Name="GatherFilesForBundlerIntegration" AfterTargets="WasmTriggerPublishApp">
-    -->  <!--Condition="'@(_WasmAssembliesInternal);@(WasmExtraFilesToDeploy);$(WasmIcuDataFileName);@(WasmNativeAsset)' != ''"-->  <!--
-    -->  <!--Inputs="@(WasmNestedPublishAppResultItems)" Outputs="$(WasmAppDir)/assets.g.ts"-->  <!--
+  <!-- TODO: We currently always run this target, even the repeated time during WasmBuildingForNestedPublish -->
+  <!-- Investigate caching the built files somewhere during build then recreating the Content items -->
+  <Target Name="_TypeScriptCompileAferBuild" AfterTargets="_EnsureTypeScriptOfRequiredVersionInstalled" DependsOnTargets="_EnsureTypeScriptOfRequiredVersionInstalled">
+    <Message Importance="high" Text="Compiling TypeScript code to $(MSBuildThisFileDirectory)/typescript"></Message>
+    <Exec Command="pnpm exec tsc -p ./tsconfig.json -outDir $(MSBuildThisFileDirectory)/$(OutputPath)/typescript"></Exec>
 
     <ItemGroup>
-      <_CollectedAssets Include="@(_WasmAssembliesInternal);@(WasmExtraFilesToDeploy);$(WasmIcuDataFileName);@(WasmNativeAsset)" />
-      <_CollectedAssets Include="@(FileWrites)" />
+      <WasmSharpPackageDeps Include="$(MSBuildThisFileDirectory)/$(OutputPath)/typescript/**/*.js" />
+      <WasmSharpPackageDeps Include="$(MSBuildThisFileDirectory)/$(OutputPath)/typescript/**/*.d.ts" />
+      <WasmSharpPackageDeps Include="$(MSBuildThisFileDirectory)/$(OutputPath)/typescript/**/*.map" />
     </ItemGroup>
-
-    <ItemGroup>
-      -->  <!-- I have no clue why the .Contains in the Condition works (after calling NormalizePath) - the same pattern does not work in the Include -->  <!--
-      -->  <!--<_FilePathsForImport Include="@(_CollectedAssets->'%(FullPath)')" Condition="'$([MSBuild]::NormalizePath(%(_CollectedAssets.Identity)).Contains($(WasmAppDir)))'" />-->  <!--
-      -->  <!--<_FilePathsForImport Include="@(_CollectedAssets->'$([MSBuild]::NormalizePath(%(Identity)))')" Condition="'$([MSBuild]::NormalizePath(%(_CollectedAssets.Identity)).Contains($(WasmAppDir)))'" />-->  <!--
-
-      -->  <!-- TODO: Convert to use https://learn.microsoft.com/en-us/visualstudio/msbuild/findunderpath-task?view=vs-2022 FindUnderPath task instead-->  <!--
-      <_PathsForImport Include="@(_CollectedAssets)">
-        <IsMatch>$([System.String]::Copy('%(_CollectedAssets.FullPath)').Contains($(WasmAppDir)))</IsMatch>
-        <ActualPath>'%(_CollectedAssets.FullPath)'</ActualPath>
-      </_PathsForImport>
-
-      <_FilePathsForImport Include="@(_PathsForImport->'%(ActualPath)')" Condition="'%(_PathsForImport.IsMatch)'" />
-    </ItemGroup>
-
-    <Message Importance="high" Text="Extensions:" />
-    <Message Importance="high" Text="%(_FilePathsForImport.Extension)" />
   </Target>
 
-  <Target Name="WriteImportsFileForBundlerIntegration" AfterTargets="GatherFilesForBundlerIntegration" Condition="@(_FilePathsForImport-&gt;Count()) &gt; 0">
-    <Message Importance="high" Text="Generating assets.g.ts imports file." />
-
-    <PropertyGroup>
-      <_WasmAppDirSubstringLength>$([MSBuild]::Add($(WasmAppDir.Length), 1))</_WasmAppDirSubstringLength>
-    </PropertyGroup>
-
+  <Target Name="_AddPackageJsonToPackageDeps" AfterTargets="_WasmBuildTarget">
     <ItemGroup>
-      -->  <!-- Workaround the limitation that we cannot call functions on metadata items, instead we create a new metadata
-           item with the function call applied to that.
-      -->  <!--
-      <_ProcessPaths Include="@(_FilePathsForImport)">
-        <Transform>$([System.String]::Copy('%(_FilePathsForImport.Identity)').Substring($(_WasmAppDirSubstringLength)))</Transform>
-      </_ProcessPaths>
-      
-      <_RelativePathsForImport Include="@(_ProcessPaths->'%(Transform)')" />
-      <_LinesDefault Include="@(_RelativePathsForImport->'import &quot;./%(Identity)&quot;;')" />
-      
-      <_ProcessPaths2 Include="@(_LinesDefault)">
-        <Transform2>$([System.String]::Copy('%(_LinesDefault.Identity)').Replace("\", "/"))</Transform2>
-      </_ProcessPaths2>
-      
-      <_Lines Include="@(_ProcessPaths2->'%(Transform2)')" />
+      <WasmSharpPackageDeps Include="../package.json" />
     </ItemGroup>
-    
-    <WriteLinesToFile Overwrite="true" File="$(WasmAppDir)/assets.g.ts" Lines="@(_Lines)" />
-  </Target>-->
+  </Target>
+
+  <Target Name="_CopyWasmSharpPackageDeps" AfterTargets="_WasmBuildTarget" DependsOnTargets="_WasmBuildTarget;_TypeScriptCompileAferBuild;_AddDotnetTypesToPackageDeps;_AddPackageJsonToPackageDeps">
+    <ItemGroup>
+      <Content Include="@(WasmSharpPackageDeps)">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        <Link>wwwroot/_framework/%(RecursiveDir)%(Filename)%(Extension)</Link>
+      </Content>
+    </ItemGroup>
+  </Target>
 
 </Project>

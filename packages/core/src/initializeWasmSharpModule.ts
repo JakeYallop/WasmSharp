@@ -1,5 +1,14 @@
-import { dotnet as dotnetHostBuilder, type MonoConfig, type DotnetModuleConfig, DotnetHostBuilder } from "./dotnet.js";
-import type { WasmSharpModuleOptions, AssemblyExports, WasmSharpModuleCallbacks } from "./WasmCompiler.js";
+import {
+  dotnet as dotnetHostBuilder,
+  type MonoConfig,
+  type DotnetModuleConfig,
+  DotnetHostBuilder,
+} from "./dotnet.js";
+import type {
+  WasmSharpModuleOptions,
+  AssemblyExports,
+  WasmSharpModuleCallbacks,
+} from "./WasmCompiler.js";
 
 function getDirectory(path: string) {
   var index = path.lastIndexOf("/");
@@ -45,6 +54,7 @@ export async function initializeWasmSharpModule(
   const { getAssemblyExports, getConfig } = await hostBuilder
     .withModuleConfig({
       onConfigLoaded(config: MonoConfig) {
+        console.log("WasmSharp: Config loaded", config);
         resourcesToLoad = Object.keys(config.resources?.assembly ?? {}).length;
         resourcesToLoad += Object.keys(config.resources?.pdb ?? {}).length;
         resourcesToLoad += Object.keys(config.resources?.icu ?? {}).length;
@@ -65,11 +75,11 @@ export async function initializeWasmSharpModule(
     .withConfig({
       //TODO: Figure out why we need this, broken since dotnet sdk update to 8.0.101
       disableIntegrityCheck: true,
-      cacheBootResources: true,
     })
     .create();
 
   const config = getConfig();
+  console.log("WasmSharp: Config loaded", config);
   const assemblyExports: AssemblyExports = await getAssemblyExports(config.mainAssemblyName!);
   const compilationInterop = assemblyExports.WasmSharp.Core.CompilationInterop;
   //TODO: Handle nested assets folder (WasmRuntimeAssetsLocation)z

@@ -13,15 +13,15 @@ internal sealed class WasmSolution(ILogger<WasmSolution> logger)
     private static readonly Dictionary<string, CodeSession> CompilationCache = [];
     private readonly ILogger<WasmSolution> _logger = logger;
 
-    internal static async Task InitializeAsync(string publicUrl, BootJsonData config)
+    internal static async Task InitializeAsync(string publicUrl, string[] config)
     {
         var resolver = new WasmMetadataReferenceResolver(publicUrl);
         var referenceTasks = new ConcurrentBag<Task<MetadataReference>>();
 
-        foreach (var asset in config.Resources.CoreAssembly.Concat(config.Resources.Assembly))
+        foreach (var asset in config)
         {
             //TODO: Handle WasmRuntimeAssetsLocation correctly here
-            referenceTasks.Add(resolver.ResolveReferenceAsync("./", asset.Key));
+            referenceTasks.Add(resolver.ResolveReferenceAsync("./", asset));
         }
         var references = await Task.WhenAll(referenceTasks).ConfigureAwait(false);
         foreach (var reference in references)

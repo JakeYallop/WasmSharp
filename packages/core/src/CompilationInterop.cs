@@ -17,11 +17,11 @@ internal sealed partial class CompilationInterop
 
     //TODO: Make idempotent
     [JSExport]
-    public static Task InitAsync(string publicUrl, string bootJsonData)
+    public static Task InitAsync(string publicUrl, string assemblies)
     {
         var logger = Host.Services.GetService<ILogger<CompilationInterop>>();
         logger.LogInformation($"Loading files from {publicUrl}");
-        var monoConfig = JsonSerializer.Deserialize(bootJsonData, JsonContext.Default.BootJsonData)!;
+        var monoConfig = JsonSerializer.Deserialize(assemblies, JsonContext.Default.StringArray)!;
         logger.LogInformation("Successfully deserialized config.");
         return Host.Dispatch(solution => WasmSolution.InitializeAsync(publicUrl, monoConfig));
     }

@@ -15,7 +15,7 @@
     "moduleResolution": "Bundler",
     "resolveJsonModule": true
   },
-  "exclude": ["node_modules", "src/bin", "src/obj", "dist/**", "src/publish"],
+  "exclude": ["node_modules", "src/bin", "src/obj", "dist/**", "src/publish", "src/wwwroot"],
   "include": ["src"],
   "extends": "../../tsconfig.json"
 }

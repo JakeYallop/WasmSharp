@@ -14,10 +14,18 @@ export class WasmSharpWebWorker {
     return this;
   }
   async initializeAsync(options?: any) {
-    const onConfigLoaded = (config: MonoConfig) => postMessage({ type: "configLoaded", config });
+    const onConfigLoaded = (config: MonoConfig) =>
+      postMessage({ type: "configLoaded", config: null! });
     const onDownloadResourceProgress = (loaded: number, total: number) =>
-      postMessage({ type: "downloadResourceProgress", loadedResources: loaded, totalResources: total });
-    this.interop = await initializeWasmSharpModule(options, { onConfigLoaded, onDownloadResourceProgress });
+      postMessage({
+        type: "downloadResourceProgress",
+        loadedResources: loaded,
+        totalResources: total,
+      });
+    this.interop = await initializeWasmSharpModule(options, {
+      onConfigLoaded,
+      onDownloadResourceProgress,
+    });
   }
   createCompilationAsync(code: string): Compilation {
     this.#ensureInitialized();
