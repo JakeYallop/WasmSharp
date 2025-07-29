@@ -1,8 +1,8 @@
 {
   "name": "@wasmsharp/core",
   "version": "0.0.9",
-  "exports": "./bin/Release/net10.0/",
-  "types": "./index.d.ts",
+  "exports": "./src/bin/Release/net10.0/publish/wwwroot/_framework/index.js",
+  "types": "./src/bin/Release/net10.0/publish/wwwroot/_framework/index.d.ts",
   "scripts": {
     "watch": "tsc --watch",
     "build": "dotnet publish -c Release"

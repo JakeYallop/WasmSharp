@@ -13,6 +13,8 @@ import * as styles from "./Playground.css";
 
 const Playground: Component = () => {
   const wasmSharpOptions: WasmSharpOptions = {
+    disableWebWorker: true,
+    enableDiagnosticTracing: true,
     onConfigLoaded(config) {
       console.log(config);
     },
@@ -23,7 +25,6 @@ const Playground: Component = () => {
       });
     },
     debugLevel: 1,
-    enableDiagnosticTracing: false,
   };
 
   const context = WasmSharpModule.initializeAsync(wasmSharpOptions);

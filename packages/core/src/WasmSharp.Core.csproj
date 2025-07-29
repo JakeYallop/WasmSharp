@@ -125,9 +125,35 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="_AddPackageJsonToPackageDeps" AfterTargets="_WasmBuildTarget">
+  <Target Name="_CreateModifiedPackageJson" BeforeTargets="_AddPackageJsonToPackageDeps">
+    <PropertyGroup>
+      <OriginalPackageJsonPath>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)/../package.json'))</OriginalPackageJsonPath>
+      <ModifiedPackageJsonPath>$(OutputPath)package.json</ModifiedPackageJsonPath>
+      <PathToStrip>./src/bin/$(Configuration)/$(TargetFramework)/publish/wwwroot/_framework/</PathToStrip>
+    </PropertyGroup>
+
+    <Copy SourceFiles="$(OriginalPackageJsonPath)" DestinationFiles="$(ModifiedPackageJsonPath)" />
+
+    <ReadLinesFromFile File="$(ModifiedPackageJsonPath)">
+      <Output TaskParameter="Lines" ItemName="OriginalJsonLines" />
+    </ReadLinesFromFile>
+
     <ItemGroup>
-      <WasmSharpPackageDeps Include="../package.json" />
+      <ModifiedJsonLines Include="@(OriginalJsonLines)">
+        <ModifiedLine>$([System.String]::Copy('%(Identity)').Replace('$(PathToStrip)', './'))</ModifiedLine>
+      </ModifiedJsonLines>
+    </ItemGroup>
+
+    <WriteLinesToFile File="$(ModifiedPackageJsonPath)" Lines="@(ModifiedJsonLines->'%(ModifiedLine)')" Overwrite="true" />
+
+    <ItemGroup>
+      <FileWrites Include="$(ModifiedPackageJsonPath)" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="_AddPackageJsonToPackageDeps" AfterTargets="_WasmBuildTarget" DependsOnTargets="_CreateModifiedPackageJson">
+    <ItemGroup>
+      <WasmSharpPackageDeps Include="$(OutputPath)package.json" />
     </ItemGroup>
   </Target>
 

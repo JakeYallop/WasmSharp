@@ -28,8 +28,8 @@ export default defineConfig(({ mode }) => {
         identifiers: mode === "development" ? "debug" : "short",
       }),
       wasmSharpRewriteImportsForWorkspace(),
-      wasmSharpCopyAssets(),
     ],
+    assetsInclude: ["**/*.dll", "**/*.wasm", "**/*.dat"],
     server: {
       fs: {
         strict: false,
@@ -59,7 +59,7 @@ function resolveInternalMonorepoPath(disableErrorOnFailure?: boolean): string | 
   const cwd = process.cwd();
   const releasePath = path.join(
     cwd,
-    "../packages/core/src/bin/Release/net10.0/browser-wasm/AppBundle/WasmCompiler.js"
+    "../packages/core/src/bin/Release/net10.0/publish/wwwroot/_framework/WasmCompiler.js"
   );
 
   if (fs.existsSync(releasePath)) {
