@@ -1,0 +1,38 @@
+{
+  "name": "@wasmsharp/vite-plugin",
+  "version": "0.10.0",
+  "description": "A plugin for using WasmSharp with vite.",
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "default": "./dist/index.mjs",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "vite",
+    "plugin",
+    "wasm",
+    "webassembly",
+    "wasmsharp"
+  ],
+  "scripts": {
+    "build": "unbuild",
+    "dev": "unbuild --watch"
+  },
+  "dependencies": {
+    "vite": "catalog:"
+  },
+  "devDependencies": {
+    "unbuild": "catalog:",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "vite": "^6.0.0"
+  }
+}

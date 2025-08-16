@@ -1,12 +1,7 @@
 import { Plugin } from "vite";
 import AST from "unplugin-ast/vite";
 import { type Transformer } from "unplugin-ast";
-import type {
-  CallExpression,
-  Expression,
-  ImportExpression,
-  MemberExpression,
-} from "@babel/types";
+import type { Expression, ImportExpression } from "@babel/types";
 import * as generate from "@babel/generator";
 
 export interface Options {
@@ -14,15 +9,13 @@ export interface Options {
 }
 
 const GetExpressionString = (node: Expression): string => {
-  const { code } = generate.generate(node, { comments: false, compact: true})
+  const { code } = generate.generate(node, { comments: false, compact: true });
   return code;
 };
 
 const AddViteIgnoreToDynamicImport = (): Transformer<ImportExpression> => ({
   onNode(node) {
-    return (
-      node.type === "ImportExpression"
-    );
+    return node.type === "ImportExpression";
   },
   async transform(node, code) {
     const exp = GetExpressionString(node.source);

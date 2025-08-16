@@ -1,6 +1,7 @@
 packages:
   - packages/vite-plugin-ignore-dynamic-imports
   - packages/core
+  - packages/vite-plugin
   - playground
   - tools/icon-processor
   - packages/rollup-plugin/tests/projects/*
@@ -56,4 +57,3 @@ catalog:
   vitefu: ^1.0.6
   vite: ^6.3.5
   vitest: ^3.2.2
-

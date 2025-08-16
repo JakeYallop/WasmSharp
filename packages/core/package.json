@@ -1,11 +1,13 @@
 {
   "name": "@wasmsharp/core",
-  "version": "0.0.9",
+  "version": "0.10.0",
   "exports": "./src/bin/Release/net10.0/publish/wwwroot/_framework/index.js",
   "types": "./src/bin/Release/net10.0/publish/wwwroot/_framework/index.d.ts",
   "scripts": {
     "watch": "tsc --watch",
-    "build": "dotnet publish -c Release"
+    "build": "dotnet publish -c Release",
+    "core:pack": "cd ./src/bin/Release/net10.0/publish/wwwroot/_framework && pnpm pack"
+
   },
   "devDependencies": {
     "typescript": "catalog:"
