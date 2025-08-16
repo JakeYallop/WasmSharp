@@ -23,7 +23,6 @@
     "@vanilla-extract/css-utils": "catalog:",
     "@vanilla-extract/vite-plugin": "catalog:",
     "@vitejs/plugin-basic-ssl": "catalog:",
-    "@wasmsharp/rollup-plugin": "workspace:^",
     "postcss-nesting": "catalog:",
     "postcss-scrollbar": "catalog:",
     "tinycolor2": "catalog:",

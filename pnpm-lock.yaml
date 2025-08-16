@@ -105,12 +105,6 @@ catalogs:
     postcss-scrollbar:
       specifier: ^0.5.1
       version: 0.5.1
-    prettier:
-      specifier: ^3.6.2
-      version: 3.6.2
-    rollup:
-      specifier: ^4.41.2
-      version: 4.45.1
     solid-js:
       specifier: ^1.9.7
       version: 1.9.7
@@ -159,21 +153,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
-
-  packages/rollup-plugin:
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 24.0.15
-      prettier:
-        specifier: 'catalog:'
-        version: 3.6.2
-      rollup:
-        specifier: 'catalog:'
-        version: 4.45.1
-      unbuild:
-        specifier: 'catalog:'
-        version: 3.5.0(typescript@5.8.3)
 
   packages/vite-plugin-ignore-dynamic-imports:
     dependencies:
@@ -278,9 +257,6 @@ importers:
       '@vitejs/plugin-basic-ssl':
         specifier: 'catalog:'
         version: 2.1.0(vite@6.3.5(@types/node@24.0.15)(jiti@2.4.2))
-      '@wasmsharp/rollup-plugin':
-        specifier: workspace:^
-        version: link:../packages/rollup-plugin
       postcss-nesting:
         specifier: 'catalog:'
         version: 13.0.2(postcss@8.5.6)
@@ -1934,11 +1910,6 @@ packages:
   postcss@8.5.6:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
-
-  prettier@3.6.2:
-    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
-    engines: {node: '>=14'}
-    hasBin: true
 
   pretty-bytes@6.1.1:
     resolution: {integrity: sha512-mQUvGU6aUFQ+rNvTIAcZuWGRT9a6f6Yrg9bHs4ImKF+HZCEK+plBvnAZYSIQztknZF2qnzNtr6F8s0+IuptdlQ==}
@@ -3832,8 +3803,6 @@ snapshots:
       nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
-
-  prettier@3.6.2: {}
 
   pretty-bytes@6.1.1: {}
 

@@ -1,6 +1,5 @@
 packages:
   - packages/vite-plugin-ignore-dynamic-imports
-  - packages/rollup-plugin
   - packages/core
   - playground
   - tools/icon-processor

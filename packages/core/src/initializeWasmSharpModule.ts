@@ -29,26 +29,6 @@ export async function initializeWasmSharpModule(
   };
   const hostBuilder: InternalsHostBuilder = dotnetHostBuilder as InternalsHostBuilder;
 
-  //see https://github.com/dotnet/runtime/issues/97787 for why this is necessary
-  //running in a service worker, patch these properties to enable Cache use.
-  if (!globalThis.document) {
-    globalThis.document = {
-      baseURI: "",
-      //@ts-expect-error
-      location: {
-        origin: "",
-      },
-      window: {
-        isSecureContext: globalThis.isSecureContext,
-      },
-    };
-
-    //@ts-expect-error
-    self.window = {
-      isSecureContext: globalThis.isSecureContext,
-    };
-  }
-
   const time = performance.now();
   let resourcesToLoad = 0;
   const { getAssemblyExports, getConfig } = await hostBuilder
@@ -88,7 +68,25 @@ export async function initializeWasmSharpModule(
   const diff1 = performance.now() - time;
   console.log(`Finished initialising runtime in ${diff1}ms`);
   console.log(`Using following location for assemblies: ${resolvedAssembliesUrl}`);
-  await compilationInterop.InitAsync(resolvedAssembliesUrl, JSON.stringify(config));
+  const resources = config.resources;
+
+  if (!resources) {
+    throw new Error("WasmSharp: No resources found in config");
+  }
+
+  if (!resources.assembly || !resources.coreAssembly || !resources.satelliteResources) {
+    throw new Error("WasmSharp: config is malformed, no assemblies found");
+  }
+
+  const assembliesAssets = resources.coreAssembly.concat(resources.assembly);
+  const satelliteAssemblies = Object.entries(resources.satelliteResources)
+    .map(([culture, assets]) => assets.map((asset) => `${culture}/${asset.virtualPath}`))
+    .flat();
+
+  const assemblies = assembliesAssets.map((x) => x.virtualPath).concat(satelliteAssemblies);
+
+  // TODO: consider using resolvedUrl here, and update InitAsync to support this. Then we don't need the resolvedAssembliesUrl
+  await compilationInterop.InitAsync(resolvedAssembliesUrl, JSON.stringify(assemblies));
   const diff2 = performance.now() - time;
   console.log(`Finished loading assemblies in ${diff2}ms`);
   return compilationInterop;

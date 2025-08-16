@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
-using WasmSharp.Core.Platform;
 
 namespace WasmSharp.Core.Services;
 
@@ -13,14 +12,14 @@ internal sealed class WasmSolution(ILogger<WasmSolution> logger)
     private static readonly Dictionary<string, CodeSession> CompilationCache = [];
     private readonly ILogger<WasmSolution> _logger = logger;
 
-    internal static async Task InitializeAsync(string publicUrl, string[] config)
+    internal static async Task InitializeAsync(string publicUrl, string[] assemblies)
     {
         var resolver = new WasmMetadataReferenceResolver(publicUrl);
         var referenceTasks = new ConcurrentBag<Task<MetadataReference>>();
 
-        foreach (var asset in config)
+        foreach (var asset in assemblies)
         {
-            //TODO: Handle WasmRuntimeAssetsLocation correctly here
+            // Resolve the assembly reference asynchronously
             referenceTasks.Add(resolver.ResolveReferenceAsync("./", asset));
         }
         var references = await Task.WhenAll(referenceTasks).ConfigureAwait(false);

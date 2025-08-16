@@ -14,9 +14,11 @@ import * as styles from "./Playground.css";
 const Playground: Component = () => {
   const wasmSharpOptions: WasmSharpOptions = {
     disableWebWorker: true,
-    enableDiagnosticTracing: true,
+    enableDiagnosticTracing: import.meta.env.DEV,
     onConfigLoaded(config) {
-      console.log(config);
+      if (import.meta.env.DEV) {
+        console.log(config);
+      }
     },
     onDownloadResourceProgress(loadedResources, totalResources) {
       batch(() => {

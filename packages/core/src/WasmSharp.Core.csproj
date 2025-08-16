@@ -11,11 +11,6 @@
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
 
-    <!--TODO: Write this variable to an env file to be read by Vite during build, so that assembly lookup is done correctly -->
-    <!--TODO: How would we use this in the plugin/export it from WasmCompiler? -->
-    <WasmRuntimeAssetsLocation>./</WasmRuntimeAssetsLocation>
-
-    <!-- <WasmBootConfigFileName>dotnet.boot.json</WasmBootConfigFileName> -->
     <WasmFingerprintAssets>false</WasmFingerprintAssets>
     <CompressionEnabled>false</CompressionEnabled>
     <WasmBundlerFriendlyBootConfig>true</WasmBundlerFriendlyBootConfig>
@@ -50,15 +45,6 @@
   <PropertyGroup>
     <PackageJsonFile>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)/../package.json'))</PackageJsonFile>
   </PropertyGroup>
-
-  <!-- WasmAppDir is not defined yet. -->
-  <!-- hardcoded for now until https://github.com/dotnet/runtime/issues/77285 -->
-  <ItemGroup>
-    <!-- TODO: Replace with a transform *.ts -> *.js to handle all files and nested files, alos verify if this actually works, as the ts files will be built and so will be different -->
-    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/main.js" Original="$(MSBuildThisFileDirectory)/main.ts" />
-    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/WasmCompiler.js" Original="$(MSBuildThisFileDirectory)/WasmCompiler.ts" />
-    <UpToDateCheckBuilt Include="$(OutputPath)/AppBundle/package.json" Original="$(PackageJsonFile)" />
-  </ItemGroup>
 
   <ItemGroup Condition="'$(PublishTrimmed)' == 'True'">
     <!-- ILLink -->
@@ -134,24 +120,21 @@
 
     <Copy SourceFiles="$(OriginalPackageJsonPath)" DestinationFiles="$(ModifiedPackageJsonPath)" />
 
-    <ReadLinesFromFile File="$(ModifiedPackageJsonPath)">
-      <Output TaskParameter="Lines" ItemName="OriginalJsonLines" />
-    </ReadLinesFromFile>
+    <!-- Read entire file as single string and replace -->
+    <PropertyGroup>
+      <PackageJsonContent>$([System.IO.File]::ReadAllText('$(ModifiedPackageJsonPath)'))</PackageJsonContent>
+      <ModifiedContent>$(PackageJsonContent.Replace('$(PathToStrip)', './'))</ModifiedContent>
+    </PropertyGroup>
 
-    <ItemGroup>
-      <ModifiedJsonLines Include="@(OriginalJsonLines)">
-        <ModifiedLine>$([System.String]::Copy('%(Identity)').Replace('$(PathToStrip)', './'))</ModifiedLine>
-      </ModifiedJsonLines>
-    </ItemGroup>
-
-    <WriteLinesToFile File="$(ModifiedPackageJsonPath)" Lines="@(ModifiedJsonLines->'%(ModifiedLine)')" Overwrite="true" />
+    <!-- Write back the modified content -->
+    <WriteLinesToFile File="$(ModifiedPackageJsonPath)" Lines="$(ModifiedContent)" Overwrite="true" />
 
     <ItemGroup>
       <FileWrites Include="$(ModifiedPackageJsonPath)" />
     </ItemGroup>
   </Target>
 
-  <Target Name="_AddPackageJsonToPackageDeps" AfterTargets="_WasmBuildTarget" DependsOnTargets="_CreateModifiedPackageJson">
+  <Target Name="_AddPackageJsonToPackageDeps" AfterTargets="_WasmBuildTarget">
     <ItemGroup>
       <WasmSharpPackageDeps Include="$(OutputPath)package.json" />
     </ItemGroup>
