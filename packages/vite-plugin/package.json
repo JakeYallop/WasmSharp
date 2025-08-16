@@ -26,7 +26,8 @@
     "dev": "unbuild --watch"
   },
   "dependencies": {
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "vite-plugin-ignore-dynamic-imports": "workspace:*"
   },
   "devDependencies": {
     "unbuild": "catalog:",

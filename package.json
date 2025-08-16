@@ -12,10 +12,10 @@
     "build:playground": "pnpm --filter playground run build",
     "build:core": "pnpm --filter core build",
     "build:vite-plugin": "pnpm --filter @wasmsharp/vite-plugin run build",
+    "build:imports-plugin": "pnpm --filter vite-plugin-ignore-dynamic-imports run build",
     "serve": "pnpm --filter playground serve",
     "build-serve": "pnpm run build:playground && pnpm run serve",
     "all": "pnpm run build:core && pnpm run build-serve",
-    "build:imports-plugin": "pnpm --filter vite-plugin-ignore-dynamic-imports run build",
     "core:pack": "pnpm --filter core core:pack"
   },
   "devDependencies": {
