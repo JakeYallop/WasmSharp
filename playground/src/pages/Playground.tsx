@@ -13,7 +13,6 @@ import * as styles from "./Playground.css";
 
 const Playground: Component = () => {
   const wasmSharpOptions: WasmSharpOptions = {
-    disableWebWorker: true,
     enableDiagnosticTracing: import.meta.env.DEV,
     onConfigLoaded(config) {
       if (import.meta.env.DEV) {
