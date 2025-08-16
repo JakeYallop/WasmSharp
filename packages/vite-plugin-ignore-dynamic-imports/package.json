@@ -1,7 +1,7 @@
 {
   "name": "vite-plugin-ignore-dynamic-imports",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Vite plugin that automatically adds /* @vite-ignore */ comments to dynamic imports",
   "type": "module",
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -11,13 +11,36 @@
       "import": "./dist/index.mjs"
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JakeYallop/WasmSharp.git",
+    "directory": "packages/vite-plugin-ignore-dynamic-imports"
+  },
+  "bugs": {
+    "url": "https://github.com/JakeYallop/WasmSharp/issues"
+  },
+  "homepage": "https://github.com/JakeYallop/WasmSharp/tree/main/packages/vite-plugin-ignore-dynamic-imports",
+  "author": "JakeYallop",
+  "license": "MIT",
+  "keywords": [
+    "vite",
+    "plugin",
+    "dynamic-imports",
+    "webassembly",
+    "vite-ignore",
+    "transform"
+  ],
   "scripts": {
-    "build": "unbuild"
+    "build": "unbuild",
+    "release": "pnpm build && pnpm publish"
+  },
+  "files": ["dist"],
+  "peerDependencies": {
+    "vite": "^6.0.0 || ^7.0.0"
   },
   "dependencies": {
     "unplugin-ast": "catalog:",
-    "@babel/generator": "catalog:",
-    "vite": "catalog:"
+    "@babel/generator": "catalog:"
   },
   "devDependencies": {
     "@babel/types": "catalog:",

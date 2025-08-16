@@ -17,7 +17,7 @@ const AddViteIgnoreToDynamicImport = (): Transformer<ImportExpression> => ({
   onNode(node) {
     return node.type === "ImportExpression";
   },
-  async transform(node, code) {
+  async transform(node) {
     const exp = GetExpressionString(node.source);
     return `import(/* @vite-ignore */${exp})`;
   },
