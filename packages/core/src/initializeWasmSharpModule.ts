@@ -34,7 +34,6 @@ export async function initializeWasmSharpModule(
   const { getAssemblyExports, getConfig } = await hostBuilder
     .withModuleConfig({
       onConfigLoaded(config: MonoConfig) {
-        console.log("WasmSharp: Config loaded", config);
         resourcesToLoad = Object.keys(config.resources?.assembly ?? {}).length;
         resourcesToLoad += Object.keys(config.resources?.pdb ?? {}).length;
         resourcesToLoad += Object.keys(config.resources?.icu ?? {}).length;
@@ -62,9 +61,8 @@ export async function initializeWasmSharpModule(
   console.log("WasmSharp: Config loaded", config);
   const assemblyExports: AssemblyExports = await getAssemblyExports(config.mainAssemblyName!);
   const compilationInterop = assemblyExports.WasmSharp.Core.CompilationInterop;
-  //TODO: Handle nested assets folder (WasmRuntimeAssetsLocation)z
   //TODO: Rewrite this to use new URL()
-  const resolvedAssembliesUrl = options?.assembliesUrl ?? getDirectory(import.meta.url);
+  const resolvedAssembliesUrl = new URL(options?.assembliesUrl ?? getDirectory(import.meta.url));
   const diff1 = performance.now() - time;
   console.log(`Finished initialising runtime in ${diff1}ms`);
   console.log(`Using following location for assemblies: ${resolvedAssembliesUrl}`);
@@ -79,14 +77,22 @@ export async function initializeWasmSharpModule(
   }
 
   const assembliesAssets = resources.coreAssembly.concat(resources.assembly);
-  const satelliteAssemblies = Object.entries(resources.satelliteResources)
-    .map(([culture, assets]) => assets.map((asset) => `${culture}/${asset.virtualPath}`))
-    .flat();
+  const satelliteAssemblies = Object.values(resources.satelliteResources).flatMap(
+    (assets) => assets
+  );
 
-  const assemblies = assembliesAssets.map((x) => x.virtualPath).concat(satelliteAssemblies);
+  const assemblies = assembliesAssets
+    .map((x) => x)
+    .concat(satelliteAssemblies)
+    .filter((x) => {
+      if (!x.resolvedUrl) {
+        console.debug("WasmSharp: resolved URL is empty, skipping assembly", x.virtualPath);
+      }
+      return !!x.resolvedUrl;
+    })
+    .map((x) => new URL(x.resolvedUrl!, resolvedAssembliesUrl).href);
 
-  // TODO: consider using resolvedUrl here, and update InitAsync to support this. Then we don't need the resolvedAssembliesUrl
-  await compilationInterop.InitAsync(resolvedAssembliesUrl, JSON.stringify(assemblies));
+  await compilationInterop.InitAsync(assemblies);
   const diff2 = performance.now() - time;
   console.log(`Finished loading assemblies in ${diff2}ms`);
   return compilationInterop;

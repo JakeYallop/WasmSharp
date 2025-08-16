@@ -12,15 +12,15 @@ internal sealed class WasmSolution(ILogger<WasmSolution> logger)
     private static readonly Dictionary<string, CodeSession> CompilationCache = [];
     private readonly ILogger<WasmSolution> _logger = logger;
 
-    internal static async Task InitializeAsync(string publicUrl, string[] assemblies)
+    internal static async Task InitializeAsync(string[] assemblies)
     {
-        var resolver = new WasmMetadataReferenceResolver(publicUrl);
+        var resolver = new WasmMetadataReferenceResolver();
         var referenceTasks = new ConcurrentBag<Task<MetadataReference>>();
 
         foreach (var asset in assemblies)
         {
             // Resolve the assembly reference asynchronously
-            referenceTasks.Add(resolver.ResolveReferenceAsync("./", asset));
+            referenceTasks.Add(resolver.ResolveReferenceAsync(asset));
         }
         var references = await Task.WhenAll(referenceTasks).ConfigureAwait(false);
         foreach (var reference in references)

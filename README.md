@@ -1,3 +1,5 @@
+Compile and run C# programs locally from your web browser, no server necessary. Diagnostics and (some) completions are supported.
+
 ## See the demo
 
 https://wasmsharp.pages.dev/
@@ -20,6 +22,7 @@ console.log(result.stdOut); // Hello World!
 const module = await WasmSharpModule.initializeAsync()
 const compilation = await module.createCompilationAsync(`
   using System;
+  // intentional error - missing Console in front of "WriteLine"
   WriteLine("Hello World!");
 `)
 const result = await compilation.run();

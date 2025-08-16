@@ -1,29 +1,16 @@
-﻿using System.Reflection;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 
 namespace WasmSharp.Core.Services;
 
-public class WasmMetadataReferenceResolver : MetadataReferenceResolver
+public class WasmMetadataReferenceResolver
 {
     private static readonly HttpClient Client = new();
-    private readonly string _publicUrl;
-    public WasmMetadataReferenceResolver(string publicUrl)
-    {
-        if (Path.GetExtension(publicUrl) is not "" || !Uri.IsWellFormedUriString(publicUrl, UriKind.Absolute))
-        {
-            throw new ArgumentException($"Uri '{publicUrl}' should be a directory, and is not well formed.", nameof(publicUrl));
-        }
-        _publicUrl = publicUrl;
-    }
 
-    public override Task<MetadataReference> ResolveReferenceAsync(Assembly assembly)
+#pragma warning disable CA1822 // Mark members as static
+    public async Task<MetadataReference> ResolveReferenceAsync(string assembly)
+#pragma warning restore CA1822 // Mark members as static
     {
-        throw new NotImplementedException();
-    }
-
-    public async Task<MetadataReference> ResolveReferenceAsync(string rootFolder, string assembly)
-    {
-        var url = new Uri(Path.Combine(_publicUrl, rootFolder, assembly));
+        var url = new Uri(assembly, UriKind.Absolute);
         var response = await Client.GetAsync(url).ConfigureAwait(false);
         var byteStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
         return MetadataReference.CreateFromStream(byteStream, new(MetadataImageKind.Assembly), filePath: url.AbsolutePath);
