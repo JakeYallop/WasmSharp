@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-ignore-dynamic-imports",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Vite plugin that automatically adds /* @vite-ignore */ comments to dynamic imports",
   "type": "module",
   "main": "./dist/index.mjs",
@@ -26,9 +26,10 @@
     "vite",
     "plugin",
     "dynamic-imports",
-    "webassembly",
     "vite-ignore",
-    "transform"
+    "transform",
+    "imports",
+    "import-analysis"
   ],
   "scripts": {
     "build": "unbuild",
