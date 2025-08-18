@@ -1,6 +1,9 @@
-Compile and run C# programs locally from your web browser, no server necessary. Diagnostics and (some) completions are supported.
+<h2 align='center'><samp>WasmSharp</samp></h2>
 
-## See the demo
+<p align='center'>
+Compile and run C# programs locally from your web browser, no server necessary. Diagnostics and completions are supported.</p>
+
+## Live demo
 
 https://wasmsharp.pages.dev/
 
