@@ -1,6 +1,6 @@
 {
   "name": "@wasmsharp/core",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "exports": "./src/bin/Release/net10.0/publish/wwwroot/_framework/index.js",
   "types": "./src/bin/Release/net10.0/publish/wwwroot/_framework/index.d.ts",
   "scripts": {

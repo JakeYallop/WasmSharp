@@ -7,10 +7,21 @@ Compile and run C# programs locally from your web browser, no server necessary. 
 
 https://wasmsharp.pages.dev/
 
+## Install
+
+```bash
+npm i @wasmsharp/core
+# or
+yarn add @wasmsharp/core
+# or
+pnpm add @wasmsharp/core
+```
+
 ## Getting started
 
-Compile and run C# programs using WASM:
+Compile and run a basic C# program:
 ```typescript
+// downloads and initializes the .NET runtime, loads the Roslyn C# compiler
 const module = await WasmSharpModule.initializeAsync()
 const compilation = await module.createCompilationAsync(`
   using System;
