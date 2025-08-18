@@ -6,7 +6,7 @@
   "scripts": {
     "watch": "tsc --watch",
     "build": "dotnet publish -c Release",
-    "core:pack": "cd ./src/bin/Release/net10.0/publish/wwwroot/_framework && pnpm pack"
+    "pack:core": "cd ./src/bin/Release/net10.0/publish/wwwroot/_framework && pnpm pack --pack-destination ../../../../../../../"
 
   },
   "devDependencies": {

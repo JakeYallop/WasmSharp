@@ -1,7 +1,7 @@
 import type { Plugin, UserConfig } from "vite";
 import ignoreDynamicImports from "vite-plugin-ignore-dynamic-imports";
 
-export default function vitePluginWasmSharp(): Plugin[] {
+export default function wasmSharpPlugin(): Plugin[] {
   return [
     // prevent large import warnings in development
     ignoreDynamicImports({
@@ -34,4 +34,4 @@ export default function vitePluginWasmSharp(): Plugin[] {
   ];
 }
 
-export { vitePluginWasmSharp };
+export { wasmSharpPlugin };

@@ -11,6 +11,7 @@ import basicSsl from "@vitejs/plugin-basic-ssl";
 import postCssNesting from "postcss-nesting";
 //@ts-expect-error
 import postCssScrollbar from "postcss-scrollbar";
+import wasmSharpPlugin from "@wasmsharp/vite-plugin";
 
 export default defineConfig(({ mode }) => {
   return {
@@ -26,13 +27,9 @@ export default defineConfig(({ mode }) => {
       vanillaExtractPlugin({
         identifiers: mode === "development" ? "debug" : "short",
       }),
-      wasmSharpRewriteImportsForWorkspace(),
+      wasmSharpPlugin(),
     ],
-    assetsInclude: ["**/*.dll", "**/*.wasm", "**/*.dat"],
     server: {
-      fs: {
-        strict: false,
-      },
       port: 3000,
     },
     css: {
@@ -42,9 +39,6 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       target: "esnext",
-    },
-    worker: {
-      format: "es",
     },
     test: {
       environment: "node",

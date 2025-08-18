@@ -4,3 +4,4 @@
 #ignore tsbuildinfo files
 
 *.tsbuildinfo
+*.tgz
